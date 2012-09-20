@@ -12,6 +12,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import requests.LogInRequest;
+import requests.XMLParsable;
+
+import network.ClientConnection;
+
 public class LogInPanel extends JPanel {
 
 	private GridBagConstraints c;
@@ -51,6 +56,15 @@ public class LogInPanel extends JPanel {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO Auto-generated method stub
 			
+			ClientConnection con = new ClientConnection();
+			con.connect("192.168.1.7", 13337);
+			con.send(new LogInRequest(usernameField.getText(), passwordField.getText()).toXml());
+			LogInRequest resp = (LogInRequest)XMLParsable.toObject(con.receive());
+			if(resp.isAccepted()) {
+				System.out.println("LOG IN OK!");
+			} else {
+				System.out.println("LOG IN FAILED!");
+			}
 		}
 		
 	}
@@ -63,5 +77,6 @@ public class LogInPanel extends JPanel {
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setSize(f.getWidth() + 100, f.getHeight() + 100);
+		
 	}
 }

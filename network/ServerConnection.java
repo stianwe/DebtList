@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import logic.User;
 
 public class ServerConnection {
 
-	public static final int SERVER_PORT = 1337;
-	
+	private Map<String, User> users;
 	private List<ServerConnectionHandler> handlers;
 	
 	public ServerConnection() {
@@ -38,5 +40,15 @@ public class ServerConnection {
 				ss.close();
 			} catch (Exception e) {}
 		}
+	}
+	
+	public User getUser(String username) {
+		return users.get(username);
+	}
+	
+	public static void main(String[] args) {
+		ServerConnection server = new ServerConnection();
+		server.users.put("arnegopro", new User("arnegopro", "qazqaz"));
+		server.accept(13337);
 	}
 }

@@ -30,6 +30,12 @@ public class ClientConnection {
 		try {
 			connection.close();
 		} catch (Exception e) {}
+		try {
+			reader.close();
+		} catch (Exception e) {}
+		try {
+			writer.close();
+		} catch (Exception e) {}
 	}
 	
 	public void send(String msg) {
