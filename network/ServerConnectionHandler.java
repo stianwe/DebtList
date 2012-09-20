@@ -44,8 +44,9 @@ public class ServerConnectionHandler extends Thread {
 					System.out.println("Received log in request!");
 					LogInRequest req = (LogInRequest)o;
 					User user = serverConnection.getUser(req.getUserName());
-					if(user != null && user.getPassword().equals(req.getPassword())) {
+					if(user != null && user.getPassword().equals(req.getPassword()) && !user.isOnline()) {
 						System.out.println("Log in OK!");
+						user.setIsOnline(true);
 						req.setAccepted(true);
 						if(req.isAccepted()) {
 							System.out.println("Log in is set to accepted!");

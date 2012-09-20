@@ -17,4 +17,12 @@ public class User {
 	public String getPassword() {
 		return password;
 	}
+	
+	public boolean isOnline() {
+		return isOnline;
+	}
+	
+	public void setIsOnline(boolean isOnline) {
+		this.isOnline = isOnline;
+	}
 }
