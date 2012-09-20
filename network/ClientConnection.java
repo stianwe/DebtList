@@ -46,8 +46,9 @@ public class ClientConnection {
 		// TODO: Should perhaps have a separate thread that accepts incoming Strings and handles them instead?
 		try {
 			String temp;
+			System.out.println("Waiting for answer (1)..");
 			while((temp = reader.readLine()) == null) {
-				System.out.println("Waiting for answer..");
+				System.out.println("Waiting for answer (2)..");
 			}
 			System.out.println("Receive: " + temp);
 			return temp;
