@@ -25,6 +25,12 @@ public class LogInRequest extends XMLParsable {
 	
 	public void setAccepted(boolean isAccepted) {
 		this.accepted = isAccepted;
+		for (int i = 0; i < getNumberOfVariables(); i++) {
+			if(getVariableName(i).equals("accepted")) {
+				removeVariable(i);
+				addVariable("accepted", isAccepted ? "true" : "false");
+			}
+		}
 	}
 	
 	@Override
@@ -40,13 +46,13 @@ public class LogInRequest extends XMLParsable {
 		return password;
 	}
 	
-	public static void main(String[] args) {
-		LogInRequest a = new LogInRequest("Arne", "qazqaz");
-		String xml = a.toXml();
-		System.out.println(xml);
-		LogInRequest lir = (LogInRequest)XMLParsable.toObject(xml);
-		System.out.println("Username: " + lir.getUserName());
-		System.out.println("Password: " + lir.getPassword());
-		System.out.println("Accepted: " + lir.isAccepted());
-	}
+//	public static void main(String[] args) {
+//		LogInRequest a = new LogInRequest("Arne", "qazqaz");
+//		String xml = a.toXml();
+//		System.out.println(xml);
+//		LogInRequest lir = (LogInRequest)XMLParsable.toObject(xml);
+//		System.out.println("Username: " + lir.getUserName());
+//		System.out.println("Password: " + lir.getPassword());
+//		System.out.println("Accepted: " + lir.isAccepted());
+//	}
 }

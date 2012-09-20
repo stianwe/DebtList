@@ -30,6 +30,10 @@ public abstract class XMLParsable {
 		return variables.get(i).getVariable();
 	}
 	
+	public void removeVariable(int i) {
+		variables.remove(i);
+	}
+	
 	public String toXml() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<xml><" + getClassName() + ">");
