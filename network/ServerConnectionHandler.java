@@ -9,6 +9,7 @@ import java.net.Socket;
 import logic.User;
 
 import requests.LogInRequest;
+import requests.LogInRequestStatus;
 import requests.XMLParsable;
 
 public class ServerConnectionHandler extends Thread {
@@ -45,15 +46,23 @@ public class ServerConnectionHandler extends Thread {
 					System.out.println("Received log in request!");
 					LogInRequest req = (LogInRequest)o;
 					User user = serverConnection.getUser(req.getUserName());
-					if(user != null && user.getPassword().equals(req.getPassword()) && !user.isOnline()) {
+					if(user == null) {
+						System.out.println("User not found!");
+					}
+					if(user != null && user.getUsername().equals(req.getUserName()) && user.getPassword().equals(req.getPassword()) && !user.isOnline()) {
 						System.out.println("Log in OK!");
 						user.setIsOnline(true);
 						this.user = user;
 						req.setAccepted(true);
+						req.setStatus(LogInRequestStatus.ACCEPTED);
 						if(req.isAccepted()) {
 							System.out.println("Log in is set to accepted!");
 						}
+					} else if(user != null && user.isOnline()){
+						req.setStatus(LogInRequestStatus.ALREADY_LOGGED_ON);
+						System.out.println("User already online.");
 					} else {
+						req.setStatus(LogInRequestStatus.WRONG_INFORMATION);
 						System.out.println("Username or password failed");
 					}
 					String temp = req.toXml();
@@ -65,6 +74,7 @@ public class ServerConnectionHandler extends Thread {
 				}
 			} catch(Exception e) {
 				// TODO
+				System.out.println("Exception: " + e);
 			}
 		}
 		// TODO

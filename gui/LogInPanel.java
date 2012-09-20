@@ -13,6 +13,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import requests.LogInRequest;
+import requests.LogInRequestStatus;
 import requests.XMLParsable;
 
 import network.ClientConnection;
@@ -57,13 +58,31 @@ public class LogInPanel extends JPanel {
 			// TODO Auto-generated method stub
 			
 			ClientConnection con = new ClientConnection();
-			con.connect("192.168.1.7", 13337);
+			// ARNE
+//			con.connect("192.168.1.7", 13337);
+			// LOCAL
+			con.connect("localhost", 13337);
 			con.send(new LogInRequest(usernameField.getText(), passwordField.getText()).toXml());
 			LogInRequest resp = (LogInRequest)XMLParsable.toObject(con.receive());
+			switch(resp.getStatus()) {
+			case UNHANDLED:
+				System.out.println("LogInRequest was not handled by the server! Something is probably wrong with the connection!");
+				break;
+			case ACCEPTED:
+				System.out.println("Log in OK!");
+				break;
+			case WRONG_INFORMATION:
+				System.out.println("Wrong username/password!");
+				break;
+			case ALREADY_LOGGED_ON:
+				System.out.println("User already logged on!");
+				break;
+			}
 			if(resp.isAccepted()) {
 				System.out.println("LOG IN OK!");
 			} else {
 				System.out.println("LOG IN FAILED!");
+				
 			}
 		}
 		

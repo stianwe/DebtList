@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public abstract class XMLParsable {
 
 	private List<Tuple> variables;
@@ -34,13 +35,27 @@ public abstract class XMLParsable {
 		variables.remove(i);
 	}
 	
+	public void removeVariable(String variableName) {
+		Tuple toBeRemoved = null;
+		for (Tuple t : variables) {
+			if(t.getVariableName().equals(variableName)) {
+				toBeRemoved = t;
+			}
+		}
+		if(toBeRemoved != null) {
+			variables.remove(toBeRemoved);
+		}
+	}
+	
+	public void updateVariable(String variableName, Object variable) {
+		removeVariable(variableName);
+		addVariable(variableName, variable);
+	}
+	
 	public String toXml() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<xml><" + getClassName() + ">");
 		for(int i = 0; i < getNumberOfVariables(); i++) {
-			if(getVariableName(i).equals("accepted")) {
-				System.out.println("accepted = " + getVariable(i));
-			}
 			sb.append("<" + getVariableName(i) + ">" + getVariable(i) + "</" + getVariableName(i) + ">");
 		}
 		sb.append("</" + getClassName() + "></xml>");
@@ -72,7 +87,7 @@ public abstract class XMLParsable {
 		Object o = null;
 		switch(className) {
 		case "LogInRequest":
-			o = new LogInRequest(vars.get("username"), vars.get("password"), vars.get("accepted").equals("true") ? true : false);
+			o = new LogInRequest(vars.get("username"), vars.get("password"), vars.get("accepted").equals("true") ? true : false, LogInRequestStatus.values()[Integer.parseInt(vars.get("status"))]);
 			break;
 		}
 		return o;

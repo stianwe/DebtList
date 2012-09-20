@@ -4,33 +4,42 @@ public class LogInRequest extends XMLParsable {
 
 	private String username, password;
 	private boolean accepted;
+	private LogInRequestStatus status;
 	
 	public LogInRequest(String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.accepted = false;
+		this.status = LogInRequestStatus.UNHANDLED;
 		addVariable("username", this.username);
 		addVariable("password", this.password);
-		addVariable("accepted", accepted);
+		addVariable("accepted", this.accepted);
+		addVariable("status", this.status);
 	}
 	
-	public LogInRequest(String username, String password, boolean isAccepted) {
+	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status) {
 		this(username, password);
 		this.accepted = isAccepted;
+		this.status = status;
+	}
+	
+	public void setStatus(LogInRequestStatus status) {
+		this.status = status;
+		updateVariable("status", status);
 	}
 	
 	public boolean isAccepted() {
 		return accepted;
 	}
 	
+	public LogInRequestStatus getStatus() {
+		return status;
+	}
+	
 	public void setAccepted(boolean isAccepted) {
 		this.accepted = isAccepted;
-		for (int i = 0; i < getNumberOfVariables(); i++) {
-			if(getVariableName(i).equals("accepted")) {
-				removeVariable(i);
-				addVariable("accepted", isAccepted ? "true" : "false");
-			}
-		}
+		updateVariable("accepted", isAccepted);
+//		updateVariable("accepted", isAccepted ? "true" : "false");
 	}
 	
 	@Override
