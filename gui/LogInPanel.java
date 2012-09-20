@@ -2,6 +2,8 @@ package gui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,6 +37,22 @@ public class LogInPanel extends JPanel {
 		c.anchor = GridBagConstraints.EAST;
 		logInButton = new JButton("Log in");
 		add(logInButton, c);
+		
+		// Add listener
+		LogInHandler handler = new LogInHandler();
+		usernameField.addActionListener(handler);
+		passwordField.addActionListener(handler);
+		logInButton.addActionListener(handler);
+	}
+	
+	class LogInHandler implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 	
 	public static void main(String[] args) {
