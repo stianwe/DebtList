@@ -45,18 +45,7 @@ public class ClientConnection {
 	public String receive() {
 		// TODO: Should perhaps have a separate thread that accepts incoming Strings and handles them instead?
 		try {
-			String in;
-			while((in = reader.readLine()) != null) {
-				synchronized (this) {
-					try {
-						wait(100);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			return in;
+			return reader.readLine();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

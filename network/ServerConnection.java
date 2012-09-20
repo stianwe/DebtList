@@ -3,6 +3,7 @@ package network;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ public class ServerConnection {
 	
 	public ServerConnection() {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
+		users = new HashMap<String, User>();
 	}
 	
 	public synchronized void addConnectionHandler(ServerConnectionHandler handler) {
@@ -30,7 +32,9 @@ public class ServerConnection {
 		try {
 			ss = new ServerSocket(port);
 			while(true) {
+				System.out.println("Listening for incomming connections..");
 				new ServerConnectionHandler(ss.accept(), this).start();
+				System.out.println("Someone connected!");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -34,6 +34,9 @@ public abstract class XMLParsable {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<xml><" + getClassName() + ">");
 		for(int i = 0; i < getNumberOfVariables(); i++) {
+			if(getVariableName(i).equals("accepted")) {
+				System.out.println("accepted = " + getVariable(i));
+			}
 			sb.append("<" + getVariableName(i) + ">" + getVariable(i) + "</" + getVariableName(i) + ">");
 		}
 		sb.append("</" + getClassName() + "></xml>");

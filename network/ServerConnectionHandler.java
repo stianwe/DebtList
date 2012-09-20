@@ -33,19 +33,31 @@ public class ServerConnectionHandler extends Thread {
 	
 	@Override
 	public void run() {
+		System.out.println("ServerConnectionHandler running!");
 		String xml;
 		while((xml = receive()) != null) {
+			System.out.println("Received XML: " + xml);
 			// Receive LogInRequest
 			try {
 				Object o = XMLParsable.toObject(xml);
 				if(o instanceof LogInRequest) {
+					System.out.println("Received log in request!");
 					LogInRequest req = (LogInRequest)o;
 					User user = serverConnection.getUser(req.getUserName());
 					if(user != null && user.getPassword().equals(req.getPassword())) {
+						System.out.println("Log in OK!");
 						req.setAccepted(true);
-						send(req.toXml());
+						if(req.isAccepted()) {
+							System.out.println("Log in is set to accepted!");
+						}
+						String temp = req.toXml();
+						System.out.println("Sending XML: " + temp);
+						send(temp);
+					} else {
+						System.out.println("Username or password failed");
 					}
 				} else {
+					System.out.println("Received something unknown!");
 					// TODO
 				}
 			} catch(Exception e) {
