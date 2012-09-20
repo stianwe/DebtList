@@ -51,12 +51,12 @@ public class ServerConnectionHandler extends Thread {
 						if(req.isAccepted()) {
 							System.out.println("Log in is set to accepted!");
 						}
-						String temp = req.toXml();
-						System.out.println("Sending XML: " + temp);
-						send(temp);
 					} else {
 						System.out.println("Username or password failed");
 					}
+					String temp = req.toXml();
+					System.out.println("Sending XML: " + temp);
+					send(temp);
 				} else {
 					System.out.println("Received something unknown!");
 					// TODO
