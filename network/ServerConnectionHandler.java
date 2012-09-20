@@ -17,6 +17,7 @@ public class ServerConnectionHandler extends Thread {
 	private ServerConnection serverConnection;
 	private BufferedReader reader;
 	private PrintWriter writer;
+	private User user;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
@@ -47,6 +48,7 @@ public class ServerConnectionHandler extends Thread {
 					if(user != null && user.getPassword().equals(req.getPassword()) && !user.isOnline()) {
 						System.out.println("Log in OK!");
 						user.setIsOnline(true);
+						this.user = user;
 						req.setAccepted(true);
 						if(req.isAccepted()) {
 							System.out.println("Log in is set to accepted!");
@@ -66,14 +68,15 @@ public class ServerConnectionHandler extends Thread {
 			}
 		}
 		// TODO
+		System.out.println("Killing thread.");
 	}
 	
 	public String receive() {
 		try {
 			return reader.readLine();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("User disconnected!");
+			this.user.setIsOnline(false);
 			return null;
 		}
 	}
