@@ -26,6 +26,10 @@ public class ClientConnection {
 		}
 	}
 	
+	public boolean isConnected() {
+		return connection != null && connection.isConnected();
+	}
+	
 	public void close() {
 		try {
 			connection.close();

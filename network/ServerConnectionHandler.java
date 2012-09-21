@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import logic.User;
 
+import requests.CreateUserRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
 import requests.XMLParsable;
@@ -19,6 +20,7 @@ public class ServerConnectionHandler extends Thread {
 	private BufferedReader reader;
 	private PrintWriter writer;
 	private User user;
+	private boolean running;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
@@ -35,9 +37,10 @@ public class ServerConnectionHandler extends Thread {
 	
 	@Override
 	public void run() {
+		running = true;
 		System.out.println("ServerConnectionHandler running!");
 		String xml;
-		while((xml = receive()) != null) {
+		while(running && (xml = receive()) != null) {
 			System.out.println("Received XML: " + xml);
 			// Receive LogInRequest
 			try {
@@ -68,6 +71,16 @@ public class ServerConnectionHandler extends Thread {
 					String temp = req.toXml();
 					System.out.println("Sending XML: " + temp);
 					send(temp);
+				} else if(o instanceof CreateUserRequest) {
+					CreateUserRequest cur = (CreateUserRequest) o;
+					if(serverConnection.getUser(cur.getUsername()) == null) {
+						// TODO: Add check on username
+						serverConnection.addUser(cur.getRequestedUser());
+						cur.setIsAproved(true);
+					}
+					String temp = cur.toXml();
+					System.out.println("Sending XML: " + temp);
+					send(temp);
 				} else {
 					System.out.println("Received something unknown!");
 					// TODO
@@ -79,6 +92,7 @@ public class ServerConnectionHandler extends Thread {
 		}
 		// TODO
 		System.out.println("Killing thread.");
+		running = false;
 	}
 	
 	public String receive() {
@@ -86,7 +100,10 @@ public class ServerConnectionHandler extends Thread {
 			return reader.readLine();
 		} catch (IOException e) {
 			System.out.println("User disconnected!");
-			this.user.setIsOnline(false);
+			if(this.user != null) {
+				this.user.setIsOnline(false);
+			}
+			running = false;
 			return null;
 		}
 	}

@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
 import requests.XMLParsable;
+import session.Session;
 
 import network.ClientConnection;
 
@@ -22,7 +23,7 @@ public class LogInPanel extends JPanel {
 
 	private GridBagConstraints c;
 	private JTextField usernameField, passwordField;
-	private JButton logInButton;
+	private JButton logInButton, registerButton;
 	
 	public LogInPanel() {
 		super(new GridBagLayout());
@@ -41,61 +42,59 @@ public class LogInPanel extends JPanel {
 		add(passwordField, c);
 		c.gridy++;
 		c.anchor = GridBagConstraints.EAST;
+		registerButton = new JButton("Register");
 		logInButton = new JButton("Log in");
-		add(logInButton, c);
+		JPanel p = new JPanel();
+		p.add(registerButton);
+		p.add(logInButton);
+		add(p, c);
+		
 		
 		// Add listener
-		LogInHandler handler = new LogInHandler();
+		ActionHandler handler = new ActionHandler();
 		usernameField.addActionListener(handler);
 		passwordField.addActionListener(handler);
 		logInButton.addActionListener(handler);
+		registerButton.addActionListener(handler);
 	}
 	
-	class LogInHandler implements ActionListener {
+	private LogInPanel dis = this;
+	
+	class ActionHandler implements ActionListener {
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(ActionEvent event) {
 			// TODO Auto-generated method stub
-			
-			ClientConnection con = new ClientConnection();
 			// ARNE
-//			con.connect("192.168.1.7", 13337);
+			// con.connect("192.168.1.7", 13337);
 			// LOCAL
-			con.connect("localhost", 13337);
-			con.send(new LogInRequest(usernameField.getText(), passwordField.getText()).toXml());
-			LogInRequest resp = (LogInRequest)XMLParsable.toObject(con.receive());
-			switch(resp.getStatus()) {
-			case UNHANDLED:
-				System.out.println("LogInRequest was not handled by the server! Something is probably wrong with the connection!");
-				break;
-			case ACCEPTED:
-				System.out.println("Log in OK!");
-				break;
-			case WRONG_INFORMATION:
-				System.out.println("Wrong username/password!");
-				break;
-			case ALREADY_LOGGED_ON:
-				System.out.println("User already logged on!");
-				break;
-			}
-			if(resp.isAccepted()) {
-				System.out.println("LOG IN OK!");
+			Session.session.connect("localhost", 13337);
+			if(event.getSource() != registerButton) {
+				Session.session.send(new LogInRequest(usernameField.getText(), passwordField.getText()).toXml());
+				LogInRequest resp = (LogInRequest)XMLParsable.toObject(Session.session.receive());
+				switch(resp.getStatus()) {
+				case UNHANDLED:
+					System.out.println("LogInRequest was not handled by the server! Something is probably wrong with the connection!");
+					break;
+				case ACCEPTED:
+					System.out.println("Log in OK!");
+					break;
+				case WRONG_INFORMATION:
+					System.out.println("Wrong username/password!");
+					break;
+				case ALREADY_LOGGED_ON:
+					System.out.println("User already logged on!");
+					break;
+				}
+	//			if(resp.isAccepted()) {
+	//				System.out.println("LOG IN OK!");
+	//			} else {
+	//				System.out.println("LOG IN FAILED!");
+	//				
+	//			}
 			} else {
-				System.out.println("LOG IN FAILED!");
-				
+				Session.session.addPanel(new CreateUserPanel(dis));
 			}
 		}
-		
-	}
-	
-	public static void main(String[] args) {
-		JFrame f = new JFrame();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.add(new LogInPanel());
-		f.setVisible(true);
-		f.pack();
-		f.setLocationRelativeTo(null);
-		f.setSize(f.getWidth() + 100, f.getHeight() + 100);
-		
 	}
 }

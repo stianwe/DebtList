@@ -46,8 +46,12 @@ public class ServerConnection {
 		}
 	}
 	
-	public User getUser(String username) {
+	synchronized public User getUser(String username) {
 		return users.get(username);
+	}
+	
+	synchronized public void addUser(User user) {
+		users.put(user.getUsername(), user);
 	}
 	
 	public static void main(String[] args) {
