@@ -4,25 +4,26 @@ import logic.User;
 
 public class LogInRequest extends XMLParsable {
 
-	private String username, password;
+//	private String username, password;
+	private User uUser;
 	private boolean accepted;
 	private LogInRequestStatus status;
 	
 	public LogInRequest(String username, String password) {
-		this.username = username;
-		this.password = password;
-		this.accepted = false;
-		this.status = LogInRequestStatus.UNHANDLED;
-		addVariable("username", this.username);
-		addVariable("password", this.password);
+		this(new User(username, password), false, LogInRequestStatus.UNHANDLED);
+	}
+	
+	public LogInRequest(User user, boolean isAccepted, LogInRequestStatus status) {
+		this.uUser = user;
+		this.accepted = isAccepted;
+		this.status = status;
+		addVariable("uUser", uUser);
 		addVariable("accepted", this.accepted);
 		addVariable("status", this.status);
 	}
 	
 	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status) {
-		this(username, password);
-		this.accepted = isAccepted;
-		this.status = status;
+		this(new User(username, password), isAccepted, status);
 	}
 	
 	public void setStatus(LogInRequestStatus status) {
@@ -32,6 +33,10 @@ public class LogInRequest extends XMLParsable {
 	
 	public boolean isAccepted() {
 		return accepted;
+	}
+	
+	public User getUser() {
+		return uUser;
 	}
 	
 	public LogInRequestStatus getStatus() {
@@ -50,11 +55,13 @@ public class LogInRequest extends XMLParsable {
 	}
 	
 	public String getUserName() {
-		return username;
+//		return username;
+		return uUser.getUsername();
 	}
 	
 	public String getPassword() {
-		return password;
+//		return password;
+		return uUser.getPassword();
 	}
 	
 	public static void main(String[] args) {

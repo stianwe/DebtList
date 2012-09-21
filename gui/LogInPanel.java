@@ -78,6 +78,7 @@ public class LogInPanel extends JPanel {
 					break;
 				case ACCEPTED:
 					System.out.println("Log in OK!");
+					Session.session.setUser(resp.getUser());
 					break;
 				case WRONG_INFORMATION:
 					System.out.println("Wrong username/password!");

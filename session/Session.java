@@ -4,6 +4,8 @@ import gui.LogInPanel;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import logic.User;
+
 import network.ClientConnection;
 
 
@@ -12,6 +14,7 @@ public class Session {
 	public static Session session = new Session();
 	private JFrame frame;
 	private JPanel currentPanel;
+	private User user;
 	
 	private ClientConnection connection;
 	
@@ -54,6 +57,14 @@ public class Session {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setSize(frame.getWidth() + 100, frame.getHeight() + 100);
+	}
+	
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	public User getUser() {
+		return user;
 	}
 	
 	public static void main(String[] args) {
