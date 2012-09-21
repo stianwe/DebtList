@@ -18,7 +18,7 @@ import session.Session;
 public class CreateUserPanel extends JPanel {
 	
 	private JTextField usernameField, passwordField1, passwordField2;
-	private JButton registerButton;
+	private JButton registerButton, cancelButton;
 	private JPanel prevPanel;
 
 	public CreateUserPanel(JPanel openedFrom) {
@@ -45,13 +45,25 @@ public class CreateUserPanel extends JPanel {
 		add(passwordField2, c);
 		c.gridy++;
 		c.anchor = GridBagConstraints.EAST;
+		cancelButton = new JButton("Cancel");
 		registerButton = new JButton("Register");
-		add(registerButton, c);
+		JPanel p = new JPanel();
+		p.add(cancelButton);
+		p.add(registerButton);
+		add(p, c);
+		cancelButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Session.session.addPanel(prevPanel);
+			}
+		});
 		registerButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(!usernameField.getText().equals("") && !passwordField1.getText().equals("") && passwordField1.getText().equals(passwordField2.getText())) {
+					Session.session.connect("localhost", 13337);
 					Session.session.send(new CreateUserRequest(usernameField.getText(), passwordField1.getText()).toXml());
 					try {
 						CreateUserRequest cur = (CreateUserRequest) XMLParsable.toObject(Session.session.receive());

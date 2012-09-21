@@ -68,8 +68,8 @@ public class LogInPanel extends JPanel {
 			// ARNE
 			// con.connect("192.168.1.7", 13337);
 			// LOCAL
-			Session.session.connect("localhost", 13337);
 			if(event.getSource() != registerButton) {
+				Session.session.connect("localhost", 13337);
 				Session.session.send(new LogInRequest(usernameField.getText(), passwordField.getText()).toXml());
 				LogInRequest resp = (LogInRequest)XMLParsable.toObject(Session.session.receive());
 				switch(resp.getStatus()) {
