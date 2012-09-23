@@ -3,16 +3,25 @@ package logic;
 public class Debt {
 
 	private double amount;
-	private String what;
+	private String what, comment;
 	private User from, to;
 	private boolean isDone;
 	
-	public Debt(double amount, String what, User from, User to) {
+	public Debt(double amount, String what, User from, User to, String comment) {
 		this.amount = amount;
 		this.what = what;
 		this.from = from;
 		this.to = to;
 		this.isDone = false;
+		this.comment = comment;
+	}
+	
+	public String getComment() {
+		return comment;
+	}
+	
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 	
 	public boolean isDone() {

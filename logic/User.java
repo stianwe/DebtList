@@ -9,7 +9,7 @@ public class User extends XMLParsable{
 
 	private String username, password, surName, lastName;
 	private List<User> friends;
-	private List<Debt> debtList;
+	private DebtList debts;
 	private boolean isOnline;
 	
 	public User(String username, String password) {
@@ -18,12 +18,22 @@ public class User extends XMLParsable{
 		addVariable("username", this.username);
 		this.password = password;
 		addVariable("password", this.password);
+		// TODO: FIX UNDER!
+		debts = new DebtList(this, null);
 	}
 	
 	public User(String username, String password, List<User> friends) {
 		this(username, password);
 		this.friends = friends;
 		addVariable("friends", friends);
+	}
+	
+	public void addDebt(Debt d) {
+		debts.addPendingDebt(d);
+	}
+	
+	public DebtList getDebts() {
+		return debts;
 	}
 	
 	public int getNumberOfFriends() {
