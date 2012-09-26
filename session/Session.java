@@ -54,9 +54,22 @@ public class Session {
 		currentPanel = panel;
 		currentPanel.setVisible(true);
 		frame.add(panel);
+		fixFrame();
+	}
+	
+	public void fixFrame() {
+		frame.repaint();
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setSize(frame.getWidth() + 100, frame.getHeight() + 100);
+	}
+	
+	public JFrame getFrame() {
+		return frame;
+	}
+	
+	public void setFrame(JFrame frame) {
+		this.frame = frame;
 	}
 	
 	public void setUser(User user) {

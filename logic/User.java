@@ -31,10 +31,38 @@ public class User extends XMLParsable{
 		addVariable("friends", friends);
 	}
 	
-	public void addDebt(Debt d) {
-//		debts.addPendingDebt(d);
+	public int getNumberOfPendingDebts() {
+		return pendingDebts.size();
+	}
+	
+	public int getNumberOfConfirmedDebts() {
+		return confirmedDebts.size();
+	}
+	
+	public Debt getPendingDebt(int i) {
+		return pendingDebts.get(i);
+	}
+	
+	public Debt getConfirmedDebt(int i) {
+		return confirmedDebts.get(i);
+	}
+	
+	public void addPendingDebt(Debt d) {
 		pendingDebts.add(d);
 	}
+	
+	public void addConfirmedDebt(Debt d) {
+		confirmedDebts.add(d);
+	}
+	
+	public int getNumberOfTotalDebts() {
+		return pendingDebts.size() + confirmedDebts.size();
+	}
+	
+//	public void addDebt(Debt d) {
+//		debts.addPendingDebt(d);
+//		pendingDebts.add(d);
+//	}
 	
 //	public DebtList getDebts() {
 //		return debts;
