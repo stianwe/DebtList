@@ -9,16 +9,20 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
@@ -31,9 +35,11 @@ public class DebtListPanel extends JPanel{
 
 	private GridBagConstraints c;
 	private JButton plus, minus, pending;
-	private Component plusTable, minusTable, pendingTable;
+	private Component plusTable, minusTable, pendingFromTable, pendingToTable;
 	private boolean plusIsShowing, minusIsShowing, pendingIsShowing;
 	private final int plusYCoord = 1, minusYCoord = 3, pendingYCoord = 5;
+	private JLabel pendingToLabel = new JLabel("Pending requests:"), pendingFromLabel = new JLabel("Your pending requests:");
+	private ClickListener clickListener = new ClickListener();
 	
 	public DebtListPanel() {
 		super(new GridBagLayout());
@@ -78,6 +84,26 @@ public class DebtListPanel extends JPanel{
 		pending.addActionListener(listener);
 	}
 	
+	class ClickListener implements MouseListener {
+		@Override
+		public void mouseReleased(MouseEvent arg0) {}
+		@Override
+		public void mousePressed(MouseEvent arg0) {}
+		@Override
+		public void mouseExited(MouseEvent arg0) {}
+		@Override
+		public void mouseEntered(MouseEvent arg0) {}
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if(e.getSource() == plusTable) {
+				if(minusTable instanceof JScrollPane) {
+					// Fix asap
+				}
+			}
+			System.out.println(e.getSource());
+		}
+	}
+	
 	class ButtonListener implements ActionListener {
 
 		private User user;
@@ -89,11 +115,13 @@ public class DebtListPanel extends JPanel{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			c.gridx = 0;
+			List<String> extraValues = new ArrayList<String>();
 			if(e.getSource() == plus) {
 				if(plusIsShowing) {
 					remove(plusTable);
 					plusIsShowing = false;
 				} else {
+					extraValues.add("From");
 					c.gridy = plusYCoord;
 					List<Debt> debts = new ArrayList<Debt>();
 					for (int i = 0; i < user.getNumberOfConfirmedDebts(); i++) {
@@ -102,7 +130,7 @@ public class DebtListPanel extends JPanel{
 						}
 					}
 					plusIsShowing = true;
-					plusTable = getDebtList(debts);
+					plusTable = getDebtList(debts, extraValues);
 					add(plusTable, c);
 				}
 			} else if(e.getSource() == minus) {
@@ -110,6 +138,7 @@ public class DebtListPanel extends JPanel{
 					remove(minusTable);
 					minusIsShowing = false;
 				} else {
+					extraValues.add("To");
 					c.gridy = minusYCoord;
 					List<Debt> debts = new ArrayList<Debt>();
 					for (int i = 0; i < user.getNumberOfConfirmedDebts(); i++) {
@@ -118,22 +147,39 @@ public class DebtListPanel extends JPanel{
 						}
 					}
 					minusIsShowing = true;
-					minusTable = getDebtList(debts);
+					minusTable = getDebtList(debts, extraValues);
 					add(minusTable, c);
 				}
 			} else if(e.getSource() == pending){
 				if(pendingIsShowing) {
-					remove(pendingTable);
+					remove(pendingFromTable);
+					remove(pendingToTable);
+					remove(pendingFromLabel);
+					remove(pendingToLabel);
 					pendingIsShowing = false;
 				} else {
+					extraValues.add("From");
+					extraValues.add("To");
 					c.gridy  = pendingYCoord;
-					List<Debt> debts = new ArrayList<Debt>();
+					List<Debt> debtsFromMe = new ArrayList<Debt>();
+					List<Debt> debtsToMe = new ArrayList<Debt>();
 					for (int i = 0; i < user.getNumberOfPendingDebts(); i++) {
-						debts.add(user.getPendingDebt(i));
+						if(user.getPendingDebt(i).getRequestedBy() == user) {
+							debtsToMe.add(user.getPendingDebt(i));
+						} else {
+							debtsFromMe.add(user.getPendingDebt(i));
+						}
 					}
 					pendingIsShowing = true;
-					pendingTable = getDebtList(debts);
-					add(pendingTable, c);
+					add(pendingToLabel, c);
+					c.gridy++;
+					pendingFromTable = getDebtList(debtsFromMe, extraValues);
+					add(pendingFromTable, c);
+					c.gridy++;
+					add(pendingFromLabel, c);
+					c.gridy++;
+					pendingToTable = getDebtList(debtsToMe, extraValues);
+					add(pendingToTable, c);
 				}
 			}
 //			repaint();
@@ -142,42 +188,40 @@ public class DebtListPanel extends JPanel{
 		
 	}
 	
-	public Component getDebtList(List<Debt> debts) {
+	public Component getDebtList(List<Debt> debts, List<String> extraValues) {
 		if(debts.isEmpty()) {
 			return new JLabel("None");
 		} else {
-			String[] columnNames = {"What", "Amount"/*, "Edit?", "Done?"*/};
+//			String[] columnNames = {"What", "Amount"/*, "Edit?", "Done?"*/};
+			String[] columnNames = new String[2 + extraValues.size()];
+			columnNames[1] = "What";
+			columnNames[0] = "Amount";
+			for (int i = 0; i < extraValues.size(); i++) {
+				columnNames[i + 2] = extraValues.get(i);
+			}
 			Object[][] rowData = new Object[debts.size()][columnNames.length];
 			for (int i = 0; i < debts.size(); i++) {
 				Debt d = debts.get(i);
-				rowData[i][0] = d.getWhat();
-				rowData[i][1] = d.getAmount();
+				rowData[i][1] = d.getWhat();
+				rowData[i][0] = d.getAmount();
+				if(extraValues.size() == 2) {
+					rowData[i][2] = d.getFrom().getUsername();
+					rowData[i][3] = d.getTo().getUsername();
+				} else {
+					rowData[i][2] = extraValues.get(i).equals("From") ? d.getFrom().getUsername() : d.getTo().getUsername();
+				}
 			}
-//			JTable table = new JTable(new DefaultTableModel() {
-//				@Override
-//				public boolean isCellEditable(int row, int column) {
-//					System.out.println("HERRE SUG");
-//					return true;
-//				}
-//			});
-//			String[] t = {"hei"};
-//			((DefaultTableModel) table.getModel()).addRow(rowData);
-			JTable table = new JTable(rowData, columnNames);
-//			table.setModel(new DefaultTableModel());
-//			table.setModel(new DefaultTableModel() {
-//				@Override
-//				public boolean isCellEditable(int row, int column) {
-//					System.out.println("HERRE SUG");
-//					return true;
-//				}
-//			});
-//			table.getModel().isCellEditable(0, 0);
+			JTable table = new JTable(new DefaultTableModel(rowData, columnNames) {
+				@Override
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				}
+			});
 			table.setBackground(this.getBackground());
+			table.addMouseListener(clickListener);
 //			table.setEnabled(false);
-			table.setVisible(true);
 			JScrollPane scrollPane = new JScrollPane(table);
 			scrollPane.setPreferredSize(new Dimension(400, debts.size() < 8 ? table.getRowHeight()*(1 + debts.size()) + 4: table.getRowHeight()*9));
-//			scrollPane.setPreferredSize(new Dimension(400, 400));
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
 			return scrollPane;
 		}
@@ -186,9 +230,9 @@ public class DebtListPanel extends JPanel{
 	public static void main(String[] args) {
 		User u = new User("Stian", "123");
 		User u2 = new User("Arne", "qazqaz");
-		u.addPendingDebt(new Debt(100, "NOK", u2, u, "Test"));
-		u.addPendingDebt(new Debt(20, "NOK", u, u2, "Potetgull + brus"));
-		u.addConfirmedDebt(new Debt(2, "Slaps", u, u2, "Test"));
+		u.addPendingDebt(new Debt(100, "NOK", u2, u, "Test", u));
+		u.addPendingDebt(new Debt(20, "NOK", u, u2, "Potetgull + brus", u2));
+		u.addConfirmedDebt(new Debt(2, "Slaps", u, u2, "Test", u));
 		Session.session.setUser(u);
 		
 		JFrame frame = new JFrame();

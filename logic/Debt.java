@@ -4,16 +4,21 @@ public class Debt {
 
 	private double amount;
 	private String what, comment;
-	private User from, to;
+	private User from, to, requestedBy;
 	private boolean isDone;
 	
-	public Debt(double amount, String what, User from, User to, String comment) {
+	public Debt(double amount, String what, User from, User to, String comment, User requestedBy) {
 		this.amount = amount;
 		this.what = what;
 		this.from = from;
 		this.to = to;
 		this.isDone = false;
 		this.comment = comment;
+		this.requestedBy = requestedBy;
+	}
+	
+	public User getRequestedBy() {
+		return requestedBy;
 	}
 	
 	public String getComment() {
