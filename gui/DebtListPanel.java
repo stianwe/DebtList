@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -15,15 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 
 import logic.Debt;
@@ -98,6 +94,7 @@ public class DebtListPanel extends JPanel{
 			if(e.getSource() == plusTable) {
 				if(minusTable instanceof JScrollPane) {
 					// Fix asap
+					((JTable)((JScrollPane) minusTable).getComponent(0)).clearSelection();
 				}
 			}
 			System.out.println(e.getSource());
@@ -233,6 +230,7 @@ public class DebtListPanel extends JPanel{
 		u.addPendingDebt(new Debt(100, "NOK", u2, u, "Test", u));
 		u.addPendingDebt(new Debt(20, "NOK", u, u2, "Potetgull + brus", u2));
 		u.addConfirmedDebt(new Debt(2, "Slaps", u, u2, "Test", u));
+		u.addConfirmedDebt(new Debt(10, "asd", u2, u, "Test", u));
 		Session.session.setUser(u);
 		
 		JFrame frame = new JFrame();
