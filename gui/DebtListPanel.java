@@ -20,6 +20,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.table.DefaultTableModel;
 
 import logic.Debt;
@@ -36,9 +38,12 @@ public class DebtListPanel extends JPanel{
 	private final int plusYCoord = 1, minusYCoord = 3, pendingYCoord = 5;
 	private JLabel pendingToLabel = new JLabel("Pending requests:"), pendingFromLabel = new JLabel("Your pending requests:");
 	private ClickListener clickListener = new ClickListener();
+	private JTextArea commentField;
+	private JTable selectedTable;
 	
 	public DebtListPanel() {
 		super(new GridBagLayout());
+		selectedTable = null;
 		plusIsShowing = false;
 		minusIsShowing = false;
 		pendingIsShowing = false;
@@ -74,6 +79,14 @@ public class DebtListPanel extends JPanel{
 		pending.setFont(new Font(null, Font.PLAIN, 15));
 		add(pending, c);
 		
+		c.gridy++;
+		c.gridx = 0;
+		add(new JLabel("Comments:"), c);
+		c.gridx++;
+		commentField = new JTextArea();
+		commentField.setEditable(false);
+		add(commentField, c);
+		
 		ButtonListener listener = new ButtonListener(Session.session.getUser());
 		plus.addActionListener(listener);
 		minus.addActionListener(listener);
@@ -91,14 +104,66 @@ public class DebtListPanel extends JPanel{
 		public void mouseEntered(MouseEvent arg0) {}
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if(e.getSource() == plusTable) {
+			if(plusTable instanceof JScrollPane && e.getSource() == getTable(plusTable)) {
+				selectedTable = (JTable) plusTable;
 				if(minusTable instanceof JScrollPane) {
-					// Fix asap
-					((JTable)((JScrollPane) minusTable).getComponent(0)).clearSelection();
+					clearSelection(minusTable);
+				}
+				if(pendingFromTable instanceof JScrollPane) {
+					clearSelection(pendingFromTable);
+				}
+				if(pendingToTable instanceof JScrollPane) {
+					clearSelection(pendingToTable);
+				}
+			} else if(minusTable instanceof JScrollPane && e.getSource() == getTable(minusTable)) {
+				selectedTable = (JTable) minusTable;
+				if(plusTable instanceof JScrollPane) {
+					clearSelection(plusTable);
+				}
+				if(pendingFromTable instanceof JScrollPane) {
+					clearSelection(pendingFromTable);
+				}
+				if(pendingToTable instanceof JScrollPane) {
+					clearSelection(pendingToTable);
+				}
+			} else if(pendingFromTable instanceof JScrollPane && e.getSource() == getTable(pendingFromTable)) {
+				selectedTable = (JTable) pendingFromTable;
+				if(plusTable instanceof JScrollPane) {
+					clearSelection(plusTable);
+				}
+				if(minusTable instanceof JScrollPane) {
+					clearSelection(minusTable);
+				}
+				if(pendingToTable instanceof JScrollPane) {
+					clearSelection(pendingToTable);
+				}
+			} else if(pendingToTable instanceof JScrollPane && e.getSource() == getTable(pendingToTable)) {
+				selectedTable = (JTable) pendingToTable;
+				if(plusTable instanceof JScrollPane) {
+					clearSelection(plusTable);
+				}
+				if(pendingFromTable instanceof JScrollPane) {
+					clearSelection(pendingFromTable);
+				}
+				if(minusTable instanceof JScrollPane) {
+					clearSelection(minusTable);
 				}
 			}
-			System.out.println(e.getSource());
+			refreshCommentField();
 		}
+	}
+	
+	public void refreshCommentField() {
+		// TODO 
+	}
+	
+	public static void clearSelection(Component comp) {
+		((JTable) ((JViewport) ((JScrollPane) comp).getComponent(0)).getComponent(0)).clearSelection();
+		
+	}
+	
+	public static JTable getTable(Component comp) {
+		return (JTable) ((JViewport) ((JScrollPane) comp).getComponent(0)).getComponent(0);
 	}
 	
 	class ButtonListener implements ActionListener {
