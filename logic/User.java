@@ -31,6 +31,14 @@ public class User extends XMLParsable{
 		addVariable("friends", friends);
 	}
 	
+	public int getNumberOfWaitingDebts() {
+		int c = 0;
+		for (Debt d : pendingDebts) {
+			if(d.getRequestedBy() != this) c++;
+		}
+		return c;
+	}
+	
 	public int getNumberOfPendingDebts() {
 		return pendingDebts.size();
 	}

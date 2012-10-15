@@ -33,13 +33,15 @@ public class DebtListPanel extends JPanel{
 
 	private GridBagConstraints c;
 	private JButton plus, minus, pending;
-	private Component plusTable, minusTable, pendingFromTable, pendingToTable;
+	private Component plusComponent, minusComponent, pendingToComponent, pendingFromComponent;
 	private boolean plusIsShowing, minusIsShowing, pendingIsShowing;
 	private final int plusYCoord = 1, minusYCoord = 3, pendingYCoord = 5;
 	private JLabel pendingToLabel = new JLabel("Pending requests:"), pendingFromLabel = new JLabel("Your pending requests:");
 	private ClickListener clickListener = new ClickListener();
 	private JTextArea commentField;
 	private JTable selectedTable;
+	private List<Debt> confirmedDebtsFromMe, confirmedDebtsToMe, pendingDebtsFromMe, pendingDebtsToMe;
+	private JButton accept, decline;
 	
 	public DebtListPanel() {
 		super(new GridBagLayout());
@@ -48,8 +50,14 @@ public class DebtListPanel extends JPanel{
 		minusIsShowing = false;
 		pendingIsShowing = false;
 		
+		confirmedDebtsFromMe = new ArrayList<Debt>();
+		confirmedDebtsToMe = new ArrayList<Debt>();
+		pendingDebtsToMe = new ArrayList<Debt>();
+		pendingDebtsFromMe = new ArrayList<Debt>();
+		
 		c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
+		c.gridwidth = 2;
 		c.gridx = 0;
 		c.gridy = 0;
 		plus = new JButton("+");
@@ -72,25 +80,38 @@ public class DebtListPanel extends JPanel{
 		
 		c.gridy++;
 		c.gridy++;
-		pending = new JButton("Pending (" + Session.session.getUser().getNumberOfPendingDebts() + ")");
+		pending = new JButton("Pending (" + Session.session.getUser().getNumberOfWaitingDebts() + ")");
 		pending.setContentAreaFilled(false);
 		pending.setBorderPainted(false);
 		pending.setFocusable(false);
 		pending.setFont(new Font(null, Font.PLAIN, 15));
 		add(pending, c);
 		
-		c.gridy++;
+		c.gridy += 6;
 		c.gridx = 0;
-		add(new JLabel("Comments:"), c);
-		c.gridx++;
-		commentField = new JTextArea();
+		add(new JLabel("Comment:"), c);
+		c.gridy++;
+		commentField = new JTextArea(6, 25);
 		commentField.setEditable(false);
+		commentField.setBackground(this.getBackground());
 		add(commentField, c);
 		
 		ButtonListener listener = new ButtonListener(Session.session.getUser());
 		plus.addActionListener(listener);
 		minus.addActionListener(listener);
 		pending.addActionListener(listener);
+		
+		JPanel p = new JPanel();
+		accept = new JButton("Accept");
+		c.gridy = 7;
+		p.add(accept);
+		decline = new JButton("Decline");
+		p.add(decline);
+		add(p, c);
+		accept.setVisible(false);
+		decline.setVisible(false);
+		accept.setEnabled(false);
+		decline.setEnabled(false);
 	}
 	
 	class ClickListener implements MouseListener {
@@ -104,49 +125,56 @@ public class DebtListPanel extends JPanel{
 		public void mouseEntered(MouseEvent arg0) {}
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if(plusTable instanceof JScrollPane && e.getSource() == getTable(plusTable)) {
-				selectedTable = (JTable) plusTable;
-				if(minusTable instanceof JScrollPane) {
-					clearSelection(minusTable);
+			if(pendingToComponent instanceof JScrollPane && e.getSource() == getTable(pendingToComponent)) {
+				accept.setEnabled(true);
+				decline.setEnabled(true);
+			} else {
+				accept.setEnabled(false);
+				decline.setEnabled(false);
+			}
+			if(plusComponent instanceof JScrollPane && e.getSource() == getTable(plusComponent)) {
+				selectedTable = getTable(plusComponent);
+				if(minusComponent instanceof JScrollPane) {
+					clearSelection(minusComponent);
 				}
-				if(pendingFromTable instanceof JScrollPane) {
-					clearSelection(pendingFromTable);
+				if(pendingToComponent instanceof JScrollPane) {
+					clearSelection(pendingToComponent);
 				}
-				if(pendingToTable instanceof JScrollPane) {
-					clearSelection(pendingToTable);
+				if(pendingFromComponent instanceof JScrollPane) {
+					clearSelection(pendingFromComponent);
 				}
-			} else if(minusTable instanceof JScrollPane && e.getSource() == getTable(minusTable)) {
-				selectedTable = (JTable) minusTable;
-				if(plusTable instanceof JScrollPane) {
-					clearSelection(plusTable);
+			} else if(minusComponent instanceof JScrollPane && e.getSource() == getTable(minusComponent)) {
+				selectedTable = getTable(minusComponent);
+				if(plusComponent instanceof JScrollPane) {
+					clearSelection(plusComponent);
 				}
-				if(pendingFromTable instanceof JScrollPane) {
-					clearSelection(pendingFromTable);
+				if(pendingToComponent instanceof JScrollPane) {
+					clearSelection(pendingToComponent);
 				}
-				if(pendingToTable instanceof JScrollPane) {
-					clearSelection(pendingToTable);
+				if(pendingFromComponent instanceof JScrollPane) {
+					clearSelection(pendingFromComponent);
 				}
-			} else if(pendingFromTable instanceof JScrollPane && e.getSource() == getTable(pendingFromTable)) {
-				selectedTable = (JTable) pendingFromTable;
-				if(plusTable instanceof JScrollPane) {
-					clearSelection(plusTable);
+			} else if(pendingToComponent instanceof JScrollPane && e.getSource() == getTable(pendingToComponent)) {
+				selectedTable = getTable(pendingToComponent);
+				if(plusComponent instanceof JScrollPane) {
+					clearSelection(plusComponent);
 				}
-				if(minusTable instanceof JScrollPane) {
-					clearSelection(minusTable);
+				if(minusComponent instanceof JScrollPane) {
+					clearSelection(minusComponent);
 				}
-				if(pendingToTable instanceof JScrollPane) {
-					clearSelection(pendingToTable);
+				if(pendingFromComponent instanceof JScrollPane) {
+					clearSelection(pendingFromComponent);
 				}
-			} else if(pendingToTable instanceof JScrollPane && e.getSource() == getTable(pendingToTable)) {
-				selectedTable = (JTable) pendingToTable;
-				if(plusTable instanceof JScrollPane) {
-					clearSelection(plusTable);
+			} else if(pendingFromComponent instanceof JScrollPane && e.getSource() == getTable(pendingFromComponent)) {
+				selectedTable = getTable(pendingFromComponent);
+				if(plusComponent instanceof JScrollPane) {
+					clearSelection(plusComponent);
 				}
-				if(pendingFromTable instanceof JScrollPane) {
-					clearSelection(pendingFromTable);
+				if(pendingToComponent instanceof JScrollPane) {
+					clearSelection(pendingToComponent);
 				}
-				if(minusTable instanceof JScrollPane) {
-					clearSelection(minusTable);
+				if(minusComponent instanceof JScrollPane) {
+					clearSelection(minusComponent);
 				}
 			}
 			refreshCommentField();
@@ -154,7 +182,7 @@ public class DebtListPanel extends JPanel{
 	}
 	
 	public void refreshCommentField() {
-		// TODO 
+		commentField.setText((String) selectedTable.getModel().getValueAt(selectedTable.getSelectedRow(), 2));
 	}
 	
 	public static void clearSelection(Component comp) {
@@ -180,42 +208,53 @@ public class DebtListPanel extends JPanel{
 			List<String> extraValues = new ArrayList<String>();
 			if(e.getSource() == plus) {
 				if(plusIsShowing) {
-					remove(plusTable);
+					if(plusComponent instanceof JScrollPane && selectedTable == getTable(plusComponent)) {
+						commentField.setText("");
+					}
+					remove(plusComponent);
 					plusIsShowing = false;
 				} else {
 					extraValues.add("From");
 					c.gridy = plusYCoord;
-					List<Debt> debts = new ArrayList<Debt>();
+					confirmedDebtsToMe = new ArrayList<Debt>();
 					for (int i = 0; i < user.getNumberOfConfirmedDebts(); i++) {
 						if(user.getConfirmedDebt(i).getTo() == user) {
-							debts.add(user.getConfirmedDebt(i));
+							confirmedDebtsToMe.add(user.getConfirmedDebt(i));
 						}
 					}
 					plusIsShowing = true;
-					plusTable = getDebtList(debts, extraValues);
-					add(plusTable, c);
+					plusComponent = getDebtList(confirmedDebtsToMe, extraValues);
+					add(plusComponent, c);
 				}
 			} else if(e.getSource() == minus) {
 				if(minusIsShowing) {
-					remove(minusTable);
+					if(minusComponent instanceof JScrollPane && selectedTable == getTable(minusComponent)) {
+						commentField.setText("");
+					}
+					remove(minusComponent);
 					minusIsShowing = false;
 				} else {
 					extraValues.add("To");
 					c.gridy = minusYCoord;
-					List<Debt> debts = new ArrayList<Debt>();
+					confirmedDebtsFromMe = new ArrayList<Debt>();
 					for (int i = 0; i < user.getNumberOfConfirmedDebts(); i++) {
 						if(user.getConfirmedDebt(i).getFrom() == user) {
-							debts.add(user.getConfirmedDebt(i));
+							confirmedDebtsFromMe.add(user.getConfirmedDebt(i));
 						}
 					}
 					minusIsShowing = true;
-					minusTable = getDebtList(debts, extraValues);
-					add(minusTable, c);
+					minusComponent = getDebtList(confirmedDebtsFromMe, extraValues);
+					add(minusComponent, c);
 				}
 			} else if(e.getSource() == pending){
+				accept.setEnabled(false);
+				decline.setEnabled(false);
 				if(pendingIsShowing) {
-					remove(pendingFromTable);
-					remove(pendingToTable);
+					if((pendingFromComponent instanceof JScrollPane && selectedTable == getTable(pendingFromComponent)) || (pendingToComponent instanceof JScrollPane && selectedTable == getTable(pendingToComponent))) {
+						commentField.setText("");
+					}
+					remove(pendingToComponent);
+					remove(pendingFromComponent);
 					remove(pendingFromLabel);
 					remove(pendingToLabel);
 					pendingIsShowing = false;
@@ -223,25 +262,29 @@ public class DebtListPanel extends JPanel{
 					extraValues.add("From");
 					extraValues.add("To");
 					c.gridy  = pendingYCoord;
-					List<Debt> debtsFromMe = new ArrayList<Debt>();
-					List<Debt> debtsToMe = new ArrayList<Debt>();
+					pendingDebtsFromMe = new ArrayList<Debt>();
+					pendingDebtsToMe = new ArrayList<Debt>();
 					for (int i = 0; i < user.getNumberOfPendingDebts(); i++) {
 						if(user.getPendingDebt(i).getRequestedBy() == user) {
-							debtsToMe.add(user.getPendingDebt(i));
+							pendingDebtsToMe.add(user.getPendingDebt(i));
 						} else {
-							debtsFromMe.add(user.getPendingDebt(i));
+							pendingDebtsFromMe.add(user.getPendingDebt(i));
 						}
 					}
 					pendingIsShowing = true;
 					add(pendingToLabel, c);
 					c.gridy++;
-					pendingFromTable = getDebtList(debtsFromMe, extraValues);
-					add(pendingFromTable, c);
-					c.gridy++;
+					pendingToComponent = getDebtList(pendingDebtsFromMe, extraValues);
+					add(pendingToComponent, c);
+					c.gridy += 2;
 					add(pendingFromLabel, c);
 					c.gridy++;
-					pendingToTable = getDebtList(debtsToMe, extraValues);
-					add(pendingToTable, c);
+					pendingFromComponent = getDebtList(pendingDebtsToMe, extraValues);
+					add(pendingFromComponent, c);
+				}
+				if(!(pendingToComponent instanceof JLabel)) {
+					accept.setVisible(pendingIsShowing);
+					decline.setVisible(pendingIsShowing);
 				}
 			}
 //			repaint();
@@ -255,22 +298,24 @@ public class DebtListPanel extends JPanel{
 			return new JLabel("None");
 		} else {
 //			String[] columnNames = {"What", "Amount"/*, "Edit?", "Done?"*/};
-			String[] columnNames = new String[2 + extraValues.size()];
+			String[] columnNames = new String[3 + extraValues.size()];
+			columnNames[2] = "Comment";
 			columnNames[1] = "What";
 			columnNames[0] = "Amount";
 			for (int i = 0; i < extraValues.size(); i++) {
-				columnNames[i + 2] = extraValues.get(i);
+				columnNames[i + 3] = extraValues.get(i);
 			}
 			Object[][] rowData = new Object[debts.size()][columnNames.length];
 			for (int i = 0; i < debts.size(); i++) {
 				Debt d = debts.get(i);
 				rowData[i][1] = d.getWhat();
 				rowData[i][0] = d.getAmount();
+				rowData[i][2] = d.getComment();
 				if(extraValues.size() == 2) {
-					rowData[i][2] = d.getFrom().getUsername();
-					rowData[i][3] = d.getTo().getUsername();
+					rowData[i][3] = d.getFrom().getUsername();
+					rowData[i][4] = d.getTo().getUsername();
 				} else {
-					rowData[i][2] = extraValues.get(i).equals("From") ? d.getFrom().getUsername() : d.getTo().getUsername();
+					rowData[i][3] = extraValues.get(i).equals("From") ? d.getFrom().getUsername() : d.getTo().getUsername();
 				}
 			}
 			JTable table = new JTable(new DefaultTableModel(rowData, columnNames) {
@@ -281,6 +326,7 @@ public class DebtListPanel extends JPanel{
 			});
 			table.setBackground(this.getBackground());
 			table.addMouseListener(clickListener);
+			table.removeColumn(table.getColumnModel().getColumn(2));
 //			table.setEnabled(false);
 			JScrollPane scrollPane = new JScrollPane(table);
 			scrollPane.setPreferredSize(new Dimension(400, debts.size() < 8 ? table.getRowHeight()*(1 + debts.size()) + 4: table.getRowHeight()*9));
@@ -294,7 +340,7 @@ public class DebtListPanel extends JPanel{
 		User u2 = new User("Arne", "qazqaz");
 		u.addPendingDebt(new Debt(100, "NOK", u2, u, "Test", u));
 		u.addPendingDebt(new Debt(20, "NOK", u, u2, "Potetgull + brus", u2));
-		u.addConfirmedDebt(new Debt(2, "Slaps", u, u2, "Test", u));
+//		u.addConfirmedDebt(new Debt(2, "Slaps", u, u2, "Test", u));
 		u.addConfirmedDebt(new Debt(10, "asd", u2, u, "Test", u));
 		Session.session.setUser(u);
 		
