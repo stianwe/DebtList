@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.management.modelmbean.XMLParseException;
 
+import logic.Debt;
 import logic.User;
 
 
@@ -171,11 +172,23 @@ public abstract class XMLParsable {
 		case "CreateUserRequest":
 			o = new CreateUserRequest((User) vars.get("requestedUser"), ((String) vars.get("isApproved")).equals("true") ? true : false);
 			break;
+		case "Debt":
+			o = new Debt(Long.parseLong((String) vars.get("id")), Double.parseDouble((String) vars.get("amount")), (String) vars.get("what"), (User) vars.get("from"), (User) vars.get("to"), (String) vars.get("comment"), (User) vars.get("requestedBy"));
+			break;
 		default:
 			throw new RuntimeException("SOMETHING WENT WRONG WHEN ASSEMBLING OBJECT! className=" + className);
 		}
 		System.out.println("Assembled: " + o);
 		return o;
+	}
+	
+	public static void main(String[] args) {
+		User u1 = new User("Stian", "qazqaz");
+		User u2 = new User("Arne", "qazqaz");
+		Debt d = new Debt(0, 0, "ingenting", u1, u2, "Ingenting", u1);
+		System.out.println(d.toXml());
+		Debt debt = (Debt) XMLParsable.toObject(d.toXml());
+		System.out.println(debt);
 	}
 	
 	private static StringPair splitOuter(String xml) {

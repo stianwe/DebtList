@@ -81,16 +81,39 @@ public class Session {
 		return user;
 	}
 	
+	public static void callOnUser(int stian){
+		if (stian > 1){
+			System.out.println("Stian e stein");
+		}
+		else{
+			System.out.println("Stian e steinar");
+		}
+	}
+	
 	public void processUpdate(Object o) {
 		if(o instanceof Debt) {
 			Debt d = (Debt) o;
 			// TODO: Process new Debt and updated Debt!
 			// Check if Debt already exists
 			//for...
+			for (int i = 0; i < (user.getNumberOfConfirmedDebts() > user.getNumberOfPendingDebts() ? user.getNumberOfConfirmedDebts(): user.getNumberOfPendingDebts()); i++) {
+				if(user.getNumberOfConfirmedDebts() > i && user.getConfirmedDebt(i).getId() == d.getId()) {
+					user.removeConfirmedDebt(i);
+					user.addConfirmedDebt(d);
+					return;
+				}
+				if(user.getNumberOfPendingDebts() > i && user.getPendingDebt(i).getId() == d.getId()) {
+					user.removePendingDebt(i);
+					user.addPendingDebt(d);
+					return;
+				}
+			}
 		}
 	}
 	
 	public static void main(String[] args) {
 		System.out.println("Starting..");
+		callOnUser(1);
+		System.out.println("Stian e stein");
 	}
 }

@@ -22,6 +22,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JViewport;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 import logic.Debt;
@@ -111,20 +112,25 @@ public class DebtListPanel extends JPanel{
 		accept.setVisible(false);
 		decline.setVisible(false);
 		accept.setEnabled(false);
+		ActionListener al = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Debt selectedDebt = ((DebtTableModel) selectedTable.getModel()).getDebt(selectedTable.getSelectedRow());
+				System.out.println(selectedDebt.getAmount() + " " + selectedDebt.getWhat());
+				selectedDebt.setIsConfirmed(e.getSource() == accept);
+				// TODO: Verify???!!!!?!??!?!?!?!?
+				Session.session.send(selectedDebt.toXml());
+			}
+		};
+		decline.addActionListener(al);
+		accept.addActionListener(al);
 		decline.setEnabled(false);
 	}
 	
 	class ClickListener implements MouseListener {
 		@Override
-		public void mouseReleased(MouseEvent arg0) {}
-		@Override
-		public void mousePressed(MouseEvent arg0) {}
-		@Override
-		public void mouseExited(MouseEvent arg0) {}
-		@Override
-		public void mouseEntered(MouseEvent arg0) {}
-		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void mouseReleased(MouseEvent e) {
 			if(pendingToComponent instanceof JScrollPane && e.getSource() == getTable(pendingToComponent)) {
 				accept.setEnabled(true);
 				decline.setEnabled(true);
@@ -178,6 +184,68 @@ public class DebtListPanel extends JPanel{
 				}
 			}
 			refreshCommentField();
+		}
+		@Override
+		public void mousePressed(MouseEvent arg0) {}
+		@Override
+		public void mouseExited(MouseEvent arg0) {}
+		@Override
+		public void mouseEntered(MouseEvent arg0) {}
+		@Override
+		public void mouseClicked(MouseEvent e) {
+//			if(pendingToComponent instanceof JScrollPane && e.getSource() == getTable(pendingToComponent)) {
+//				accept.setEnabled(true);
+//				decline.setEnabled(true);
+//			} else {
+//				accept.setEnabled(false);
+//				decline.setEnabled(false);
+//			}
+//			if(plusComponent instanceof JScrollPane && e.getSource() == getTable(plusComponent)) {
+//				selectedTable = getTable(plusComponent);
+//				if(minusComponent instanceof JScrollPane) {
+//					clearSelection(minusComponent);
+//				}
+//				if(pendingToComponent instanceof JScrollPane) {
+//					clearSelection(pendingToComponent);
+//				}
+//				if(pendingFromComponent instanceof JScrollPane) {
+//					clearSelection(pendingFromComponent);
+//				}
+//			} else if(minusComponent instanceof JScrollPane && e.getSource() == getTable(minusComponent)) {
+//				selectedTable = getTable(minusComponent);
+//				if(plusComponent instanceof JScrollPane) {
+//					clearSelection(plusComponent);
+//				}
+//				if(pendingToComponent instanceof JScrollPane) {
+//					clearSelection(pendingToComponent);
+//				}
+//				if(pendingFromComponent instanceof JScrollPane) {
+//					clearSelection(pendingFromComponent);
+//				}
+//			} else if(pendingToComponent instanceof JScrollPane && e.getSource() == getTable(pendingToComponent)) {
+//				selectedTable = getTable(pendingToComponent);
+//				if(plusComponent instanceof JScrollPane) {
+//					clearSelection(plusComponent);
+//				}
+//				if(minusComponent instanceof JScrollPane) {
+//					clearSelection(minusComponent);
+//				}
+//				if(pendingFromComponent instanceof JScrollPane) {
+//					clearSelection(pendingFromComponent);
+//				}
+//			} else if(pendingFromComponent instanceof JScrollPane && e.getSource() == getTable(pendingFromComponent)) {
+//				selectedTable = getTable(pendingFromComponent);
+//				if(plusComponent instanceof JScrollPane) {
+//					clearSelection(plusComponent);
+//				}
+//				if(pendingToComponent instanceof JScrollPane) {
+//					clearSelection(pendingToComponent);
+//				}
+//				if(minusComponent instanceof JScrollPane) {
+//					clearSelection(minusComponent);
+//				}
+//			}
+//			refreshCommentField();
 		}
 	}
 	
@@ -298,35 +366,39 @@ public class DebtListPanel extends JPanel{
 			return new JLabel("None");
 		} else {
 //			String[] columnNames = {"What", "Amount"/*, "Edit?", "Done?"*/};
-			String[] columnNames = new String[3 + extraValues.size()];
-			columnNames[2] = "Comment";
-			columnNames[1] = "What";
-			columnNames[0] = "Amount";
-			for (int i = 0; i < extraValues.size(); i++) {
-				columnNames[i + 3] = extraValues.get(i);
-			}
-			Object[][] rowData = new Object[debts.size()][columnNames.length];
-			for (int i = 0; i < debts.size(); i++) {
-				Debt d = debts.get(i);
-				rowData[i][1] = d.getWhat();
-				rowData[i][0] = d.getAmount();
-				rowData[i][2] = d.getComment();
-				if(extraValues.size() == 2) {
-					rowData[i][3] = d.getFrom().getUsername();
-					rowData[i][4] = d.getTo().getUsername();
-				} else {
-					rowData[i][3] = extraValues.get(i).equals("From") ? d.getFrom().getUsername() : d.getTo().getUsername();
-				}
-			}
-			JTable table = new JTable(new DefaultTableModel(rowData, columnNames) {
-				@Override
-				public boolean isCellEditable(int row, int column) {
-					return false;
-				}
-			});
+//			String[] columnNames = new String[3 + extraValues.size()];
+//			columnNames[2] = "Comment";
+//			columnNames[1] = "What";
+//			columnNames[0] = "Amount";
+//			for (int i = 0; i < extraValues.size(); i++) {
+//				columnNames[i + 3] = extraValues.get(i);
+//			}
+			
+			JTable table = new JTable(new DebtTableModel(debts));
+			
+//			Object[][] rowData = new Object[debts.size()][columnNames.length];
+//			for (int i = 0; i < debts.size(); i++) {
+//				Debt d = debts.get(i);
+//				rowData[i][1] = d.getWhat();
+//				rowData[i][0] = d.getAmount();
+//				rowData[i][2] = d.getComment();
+//				if(extraValues.size() == 2) {
+//					rowData[i][3] = d.getFrom().getUsername();
+//					rowData[i][4] = d.getTo().getUsername();
+//				} else {
+//					rowData[i][3] = extraValues.get(i).equals("From") ? d.getFrom().getUsername() : d.getTo().getUsername();
+//				}
+//			}
+//			JTable table = new JTable(new DefaultTableModel(rowData, columnNames) {
+//				@Override
+//				public boolean isCellEditable(int row, int column) {
+//					return false;
+//				}
+//			});
 			table.setBackground(this.getBackground());
 			table.addMouseListener(clickListener);
 			table.removeColumn(table.getColumnModel().getColumn(2));
+			table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 //			table.setEnabled(false);
 			JScrollPane scrollPane = new JScrollPane(table);
 			scrollPane.setPreferredSize(new Dimension(400, debts.size() < 8 ? table.getRowHeight()*(1 + debts.size()) + 4: table.getRowHeight()*9));
@@ -338,10 +410,11 @@ public class DebtListPanel extends JPanel{
 	public static void main(String[] args) {
 		User u = new User("Stian", "123");
 		User u2 = new User("Arne", "qazqaz");
-		u.addPendingDebt(new Debt(100, "NOK", u2, u, "Test", u));
-		u.addPendingDebt(new Debt(20, "NOK", u, u2, "Potetgull + brus", u2));
-//		u.addConfirmedDebt(new Debt(2, "Slaps", u, u2, "Test", u));
-		u.addConfirmedDebt(new Debt(10, "asd", u2, u, "Test", u));
+		u.addPendingDebt(new Debt(0, 100, "NOK", u2, u, "Test", u));
+		u.addPendingDebt(new Debt(0, 20, "NOK", u, u2, "Potetgull + brus", u2));
+		u.addPendingDebt(new Debt(4, 12, "testers", u2, u, "Testzz", u2));
+//		u.addConfirmedDebt(new Debt(0, 2, "Slaps", u, u2, "Test", u));
+		u.addConfirmedDebt(new Debt(0, 10, "asd", u2, u, "Test", u));
 		Session.session.setUser(u);
 		
 		JFrame frame = new JFrame();

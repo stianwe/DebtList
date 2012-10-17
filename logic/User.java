@@ -102,6 +102,14 @@ public class User extends XMLParsable{
 		this.isOnline = isOnline;
 	}
 
+	public Debt removeConfirmedDebt(int i) {
+		return confirmedDebts.remove(i);
+	}
+	
+	public Debt removePendingDebt(int i) {
+		return pendingDebts.remove(i);
+	}
+	
 	@Override
 	public String getClassName() {
 		return "User";
