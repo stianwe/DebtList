@@ -22,7 +22,9 @@ public class User extends XMLParsable{
 		// TODO: FIX UNDER!
 //		debts = new DebtList(this, null);
 		pendingDebts = new ArrayList<Debt>();
+		addVariable("pendingDebts", pendingDebts);
 		confirmedDebts = new ArrayList<Debt>();
+		addVariable("confirmedDebts", confirmedDebts);
 	}
 	
 	public User(String username, String password, List<User> friends) {

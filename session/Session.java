@@ -4,6 +4,7 @@ import gui.LogInPanel;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import logic.Debt;
 import logic.User;
 
 import network.ClientConnection;
@@ -78,6 +79,15 @@ public class Session {
 	
 	public User getUser() {
 		return user;
+	}
+	
+	public void processUpdate(Object o) {
+		if(o instanceof Debt) {
+			Debt d = (Debt) o;
+			// TODO: Process new Debt and updated Debt!
+			// Check if Debt already exists
+			//for...
+		}
 	}
 	
 	public static void main(String[] args) {
