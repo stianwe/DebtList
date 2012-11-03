@@ -1,0 +1,2 @@
+exit
+connect <username> <password> <host> <port>

@@ -33,6 +33,14 @@ public class User extends XMLParsable{
 		addVariable("friends", friends);
 	}
 	
+	public List<Debt> getPendingDepts() {
+		return pendingDebts;
+	}
+	
+	public List<Debt> getConfirmedDepts() {
+		return confirmedDebts;
+	}
+	
 	public int getNumberOfWaitingDebts() {
 		int c = 0;
 		for (Debt d : pendingDebts) {

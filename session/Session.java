@@ -4,6 +4,10 @@ import gui.LogInPanel;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import requests.LogInRequest;
+import requests.LogInRequestStatus;
+import requests.XMLParsable;
+
 import logic.Debt;
 import logic.User;
 
@@ -21,7 +25,9 @@ public class Session {
 	
 	public Session() {
 		connection = new ClientConnection();
-		
+	}
+	
+	public void startGUI() {
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
@@ -34,6 +40,19 @@ public class Session {
 	
 	public boolean isConnected() {
 		return connection.isConnected();
+	}
+	
+	public boolean isLoggedIn() {
+		return user != null;
+	}
+	
+	public LogInRequestStatus logIn(String username, String password) {
+		send(new LogInRequest(username, password).toXml());
+		LogInRequest resp = (LogInRequest) XMLParsable.toObject(receive());
+		if(resp.isAccepted()) {
+			setUser(resp.getUser());
+		}
+		return resp.getStatus();
 	}
 	
 	public void connect(String host, int port) {
@@ -112,8 +131,11 @@ public class Session {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println("Starting..");
-		callOnUser(1);
-		System.out.println("Stian e stein");
+		System.out.println("\tTAB");
+		System.out.println("        8Spaces");
+		int[] ints = new int[3];
+		for (int i = 0; i < ints.length; i++) {
+			System.out.println(ints[i]);
+		}
 	}
 }
