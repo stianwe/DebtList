@@ -16,6 +16,7 @@ public class UpdateListener implements Runnable {
 	private int port;
 
 	public UpdateListener(int port) {
+		System.out.println("UPDATELISTENER CREATED!!!!!!!!!!!!!!!!!!!!!");
 		this.port = port;
 	}
 	

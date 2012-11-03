@@ -8,22 +8,25 @@ public class LogInRequest extends XMLParsable {
 	private User uUser;
 	private boolean accepted;
 	private LogInRequestStatus status;
+	private int updatePort;
 	
-	public LogInRequest(String username, String password) {
-		this(new User(username, password), false, LogInRequestStatus.UNHANDLED);
+	public LogInRequest(String username, String password, int updatePort) {
+		this(new User(username, password), false, LogInRequestStatus.UNHANDLED, updatePort);
 	}
 	
-	public LogInRequest(User user, boolean isAccepted, LogInRequestStatus status) {
+	public LogInRequest(User user, boolean isAccepted, LogInRequestStatus status, int updatePort) {
 		this.uUser = user;
 		this.accepted = isAccepted;
 		this.status = status;
+		this.updatePort = updatePort;
 		addVariable("uUser", uUser);
 		addVariable("accepted", this.accepted);
 		addVariable("status", this.status);
+		addVariable("updatePort", updatePort);
 	}
 	
-	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status) {
-		this(new User(username, password), isAccepted, status);
+	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status, int updatePort) {
+		this(new User(username, password), isAccepted, status, updatePort);
 	}
 	
 	public void setStatus(LogInRequestStatus status) {
@@ -33,6 +36,10 @@ public class LogInRequest extends XMLParsable {
 	
 	public boolean isAccepted() {
 		return accepted;
+	}
+	
+	public int getUpdatePort() {
+		return updatePort;
 	}
 	
 	public User getUser() {

@@ -46,8 +46,8 @@ public class Session {
 		return user != null;
 	}
 	
-	public LogInRequestStatus logIn(String username, String password) {
-		send(new LogInRequest(username, password).toXml());
+	public LogInRequestStatus logIn(String username, String password, int updatePort) {
+		send(new LogInRequest(username, password, updatePort).toXml());
 		LogInRequest resp = (LogInRequest) XMLParsable.toObject(receive());
 		if(resp.isAccepted()) {
 			setUser(resp.getUser());
@@ -127,15 +127,11 @@ public class Session {
 					return;
 				}
 			}
+			// Should probably add the debt in one of the lists if the method reaches this far?
 		}
 	}
 	
 	public static void main(String[] args) {
-		System.out.println("\tTAB");
-		System.out.println("        8Spaces");
-		int[] ints = new int[3];
-		for (int i = 0; i < ints.length; i++) {
-			System.out.println(ints[i]);
-		}
+		Session.session.startGUI();
 	}
 }

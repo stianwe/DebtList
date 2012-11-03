@@ -85,6 +85,13 @@ public class User extends XMLParsable{
 //	public DebtList getDebts() {
 //		return debts;
 //	}
+
+	public User getFriend(String username) {
+		for (int i = 0; i < getNumberOfFriends(); i++) {
+			if(getFriend(i).getUsername().equalsIgnoreCase(username)) return getFriend(i);
+		}
+		return null;
+	}
 	
 	public int getNumberOfFriends() {
 		return friends.size();
@@ -129,6 +136,17 @@ public class User extends XMLParsable{
 			addVariable("friends", this.friends);
 		}
 		friends.add(friend);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(!(o instanceof User)) return false;
+		User u = (User) o;
+		if(this.getNumberOfVariables() != u.getNumberOfVariables()) return false;
+		for (int i = 0; i < this.getNumberOfVariables(); i++) {
+			if(!u.getVariable(this.getVariableName(i)).equals(this.getVariable(i))) return false;
+		}
+		return true;
 	}
 	
 	public String toString() {

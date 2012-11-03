@@ -10,6 +10,8 @@ import logic.Debt;
 import logic.User;
 
 import requests.LogInRequestStatus;
+import requests.UpdateListener;
+import requests.XMLParsable;
 import session.Session;
 
 public class Main {
@@ -38,9 +40,49 @@ public class Main {
 		if(command.equals("exit")) return true;
 		else if(command.startsWith("connect")) processConnect(command);
 		else if(command.equals("ls")) processLs();
+		else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
+		else if(command.startsWith("create debt")) processCreateDebt(command); 
 		
 		else System.out.println("Unknown command.");
 		return false;
+	}
+	
+	public static void processCreateDebt(String command) {
+		if(!Session.session.isLoggedIn()) {
+			System.out.println("Please log in first.");
+			return;
+		}
+		try {
+			// Remove the two first spaces
+			command = command.substring(command.indexOf(' '));
+			command = command.substring(command.indexOf(' '));
+			String[] cs = command.split('"' + "");
+			double amount = Double.parseDouble(cs[0].trim());
+			String what = cs[1], toUsername = cs[3], comment = cs[5];
+			User to = Session.session.getUser().getFriend(toUsername);
+			if(to == null) {
+				System.out.println("You can only create debts with your friends.");
+				return;
+			}
+			Session.session.send(new Debt(-1, amount, what, Session.session.getUser(), to, comment, Session.session.getUser()).toXml());
+			Debt d = (Debt)XMLParsable.toObject(Session.session.receive());
+			if(d.getId() != -1) {
+				System.out.println("Dept created.");
+				Session.session.processUpdate(d);
+			} else System.out.println("An error occured when sending dept to server.");
+		} catch (Exception e) {
+			System.out.println("Syntax error!");
+			System.out.println("Correct syntax: create debt <amount> " +'"' + "<what>" +'"' + " " +'"' + "<to-username>" +'"' +  +'"' + "<comment" +'"');
+		}
+	}
+	
+	public static void processCreateUpdateListener(String command) {
+		try {
+			new Thread(new UpdateListener(Integer.parseInt(command.split(" ")[2]))).start();
+		} catch (Exception e) {
+			System.out.println("Syntax error!");
+			System.out.println("Correct syntax: start updateListener <port>");
+		}
 	}
 	
 	private static void printTabs(int numberOfTabs) {
@@ -110,11 +152,11 @@ public class Main {
 		try {
 			String[] cs = command.split(" ");
 			String username = cs[1], password = cs[2], host = cs[3];
-			int port = Integer.parseInt(cs[4]);
+			int port = Integer.parseInt(cs[4]), updatePort = Integer.parseInt(cs[5]);
 			Session.session.connect(host, port);
 			if(Session.session.isConnected()) {
 				System.out.println("Connected.");
-				LogInRequestStatus status = Session.session.logIn(username, password);
+				LogInRequestStatus status = Session.session.logIn(username, password, updatePort);
 				if(status == LogInRequestStatus.ACCEPTED) System.out.println("Logged in successfully.");
 				else System.out.println("Log in failed.");
 			} else {

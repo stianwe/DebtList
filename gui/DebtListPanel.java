@@ -23,7 +23,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableModel;
 
 import logic.Debt;
 import logic.User;
@@ -192,61 +191,7 @@ public class DebtListPanel extends JPanel{
 		@Override
 		public void mouseEntered(MouseEvent arg0) {}
 		@Override
-		public void mouseClicked(MouseEvent e) {
-//			if(pendingToComponent instanceof JScrollPane && e.getSource() == getTable(pendingToComponent)) {
-//				accept.setEnabled(true);
-//				decline.setEnabled(true);
-//			} else {
-//				accept.setEnabled(false);
-//				decline.setEnabled(false);
-//			}
-//			if(plusComponent instanceof JScrollPane && e.getSource() == getTable(plusComponent)) {
-//				selectedTable = getTable(plusComponent);
-//				if(minusComponent instanceof JScrollPane) {
-//					clearSelection(minusComponent);
-//				}
-//				if(pendingToComponent instanceof JScrollPane) {
-//					clearSelection(pendingToComponent);
-//				}
-//				if(pendingFromComponent instanceof JScrollPane) {
-//					clearSelection(pendingFromComponent);
-//				}
-//			} else if(minusComponent instanceof JScrollPane && e.getSource() == getTable(minusComponent)) {
-//				selectedTable = getTable(minusComponent);
-//				if(plusComponent instanceof JScrollPane) {
-//					clearSelection(plusComponent);
-//				}
-//				if(pendingToComponent instanceof JScrollPane) {
-//					clearSelection(pendingToComponent);
-//				}
-//				if(pendingFromComponent instanceof JScrollPane) {
-//					clearSelection(pendingFromComponent);
-//				}
-//			} else if(pendingToComponent instanceof JScrollPane && e.getSource() == getTable(pendingToComponent)) {
-//				selectedTable = getTable(pendingToComponent);
-//				if(plusComponent instanceof JScrollPane) {
-//					clearSelection(plusComponent);
-//				}
-//				if(minusComponent instanceof JScrollPane) {
-//					clearSelection(minusComponent);
-//				}
-//				if(pendingFromComponent instanceof JScrollPane) {
-//					clearSelection(pendingFromComponent);
-//				}
-//			} else if(pendingFromComponent instanceof JScrollPane && e.getSource() == getTable(pendingFromComponent)) {
-//				selectedTable = getTable(pendingFromComponent);
-//				if(plusComponent instanceof JScrollPane) {
-//					clearSelection(plusComponent);
-//				}
-//				if(pendingToComponent instanceof JScrollPane) {
-//					clearSelection(pendingToComponent);
-//				}
-//				if(minusComponent instanceof JScrollPane) {
-//					clearSelection(minusComponent);
-//				}
-//			}
-//			refreshCommentField();
-		}
+		public void mouseClicked(MouseEvent e) {}
 	}
 	
 	public void refreshCommentField() {

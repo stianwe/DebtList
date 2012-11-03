@@ -70,10 +70,11 @@ public class LogInPanel extends JPanel {
 			// LOCAL
 			if(event.getSource() != registerButton) {
 				Session.session.connect("localhost", 13337);
+				int updatePort = 13338;
 //				Session.session.send(new LogInRequest(usernameField.getText(), passwordField.getText()).toXml());
 //				LogInRequest resp = (LogInRequest)XMLParsable.toObject(Session.session.receive());
 //				switch(resp.getStatus()) {
-				switch(Session.session.logIn(usernameField.getText(), passwordField.getText())) {
+				switch(Session.session.logIn(usernameField.getText(), passwordField.getText(), updatePort)) {
 				case UNHANDLED:
 					System.out.println("LogInRequest was not handled by the server! Something is probably wrong with the connection!");
 					break;

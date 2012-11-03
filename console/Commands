@@ -1,2 +1,4 @@
 exit
-connect <username> <password> <host> <port>
+connect <username> <password> <host> <port> <updatePort> // Make updatePort optional and use predefined if not specified?
+create updateListener <port>
+create debt <amount> "<what>" "<to-username>" "<comment>" // Make comment optional?

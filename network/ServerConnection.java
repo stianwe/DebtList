@@ -7,12 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import requests.XMLParsable;
+
 import logic.User;
 
 public class ServerConnection {
 
 	private Map<String, User> users;
 	private List<ServerConnectionHandler> handlers;
+	private long nextDebtId;
 	
 	public ServerConnection() {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
@@ -25,6 +28,22 @@ public class ServerConnection {
 	
 	public synchronized void removeConnectionHandler(ServerConnectionHandler handler) {
 		this.handlers.remove(handler);
+	}
+	
+	public synchronized long getNextDebtId() {
+		return nextDebtId++;
+	}
+	
+	public void notifyUser(String username, XMLParsable objectToSend) {
+		ServerConnectionHandler handler = getHandler(username);
+		if(handler != null) handler.sendUpdate(objectToSend.toXml());
+	}
+	
+	public ServerConnectionHandler getHandler(String username) {
+		for (ServerConnectionHandler h : handlers) {
+			if(h.getUser().getUsername().equals(username)) return h;
+		}
+		return null;
 	}
 	
 	public void accept(int port) throws IllegalArgumentException {

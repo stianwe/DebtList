@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import logic.Debt;
 import logic.User;
 
 import requests.CreateUserRequest;
@@ -21,18 +22,27 @@ public class ServerConnectionHandler extends Thread {
 	private PrintWriter writer;
 	private User user;
 	private boolean running;
+	private UpdateSender updateSender;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
 		this.serverConnection = serverConnection;
 		serverConnection.addConnectionHandler(this);
 		try {
-		reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			writer = new PrintWriter(connection.getOutputStream(), true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void sendUpdate(String xml) {
+		updateSender.send(xml);
+	}
+	
+	public User getUser() {
+		return user;
 	}
 	
 	@Override
@@ -45,6 +55,7 @@ public class ServerConnectionHandler extends Thread {
 			// Receive LogInRequest
 			try {
 				Object o = XMLParsable.toObject(xml);
+				// TODO: remember to notify affected users if they are online
 				if(o instanceof LogInRequest) {
 					System.out.println("Received log in request!");
 					LogInRequest req = (LogInRequest)o;
@@ -62,6 +73,7 @@ public class ServerConnectionHandler extends Thread {
 						if(req.isAccepted()) {
 							System.out.println("Log in is set to accepted!");
 						}
+						updateSender = new UpdateSender(connection.getInetAddress().toString(), req.getUpdatePort());
 					} else if(user != null && user.isOnline()){
 						req.setStatus(LogInRequestStatus.ALREADY_LOGGED_ON);
 						System.out.println("User already online.");
@@ -82,6 +94,31 @@ public class ServerConnectionHandler extends Thread {
 					String temp = cur.toXml();
 					System.out.println("Sending XML: " + temp);
 					send(temp);
+				} else if(o instanceof Debt) {
+					Debt d = (Debt) o;
+					if(d.getId() == -1) {
+						// This is a request to create a new debt
+						// Validate that this is a valid debt
+						boolean valid = true;
+						if(d.getRequestedBy().getUsername().equals(user.getUsername())) {
+							if(d.getTo().getUsername().equals(user.getUsername()) && user.getFriend(d.getFrom().getUsername()) == null) {
+								valid = false;
+							} else if(d.getFrom().getUsername().equals(user.getUsername()) && user.getFriend(d.getTo().getUsername()) == null) {
+								valid = false;
+							} else {
+								valid = false;
+							}
+							if(d.isConfirmed()) {
+								valid = false;
+							}
+						} else valid = false;
+						if(valid) {
+							d.setId(serverConnection.getNextDebtId());
+							// Notify other user
+							serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
+						}
+						send(d.toXml());
+					} 
 				} else {
 					System.out.println("Received something unknown!");
 					// TODO

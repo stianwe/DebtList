@@ -66,6 +66,10 @@ public class Debt extends XMLParsable {
 		return what;
 	}
 
+	public void setId(long id) {
+		this.id = id;
+	}
+	
 	public void setWhat(String what) {
 		this.what = what;
 		addVariable("what", what);
@@ -102,4 +106,5 @@ public class Debt extends XMLParsable {
 	public String toString() {
 		return "Amount: " + amount + ", what: " + what + ", from: " + from.getUsername() + ", to: " + to.getUsername() + ", comment: " + comment;
 	}
+	
 }
