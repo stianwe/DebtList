@@ -154,11 +154,21 @@ public class Main {
 			String username = cs[1], password = cs[2], host = cs[3];
 			int port = Integer.parseInt(cs[4]), updatePort = Integer.parseInt(cs[5]);
 			Session.session.connect(host, port);
+			Thread t = null;
 			if(Session.session.isConnected()) {
 				System.out.println("Connected.");
+				t = new Thread(new UpdateListener(updatePort));
+				t.start();
+				System.out.println("Update listener started on port " + updatePort);
 				LogInRequestStatus status = Session.session.logIn(username, password, updatePort);
-				if(status == LogInRequestStatus.ACCEPTED) System.out.println("Logged in successfully.");
-				else System.out.println("Log in failed.");
+				if(status == LogInRequestStatus.ACCEPTED) {
+					System.out.println("Logged in successfully.");
+				}
+				else {
+					System.out.println("Log in failed.");
+					System.out.println("Trying to kill UpdateListener");
+					t.interrupt();
+				}
 			} else {
 				System.out.println("Connection failed.");
 			}

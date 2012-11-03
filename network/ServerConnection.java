@@ -76,6 +76,7 @@ public class ServerConnection {
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection();
 		server.users.put("arnegopro", new User("arnegopro", "qazqaz"));
+		server.users.put("stian", new User("stian", "asd"));
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
 			System.out.println(s);

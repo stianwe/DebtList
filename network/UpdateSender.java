@@ -17,6 +17,7 @@ public class UpdateSender implements Runnable{
 		sendQueue = new LinkedList<String>();
 		try {
 			socket = new Socket(host, port);
+			System.out.println("UpdateSender connected to client.");
 			writer = new PrintWriter(socket.getOutputStream());
 		} catch(Exception e) {
 			System.out.println("Connection failed: " + e);
@@ -36,6 +37,10 @@ public class UpdateSender implements Runnable{
 		return sendQueue.poll();
 	}
 	
+	public void setRunning(boolean isRunning) {
+		this.running = isRunning;
+	}
+	
 	@Override
 	public void run() {
 		running = true;
@@ -45,10 +50,13 @@ public class UpdateSender implements Runnable{
 				writer.write(toSend);
 			} else {
 				try {
-					wait();
+					synchronized (this) {
+						wait();
+					}
 				} catch (InterruptedException e) {}
 			}
 		}
+		System.out.println("UpdateSender stopping.");
 	}
 	
 	

@@ -23,6 +23,7 @@ public class ServerConnectionHandler extends Thread {
 	private User user;
 	private boolean running;
 	private UpdateSender updateSender;
+	private Thread updateSenderThread;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
@@ -55,6 +56,7 @@ public class ServerConnectionHandler extends Thread {
 			// Receive LogInRequest
 			try {
 				Object o = XMLParsable.toObject(xml);
+				System.out.println("Done parsing object!");
 				// TODO: remember to notify affected users if they are online
 				if(o instanceof LogInRequest) {
 					System.out.println("Received log in request!");
@@ -73,7 +75,9 @@ public class ServerConnectionHandler extends Thread {
 						if(req.isAccepted()) {
 							System.out.println("Log in is set to accepted!");
 						}
-						updateSender = new UpdateSender(connection.getInetAddress().toString(), req.getUpdatePort());
+						updateSender = new UpdateSender(connection.getInetAddress().getHostAddress(), req.getUpdatePort());
+						updateSenderThread = new Thread(updateSender);
+						updateSenderThread.start();
 					} else if(user != null && user.isOnline()){
 						req.setStatus(LogInRequestStatus.ALREADY_LOGGED_ON);
 						System.out.println("User already online.");
@@ -129,6 +133,9 @@ public class ServerConnectionHandler extends Thread {
 			}
 		}
 		// TODO
+		System.out.println("Killing UpdateSender.");
+		updateSender.setRunning(false);
+		updateSenderThread.interrupt();
 		System.out.println("Killing thread.");
 		running = false;
 	}

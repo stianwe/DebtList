@@ -37,10 +37,11 @@ public class UpdateListener implements Runnable {
 				// Will it use the same connection?
 				Session.session.processUpdate(XMLParsable.toObject(reader.readLine()));
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
+			System.out.println("Closing UpdateListener");
 			try {
 				ss.close();
 			} catch (Exception e) {}

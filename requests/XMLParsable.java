@@ -167,7 +167,7 @@ public abstract class XMLParsable {
 		switch(className) {
 		case "LogInRequest":
 //			o = new LogInRequest((String)vars.get("username"), (String)vars.get("password"), ((String)vars.get("accepted")).equals("true") ? true : false, LogInRequestStatus.values()[Integer.parseInt((String) vars.get("status"))]);
-			o = new LogInRequest((User) vars.get("uUser"), ((String)vars.get("accepted")).equals("true") ? true : false, LogInRequestStatus.values()[Integer.parseInt((String) vars.get("status"))], (int) vars.get("updatePort"));
+			o = new LogInRequest((User) vars.get("uUser"), ((String)vars.get("accepted")).equals("true") ? true : false, LogInRequestStatus.values()[Integer.parseInt((String) vars.get("status"))], Integer.parseInt((String) vars.get("updatePort")));
 			break;
 		case "User":
 			if(vars.containsKey("friends")) {
