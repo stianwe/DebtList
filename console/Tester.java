@@ -5,17 +5,24 @@ import logic.User;
 import session.Session;
 
 public class Tester {
+	 public static void main(String[] args) {
+         User u = new User("Stian", "asd");
+         Session.session.setUser(u);
+         User u2 = new User("Arne", "qazqaz");
+         User steinastn = new User("Jan", "steinkis");
+         User niggah = new User("Jonas", "husetmitt");
+         User tolvteplass = new User("JÃ¸rgen", "eideideid");
+         User hotchick = new User("Jessica Alba", "nam");
 
-	public static void main(String[] args) {
-		User u = new User("Stian", "asd");
-		Session.session.setUser(u);
-		User u2 = new User("Arne", "qazqaz");
-		
-		u.addConfirmedDebt(new Debt(1, 2, "lol", u, Session.session.getUser(), "hei", u));
-		u.addPendingDebt(new Debt(2, 20, "Boller fra Jan", u2, u, "Hahahahhahahha", u));
-		// TODO: Add fleir debts her! (Både pending og confirmed, og fra/til begge, og med lange/korte variabler)
-		//		Du kain og prøv me længer brukernavn
-		
-		Main.processLs();
-	}
+         u.addConfirmedDebt(new Debt(1, 2, "lol", u, Session.session.get$
+         u.addPendingDebt(new Debt(2, 20, "Boller fra Jan", u2, u, "Haha$
+         steinastn.addPendingDebt(new Debt(1,999, "Stein", niggah, stein$
+         u2.addConfirmedDebt(new Debt(1,69, "69", hotchick, u2, "Ofc", h$
+
+
+         // TODO: Add fleir debts her! (Bï¿½de pending og confirmed, og fr$
+         //              Du kain og prï¿½v me lï¿½nger brukernavn
+
+         Main.processLs();
+	 }
 }
