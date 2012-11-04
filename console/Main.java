@@ -54,25 +54,27 @@ public class Main {
 		}
 		try {
 			// Remove the two first spaces
-			command = command.substring(command.indexOf(' '));
-			command = command.substring(command.indexOf(' '));
+			command = command.substring("create debt ".length());
 			String[] cs = command.split('"' + "");
 			double amount = Double.parseDouble(cs[0].trim());
-			String what = cs[1], toUsername = cs[3], comment = cs[5];
-			User to = Session.session.getUser().getFriend(toUsername);
-			if(to == null) {
+			String what = cs[1], toFromUsername = cs[3], comment = cs[5], toFrom = cs[2].trim();
+			if(!toFrom.equals("to") && !toFrom.equals("from")) throw new IllegalArgumentException("Must specify to or from");
+			User toFromUser = Session.session.getUser().getFriend(toFromUsername);
+			if(toFromUser == null) {
 				System.out.println("You can only create debts with your friends.");
 				return;
 			}
-			Session.session.send(new Debt(-1, amount, what, Session.session.getUser(), to, comment, Session.session.getUser()).toXml());
+			// TODO" Move functionality like this to Session or something, to make it reusable for GUI etc. also.
+			Session.session.send(new Debt(-1, amount, what, (toFrom.equals("to") ? Session.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : Session.session.getUser()), comment, Session.session.getUser()).toSendable(false).toXml());
 			Debt d = (Debt)XMLParsable.toObject(Session.session.receive());
 			if(d.getId() != -1) {
-				System.out.println("Dept created.");
+				System.out.println("Debt created.");
 				Session.session.processUpdate(d);
-			} else System.out.println("An error occured when sending dept to server.");
+			} else System.out.println("An error occured when sending debt to server.");
 		} catch (Exception e) {
 			System.out.println("Syntax error!");
-			System.out.println("Correct syntax: create debt <amount> " +'"' + "<what>" +'"' + " " +'"' + "<to-username>" +'"' +  +'"' + "<comment" +'"');
+			System.out.println("Correct syntax: create debt <amount> " +'"' + "<what>" +'"' + " <to/from>" +'"' + "<to/from username>" +'"' +  +'"' + "<comment" +'"');
+			e.printStackTrace();
 		}
 	}
 	
@@ -129,7 +131,7 @@ public class Main {
 			if(d.getFrom().getUsername().length() > maxChars[4]) maxChars[4] = d.getFrom().getUsername().length();
 			if(d.getRequestedBy().getUsername().length() > maxChars[5]) maxChars[5] = d.getRequestedBy().getUsername().length();
 			// Find receiver
-			if(d.getTo() == Session.session.getUser()) toMe.add(d);
+			if(d.getTo().equals(Session.session.getUser())) toMe.add(d);
 			else fromMe.add(d);
 		}
 		for (int i = 0; i < maxChars.length; i++) {
@@ -143,7 +145,7 @@ public class Main {
 	public static void processLs() {
 		if(!Session.session.isLoggedIn()) System.out.println("Log in first.");
 		else {
-			printDebts(Session.session.getUser().getConfirmedDepts(), "Confirmed depts");
+			printDebts(Session.session.getUser().getConfirmedDepts(), "Confirmed debts");
 			printDebts(Session.session.getUser().getPendingDepts(), "Pending debts");
 		}
 	}
@@ -175,6 +177,7 @@ public class Main {
 		} catch(Exception e) {
 			System.out.println("Syntax error!");
 			System.out.println("Correct syntax: connect <username> <password> <host> <port>");
+			e.printStackTrace();
 		}
 	}
 }

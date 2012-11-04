@@ -128,6 +128,8 @@ public class Session {
 				}
 			}
 			// Should probably add the debt in one of the lists if the method reaches this far?
+			if(d.isConfirmed()) user.addConfirmedDebt(d);
+			else user.addPendingDebt(d);
 		}
 	}
 	

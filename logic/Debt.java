@@ -2,7 +2,7 @@ package logic;
 
 import requests.XMLParsable;
 
-public class Debt extends XMLParsable {
+public class Debt extends Sendable {
 
 	private long id;
 	private double amount;
@@ -68,6 +68,7 @@ public class Debt extends XMLParsable {
 
 	public void setId(long id) {
 		this.id = id;
+		addVariable("id", id);
 	}
 	
 	public void setWhat(String what) {
@@ -105,6 +106,16 @@ public class Debt extends XMLParsable {
 	
 	public String toString() {
 		return "Amount: " + amount + ", what: " + what + ", from: " + from.getUsername() + ", to: " + to.getUsername() + ", comment: " + comment;
+	}
+
+	/**
+	 * Returns a sendable version of this object. Will e.g. use the toSendable()-method on included users.
+	 * @param fromServer	If the returned object will be sent from the server (true) or not (false). 
+	 * @return				A sendable version of this object.
+	 */
+	@Override
+	public Sendable toSendable(boolean fromServer) {
+		return new Debt(id, amount, what, (User) from.toSendable(false), (User) to.toSendable(false), comment, (User) requestedBy.toSendable(false));
 	}
 	
 }

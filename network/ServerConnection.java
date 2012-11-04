@@ -2,6 +2,7 @@ package network;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import requests.XMLParsable;
 
+import logic.Debt;
 import logic.User;
 
 public class ServerConnection {
@@ -75,12 +77,36 @@ public class ServerConnection {
 	
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection();
-		server.users.put("arnegopro", new User("arnegopro", "qazqaz"));
-		server.users.put("stian", new User("stian", "asd"));
+		server.nextDebtId = 1;
+		User arne = new User("arnegopro", "qazqaz");
+		User stian = new User("stian", "asd");
+		stian.addFriend(arne);
+		arne.addFriend(stian);
+		server.users.put("arnegopro", arne);
+		server.users.put("stian", stian);
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
 			System.out.println(s);
 		}
+		
+		// TODO: TEST IF LOADED DEBTS IS SENT
+		Debt d1 = new Debt(0, 100, "g", arne, stian, "goldz", stian);
+		Debt d2 = new Debt(1, 12, "s", stian, arne, "s", stian);
+		Debt d3 = new Debt(2, 1337, "slaps", stian, arne, ":D", arne);
+		Debt d4 = new Debt(2, 42, "42ere", arne, stian, "haha", arne);
+		d4.setIsConfirmed(true);
+		stian.addPendingDebt(d1);
+		stian.addPendingDebt(d2);
+		stian.addPendingDebt(d3);
+		stian.addConfirmedDebt(d4);
+		arne.addPendingDebt(d1);
+		arne.addPendingDebt(d2);
+		arne.addPendingDebt(d3);
+		arne.addConfirmedDebt(d4);
+		
+//		ServerConnectionHandler h = new ServerConnectionHandler(new Socket(), server);
+//		h.setUser(stian);
+//		h.processDebt(new Debt(-1, 100, "testers", stian, (User) arne.toSendable(), "testing", stian));
 		server.accept(13337);
 	}
 }

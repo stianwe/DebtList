@@ -5,7 +5,7 @@ import java.util.List;
 import requests.XMLParsable;
 
 
-public class User extends XMLParsable{
+public class User extends Sendable{
 
 	private String username, password, surName, lastName;
 	private List<User> friends;
@@ -27,10 +27,49 @@ public class User extends XMLParsable{
 		addVariable("confirmedDebts", confirmedDebts);
 	}
 	
+	public User(String username) {
+		this(username, null);
+	}
+	
 	public User(String username, String password, List<User> friends) {
 		this(username, password);
 		this.friends = friends;
 		addVariable("friends", friends);
+	}
+	
+	private User(String username, String password, List<String> friendUsernames, List<Debt> pendingDebts, List<Debt> confirmedDebts) {
+		this(username, password);
+		for (String s : friendUsernames) {
+			addFriend(new User(s));
+		}
+		addVariable("pendingDebts", pendingDebts);
+		addVariable("confirmedDebts", confirmedDebts);
+	}
+	
+	/**
+	 * Returns a sendable version of this object (avoiding infinite loops with friends list for example).
+	 * @param fromServer	If the returned object will be sent from the server (true) or not (false). If false debts will not be included.
+	 * @return				A sendable version of this object.
+	 */
+	public Sendable toSendable(boolean fromServer) {
+		List<String> friendUsernames = new ArrayList<String>();
+		if(friends != null) {
+			for (User f : friends) {
+				friendUsernames.add(f.getUsername());
+			}
+		}
+		List<Debt> pd = new ArrayList<Debt>();
+		List<Debt> cd = new ArrayList<Debt>();
+		if(fromServer) {
+			for (Debt d : pendingDebts) {
+				pd.add((Debt) d.toSendable(false));
+//				pd.add(new Debt(d.getId(), d.getAmount(), d.getWhat(), from, to, comment, requestedBy))
+			}
+			for (Debt d : confirmedDebts) {
+				cd.add((Debt) d.toSendable(false));
+			}
+		}
+		return new User(username, password, friendUsernames, (fromServer ? pd : null), (fromServer ? cd : null));
 	}
 	
 	public List<Debt> getPendingDepts() {
@@ -141,12 +180,13 @@ public class User extends XMLParsable{
 	@Override
 	public boolean equals(Object o) {
 		if(!(o instanceof User)) return false;
-		User u = (User) o;
-		if(this.getNumberOfVariables() != u.getNumberOfVariables()) return false;
-		for (int i = 0; i < this.getNumberOfVariables(); i++) {
-			if(!u.getVariable(this.getVariableName(i)).equals(this.getVariable(i))) return false;
-		}
-		return true;
+		return username.equals(((User)o).getUsername());
+//		User u = (User) o;
+//		if(this.getNumberOfVariables() != u.getNumberOfVariables()) return false;
+//		for (int i = 0; i < this.getNumberOfVariables(); i++) {
+//			if(!u.getVariable(this.getVariableName(i)).equals(this.getVariable(i))) return false;
+//		}
+//		return true;
 	}
 	
 	public String toString() {

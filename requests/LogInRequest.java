@@ -15,11 +15,10 @@ public class LogInRequest extends XMLParsable {
 	}
 	
 	public LogInRequest(User user, boolean isAccepted, LogInRequestStatus status, int updatePort) {
-		this.uUser = user;
 		this.accepted = isAccepted;
 		this.status = status;
 		this.updatePort = updatePort;
-		addVariable("uUser", uUser);
+		setUser(user);
 		addVariable("accepted", this.accepted);
 		addVariable("status", this.status);
 		addVariable("updatePort", updatePort);
@@ -32,6 +31,11 @@ public class LogInRequest extends XMLParsable {
 	public void setStatus(LogInRequestStatus status) {
 		this.status = status;
 		updateVariable("status", status);
+	}
+	
+	public void setUser(User u) {
+		this.uUser = u;
+		addVariable("uUser", uUser);
 	}
 	
 	public boolean isAccepted() {

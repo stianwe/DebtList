@@ -11,12 +11,15 @@ public class ClientConnection {
 	private Socket connection;
 	private BufferedReader reader;
 	private PrintWriter writer;
+	private boolean isConnected;
 	
 	public void connect(String host, int port) {
+		isConnected = false;
 		try {
 			connection = new Socket(host, port);
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			writer = new PrintWriter(connection.getOutputStream(), true);
+			isConnected = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -27,10 +30,12 @@ public class ClientConnection {
 	}
 	
 	public boolean isConnected() {
-		return connection != null && connection.isConnected();
+//		return connection != null && connection.isConnected();
+		return isConnected;
 	}
 	
 	public void close() {
+		isConnected = false;
 		try {
 			connection.close();
 		} catch (Exception e) {}

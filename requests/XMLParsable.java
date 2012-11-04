@@ -18,6 +18,13 @@ public abstract class XMLParsable {
 	public void addVariable(String variableName, Object variable) {
 		if(variables == null) {
 			this.variables = new ArrayList<Tuple>();
+		} else {
+			for (int i = 0; i < variables.size(); i++) {
+				if(variables.get(i).getVariableName().equals(variableName)) {
+					variables.remove(i);
+					break;
+				}
+			}
 		}
 		variables.add(new Tuple(variableName, variable));
 	}
@@ -189,15 +196,6 @@ public abstract class XMLParsable {
 		return o;
 	}
 	
-	public static void main(String[] args) {
-		User u1 = new User("Stian", "qazqaz");
-		User u2 = new User("Arne", "qazqaz");
-		Debt d = new Debt(0, 0, "ingenting", u1, u2, "Ingenting", u1);
-		System.out.println(d.toXml());
-		Debt debt = (Debt) XMLParsable.toObject(d.toXml());
-		System.out.println(debt);
-	}
-	
 	private static StringPair splitOuter(String xml) {
 		int temp = xml.indexOf('>');
 		String attName = xml.substring(1, temp);
@@ -213,14 +211,33 @@ public abstract class XMLParsable {
 	private static List<Tuple> splitInner(String xml) {
 		List<Tuple> variables = new ArrayList<Tuple>();
 		int temp;
-		while((temp = xml.indexOf('>')) != -1) {
+		while((temp = xml.indexOf('>')) > -1) {
 			String attName = xml.substring(1, temp);
 			int temp2 = xml.indexOf("</" + attName + ">");
-			String inner = xml.substring(temp + 1, temp2);
+			String inner = null;
+			try {
+				inner = xml.substring(temp + 1, temp2);
+			} catch (Exception e) {
+				System.out.println("Was looking for attName: " + attName + " in " + xml);
+				throw e;
+			}
+			System.out.println("Looking for attName: " + attName + " in " + xml);
 			xml = xml.substring(temp2 + attName.length() + 3);
 			variables.add(new Tuple(attName, inner));
 		}
 		return variables;
+	}
+	
+	public static void main(String[] args) {
+		User stian = new User("Stian");
+		User arne = new User("Arne");
+		Debt d = new Debt(1, 2, "s", arne, stian, "asd", arne);
+		stian.addPendingDebt(d);
+		arne.addPendingDebt(d);
+		LogInRequest r = new LogInRequest((User) stian.toSendable(true), true, LogInRequestStatus.ACCEPTED, 13338);
+//		System.out.println("XML: " + r.toXml());
+//		Object o = toObject(r.toXml());
+		Object u = toObject(stian.toSendable(true).toXml());
 	}
 	
 	private static boolean shouldSplitOuter(String xml) {

@@ -42,6 +42,10 @@ public class ServerConnectionHandler extends Thread {
 		updateSender.send(xml);
 	}
 	
+	public void setUser(User u) {
+		this.user = u;
+	}
+	
 	public User getUser() {
 		return user;
 	}
@@ -66,7 +70,7 @@ public class ServerConnectionHandler extends Thread {
 						System.out.println("User not found!");
 					}
 					if(user != null && user.getUsername().equals(req.getUserName()) && user.getPassword().equals(req.getPassword()) && !user.isOnline()) {
-						// TODO: Add all the users variables before sending the response back!
+						// TODO: Add all the user's variables before sending the response back!
 						System.out.println("Log in OK!");
 						user.setIsOnline(true);
 						this.user = user;
@@ -75,6 +79,9 @@ public class ServerConnectionHandler extends Thread {
 						if(req.isAccepted()) {
 							System.out.println("Log in is set to accepted!");
 						}
+						// Load the user variables
+						req.setUser((User) user.toSendable(true));
+						// Now that the user is logged in, we can start a updateSender
 						updateSender = new UpdateSender(connection.getInetAddress().getHostAddress(), req.getUpdatePort());
 						updateSenderThread = new Thread(updateSender);
 						updateSenderThread.start();
@@ -99,30 +106,7 @@ public class ServerConnectionHandler extends Thread {
 					System.out.println("Sending XML: " + temp);
 					send(temp);
 				} else if(o instanceof Debt) {
-					Debt d = (Debt) o;
-					if(d.getId() == -1) {
-						// This is a request to create a new debt
-						// Validate that this is a valid debt
-						boolean valid = true;
-						if(d.getRequestedBy().getUsername().equals(user.getUsername())) {
-							if(d.getTo().getUsername().equals(user.getUsername()) && user.getFriend(d.getFrom().getUsername()) == null) {
-								valid = false;
-							} else if(d.getFrom().getUsername().equals(user.getUsername()) && user.getFriend(d.getTo().getUsername()) == null) {
-								valid = false;
-							} else {
-								valid = false;
-							}
-							if(d.isConfirmed()) {
-								valid = false;
-							}
-						} else valid = false;
-						if(valid) {
-							d.setId(serverConnection.getNextDebtId());
-							// Notify other user
-							serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
-						}
-						send(d.toXml());
-					} 
+					processDebt((Debt) o);
 				} else {
 					System.out.println("Received something unknown!");
 					// TODO
@@ -130,6 +114,7 @@ public class ServerConnectionHandler extends Thread {
 			} catch(Exception e) {
 				// TODO
 				System.out.println("Exception: " + e);
+				e.printStackTrace();
 			}
 		}
 		// TODO
@@ -138,6 +123,42 @@ public class ServerConnectionHandler extends Thread {
 		updateSenderThread.interrupt();
 		System.out.println("Killing thread.");
 		running = false;
+	}
+	
+	public void processDebt(Debt d) {
+		if(d.getId() == -1) {
+			// This is a request to create a new debt
+			// Validate that this is a valid debt
+			boolean valid = true;
+			System.out.println("Checkin if new debt is valid..");
+			// Check that this user requested the debt
+			if(d.getRequestedBy().getUsername().equals(user.getUsername())) {
+				// Check if this user is the receiver of the debt, and if the sender is a friend
+				if(d.getTo().getUsername().equals(user.getUsername()) && user.getFriend(d.getFrom().getUsername()) == null) {
+					System.out.println("1");
+					valid = false;
+				// Check if this user is the sender of the debt, and the receiver is a friend
+				} else if(d.getFrom().getUsername().equals(user.getUsername()) && user.getFriend(d.getTo().getUsername()) == null) {
+					System.out.println("2");
+					valid = false;
+				} else {
+//					System.out.println("3");
+//					valid = false;
+				}
+				if(d.isConfirmed()) {
+					System.out.println("4");
+					valid = false;
+				}
+			} else valid = false;
+			System.out.println("New debt is valid? " + valid);
+			if(valid) {
+				d.setId(serverConnection.getNextDebtId());
+				System.out.println("id set to: " + d.getId());
+				// Notify other user
+				serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
+			}
+			send(d.toXml());
+		}
 	}
 	
 	public String receive() {
