@@ -39,12 +39,25 @@ public class Main {
 	public static boolean processCommand(String command) {
 		if(command.equals("exit")) return true;
 		else if(command.startsWith("connect")) processConnect(command);
-		else if(command.equals("ls")) processLs();
+		else if(command.equals("ls debts")) processLsDebts();
 		else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
-		else if(command.startsWith("create debt")) processCreateDebt(command); 
+		else if(command.startsWith("create debt")) processCreateDebt(command);
+		else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineDebt(command);
 		
 		else System.out.println("Unknown command.");
 		return false;
+	}
+	
+	public static void processAcceptDeclineDebt(String command) {
+		try {
+			String[] cs = command.split(" ");
+			String acceptOrDecline = cs[0];
+			long id = Long.parseLong(cs[2]);
+			// TODO
+		} catch (Exception e) {
+			System.out.println("Syntax error!");
+			System.out.println("Correct syntax: <accept/decline> debt <ID>");
+		}
 	}
 	
 	public static void processCreateDebt(String command) {
@@ -59,12 +72,13 @@ public class Main {
 			double amount = Double.parseDouble(cs[0].trim());
 			String what = cs[1], toFromUsername = cs[3], comment = cs[5], toFrom = cs[2].trim();
 			if(!toFrom.equals("to") && !toFrom.equals("from")) throw new IllegalArgumentException("Must specify to or from");
+			
+			// TODO" Move functionality like this to Session or something, to make it reusable for GUI etc. also.
 			User toFromUser = Session.session.getUser().getFriend(toFromUsername);
 			if(toFromUser == null) {
 				System.out.println("You can only create debts with your friends.");
 				return;
 			}
-			// TODO" Move functionality like this to Session or something, to make it reusable for GUI etc. also.
 			Session.session.send(new Debt(-1, amount, what, (toFrom.equals("to") ? Session.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : Session.session.getUser()), comment, Session.session.getUser()).toSendable(false).toXml());
 			Debt d = (Debt)XMLParsable.toObject(Session.session.receive());
 			if(d.getId() != -1) {
@@ -142,7 +156,7 @@ public class Main {
 		printDebtsHelper(fromMe, listTitle + " from me", maxChars);
 	}
 	
-	public static void processLs() {
+	public static void processLsDebts() {
 		if(!Session.session.isLoggedIn()) System.out.println("Log in first.");
 		else {
 			printDebts(Session.session.getUser().getConfirmedDepts(), "Confirmed debts");

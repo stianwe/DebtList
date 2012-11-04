@@ -2,5 +2,5 @@ exit
 connect <username> <password> <host> <port> <updatePort> // Make updatePort optional and use predefined if not specified?
 create updateListener <port> // Can be removed, since a updateListener is started by a successful connect
 create debt <amount> "<what>" <to/from> "<to/from username>" "<comment>" // Make comment optional?
-accept debt <ID>
-decline debt <ID>
+<accept/decline> debt <ID>
+complete debt <ID> // No method for completing debts exists yet...
