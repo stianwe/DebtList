@@ -72,11 +72,11 @@ public class User extends Sendable{
 		return new User(username, password, friendUsernames, (fromServer ? pd : null), (fromServer ? cd : null));
 	}
 	
-	public List<Debt> getPendingDepts() {
+	public List<Debt> getPendingDebts() {
 		return pendingDebts;
 	}
 	
-	public List<Debt> getConfirmedDepts() {
+	public List<Debt> getConfirmedDebts() {
 		return confirmedDebts;
 	}
 	

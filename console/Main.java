@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import logic.Debt;
+import logic.DebtStatus;
 import logic.User;
 
 import requests.LogInRequestStatus;
@@ -53,7 +54,24 @@ public class Main {
 			String[] cs = command.split(" ");
 			String acceptOrDecline = cs[0];
 			long id = Long.parseLong(cs[2]);
-			// TODO
+			Debt d = null;
+			for (int i = 0; i < Session.session.getUser().getNumberOfPendingDebts(); i++) {
+				if(Session.session.getUser().getPendingDebt(i).getId() == id) {
+					d = Session.session.getUser().getPendingDebt(i);
+					break;
+				}
+			}
+			if(d == null) {
+				System.out.println("You cannot " + (acceptOrDecline.equals("accept") ? "accept" : "decline") + " that debt.");
+				return;
+			}
+			if(acceptOrDecline.equals("accept")) {
+				d.setStatus(DebtStatus.CONFIRMED);
+			} else {
+				d.setStatus(DebtStatus.DECLINED);
+			}
+			Session.session.send(d.toSendable(false).toXml());
+			// TODO	What will we receive?
 		} catch (Exception e) {
 			System.out.println("Syntax error!");
 			System.out.println("Correct syntax: <accept/decline> debt <ID>");
@@ -159,8 +177,8 @@ public class Main {
 	public static void processLsDebts() {
 		if(!Session.session.isLoggedIn()) System.out.println("Log in first.");
 		else {
-			printDebts(Session.session.getUser().getConfirmedDepts(), "Confirmed debts");
-			printDebts(Session.session.getUser().getPendingDepts(), "Pending debts");
+			printDebts(Session.session.getUser().getConfirmedDebts(), "Confirmed debts");
+			printDebts(Session.session.getUser().getPendingDebts(), "Pending debts");
 		}
 	}
 	

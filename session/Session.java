@@ -112,6 +112,7 @@ public class Session {
 	public void processUpdate(Object o) {
 		if(o instanceof Debt) {
 			Debt d = (Debt) o;
+			// TODO: Would this take care of accepting/declining?
 			// TODO: Process new Debt and updated Debt!
 			// Check if Debt already exists
 			//for...

@@ -187,6 +187,7 @@ public abstract class XMLParsable {
 			o = new CreateUserRequest((User) vars.get("requestedUser"), ((String) vars.get("isApproved")).equals("true") ? true : false);
 			break;
 		case "Debt":
+			// TODO: Include isDeleted, isDone and isConfirmed
 			o = new Debt(Long.parseLong((String) vars.get("id")), Double.parseDouble((String) vars.get("amount")), (String) vars.get("what"), (User) vars.get("from"), (User) vars.get("to"), (String) vars.get("comment"), (User) vars.get("requestedBy"));
 			break;
 		default:

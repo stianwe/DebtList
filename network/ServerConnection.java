@@ -11,6 +11,7 @@ import java.util.Map;
 import requests.XMLParsable;
 
 import logic.Debt;
+import logic.DebtStatus;
 import logic.User;
 
 public class ServerConnection {
@@ -94,7 +95,8 @@ public class ServerConnection {
 		Debt d2 = new Debt(1, 12, "s", stian, arne, "s", stian);
 		Debt d3 = new Debt(2, 1337, "slaps", stian, arne, ":D", arne);
 		Debt d4 = new Debt(2, 42, "42ere", arne, stian, "haha", arne);
-		d4.setIsConfirmed(true);
+//		d4.setIsConfirmed(true);
+		d4.setStatus(DebtStatus.CONFIRMED);
 		stian.addPendingDebt(d1);
 		stian.addPendingDebt(d2);
 		stian.addPendingDebt(d3);
