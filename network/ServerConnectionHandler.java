@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 import logic.Debt;
+import logic.DebtStatus;
 import logic.User;
 
 import requests.CreateUserRequest;
@@ -138,29 +139,55 @@ public class ServerConnectionHandler extends Thread {
 			break;
 		case CONFIRMED:
 		case DECLINED:
-
+			processConfirmedDeclinedDebt(d);
 			break;
-		case DELETED:
-			// TODO
+		case COMPLETED_BY_FROM:
+		case COMPLETED_BY_TO:
+			processCompletedDebt(d);
+			break;
+		case COMPLETED:
+			// TODO: Do we need to process this? No!
 			break;
 		}
 	}
 
-	public void processConfirmedDeletedDebt(Debt d) {
+	public void processCompletedDebt(Debt d) {
+		// TODO: Verify!!!!
+		Debt old = null;
+		for (int i = 0; i < getUser().getNumberOfConfirmedDebts(); i++) {
+			if(getUser().getConfirmedDebt(i).getId() == d.getId()) old = getUser().getConfirmedDebt(i);
+		}
+		if(old == null) {
+			System.out.println("Something wrong happened while processing completedDebt");
+			return;
+		}
+		if((old.getStatus() == DebtStatus.COMPLETED_BY_FROM && d.getStatus() == DebtStatus.COMPLETED_BY_TO) || (old.getStatus() == DebtStatus.COMPLETED_BY_TO && d.getStatus() == DebtStatus.COMPLETED_BY_FROM)) {
+			d.setStatus(DebtStatus.COMPLETED);
+		} 
+		old.setStatus(d.getStatus());
+		serverConnection.notifyUser((old.getTo() == getUser() ? old.getTo().getUsername() : old.getFrom().getUsername()), old);
+		send(old.toSendable(false).toXml());
+	}
+	
+	public void processConfirmedDeclinedDebt(Debt d) {
+		// TODO: Verify!!
 		// Find our instance of the debt
 		// We assume that it is pending, or else why would someone accept or decline it?
 		Debt our = null;
 		for (int i = 0; i < getUser().getNumberOfPendingDebts(); i++) {
 			if(getUser().getPendingDebt(i).getId() == d.getId()) our = getUser().getPendingDebt(i); 
+			System.out.println("Checked: " + getUser().getPendingDebt(i).getId() + " should find: " + d.getId());
 		}
 		if(our == null) {
 			// Something wrong has happened! This debt was not ours, or not pending.
 			// TODO Do nothing?
+			System.out.println("SOMETHING WRONG HAPPENED WHILE PROCESSING CONFIRMED OR DECLINED DEBT!");
 			return;
 		}
 		our.setStatus(d.getStatus());
 		// Let the requesting user know about the accept/decline
 		serverConnection.notifyUser(d.getRequestedBy().getUsername(), our.toSendable(true));
+		send(d.toSendable(false).toXml());
 		// TODO Anything else?
 	}
 	
@@ -191,6 +218,11 @@ public class ServerConnectionHandler extends Thread {
 		if(valid) {
 			d.setId(serverConnection.getNextDebtId());
 			System.out.println("id set to: " + d.getId());
+			// Save the debt
+			serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).addPendingDebt(d);
+			System.out.println("Added debt to " + getUser().getUsername() + " and " + serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).getUsername());
+			getUser().addPendingDebt(d);
+//			System.out.println(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())) == serverConnection.getHandler(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).getUsername()).getUser());
 			// Notify other user
 			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
 		}

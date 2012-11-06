@@ -1,5 +1,6 @@
 package network;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -18,7 +19,7 @@ public class UpdateSender implements Runnable{
 		try {
 			socket = new Socket(host, port);
 			System.out.println("UpdateSender connected to client.");
-			writer = new PrintWriter(socket.getOutputStream());
+			writer = new PrintWriter(socket.getOutputStream(), true);
 		} catch(Exception e) {
 			System.out.println("Connection failed: " + e);
 		}
@@ -47,7 +48,9 @@ public class UpdateSender implements Runnable{
 		while(running) {
 			String toSend = null;
 			if((toSend = getNextStringToSend()) != null) {
-				writer.write(toSend);
+				System.out.println("UPDATE!");
+				System.out.println(socket.getInetAddress().getHostAddress());
+				writer.println(toSend);
 			} else {
 				try {
 					synchronized (this) {

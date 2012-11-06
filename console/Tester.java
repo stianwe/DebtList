@@ -16,8 +16,8 @@ public class Tester {
 
          u.addConfirmedDebt(new Debt(1, 2, "lol", u, Session.session.get$
          u.addPendingDebt(new Debt(2, 20, "Boller fra Jan", u2, u, "Haha$
-         steinastn.addPendingDebt(new Debt(1,999, "Stein", niggah, stein$
-         u2.addConfirmedDebt(new Debt(1,69, "69", hotchick, u2, "Ofc", h$
+         steinastn.addPendingDebt(new Debt(3,999, "Stein", niggah, stein$
+         u2.addConfirmedDebt(new Debt(4,69, "69", hotchick, u2, "Ofc", h$
 
 
          // TODO: Add fleir debts her! (B�de pending og confirmed, og fr$

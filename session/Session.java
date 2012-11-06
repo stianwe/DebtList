@@ -9,6 +9,7 @@ import requests.LogInRequestStatus;
 import requests.XMLParsable;
 
 import logic.Debt;
+import logic.DebtStatus;
 import logic.User;
 
 import network.ClientConnection;
@@ -126,7 +127,8 @@ public class Session {
 				}
 				if(user.getNumberOfPendingDebts() > i && user.getPendingDebt(i).getId() == d.getId()) {
 					user.removePendingDebt(i);
-					user.addPendingDebt(d);
+					if(d.isConfirmed()) user.addConfirmedDebt(d);
+					else if(d.getStatus() != DebtStatus.DECLINED) user.addPendingDebt(d);
 					return;
 				}
 			}

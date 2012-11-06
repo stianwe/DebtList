@@ -43,22 +43,32 @@ public class Main {
 		else if(command.equals("ls debts")) processLsDebts();
 		else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
 		else if(command.startsWith("create debt")) processCreateDebt(command);
-		else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineDebt(command);
+		else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
+		else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
 		
 		else System.out.println("Unknown command.");
 		return false;
 	}
 	
-	public static void processAcceptDeclineDebt(String command) {
+	public static void processAcceptDeclineCompleteDebt(String command) {
 		try {
 			String[] cs = command.split(" ");
 			String acceptOrDecline = cs[0];
 			long id = Long.parseLong(cs[2]);
 			Debt d = null;
-			for (int i = 0; i < Session.session.getUser().getNumberOfPendingDebts(); i++) {
-				if(Session.session.getUser().getPendingDebt(i).getId() == id) {
-					d = Session.session.getUser().getPendingDebt(i);
-					break;
+			if(!acceptOrDecline.equals("complete")) {
+				for (int i = 0; i < Session.session.getUser().getNumberOfPendingDebts(); i++) {
+					if(Session.session.getUser().getPendingDebt(i).getId() == id) {
+						d = Session.session.getUser().getPendingDebt(i);
+						break;
+					}
+				}
+			} else {
+				for (int i = 0; i < Session.session.getUser().getNumberOfConfirmedDebts(); i++) {
+					if(Session.session.getUser().getConfirmedDebt(i).getId() == id) {
+						d = Session.session.getUser().getConfirmedDebt(i);
+						break;
+					}
 				}
 			}
 			if(d == null) {
@@ -67,14 +77,17 @@ public class Main {
 			}
 			if(acceptOrDecline.equals("accept")) {
 				d.setStatus(DebtStatus.CONFIRMED);
-			} else {
+			} else if(acceptOrDecline.equals("decline")) {
 				d.setStatus(DebtStatus.DECLINED);
+			} else {
+				d.setStatus((d.getFrom().equals(Session.session.getUser()) ? DebtStatus.COMPLETED_BY_FROM : DebtStatus.COMPLETED_BY_TO));
 			}
 			Session.session.send(d.toSendable(false).toXml());
+			Session.session.processUpdate(XMLParsable.toObject(Session.session.receive()));
 			// TODO	What will we receive?
 		} catch (Exception e) {
 			System.out.println("Syntax error!");
-			System.out.println("Correct syntax: <accept/decline> debt <ID>");
+			System.out.println("Correct syntax: <accept/decline/complete> debt <ID>");
 		}
 	}
 	
@@ -140,13 +153,18 @@ public class Main {
 		print("Requested by", numberOfTabs[5]);
 		System.out.print("Comment\n");
 		for (Debt d : debts) {
+			if(d.getStatus() == DebtStatus.COMPLETED) continue;
 			print(""+d.getId(), numberOfTabs[0]);
 			print(d.getAmount()+"", numberOfTabs[1]);
 			print(d.getWhat(), numberOfTabs[2]);
 			print(d.getTo().getUsername(), numberOfTabs[3]);
 			print(d.getFrom().getUsername(), numberOfTabs[4]);
 			print(d.getRequestedBy().getUsername(), numberOfTabs[5]);
-			System.out.print(d.getComment() + "\n");
+			System.out.print(d.getComment());
+			if(d.getStatus() == DebtStatus.COMPLETED_BY_FROM || d.getStatus() == DebtStatus.COMPLETED_BY_TO) {
+				System.out.print("(Completed by " + (d.getStatus() == DebtStatus.COMPLETED_BY_FROM ? d.getFrom().getUsername() : d.getTo().getUsername()) + ")");
+			}
+			System.out.println();
 		}
 		if(debts.isEmpty()) System.out.println("None");
 	}

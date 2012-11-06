@@ -40,7 +40,10 @@ public class ServerConnection {
 	public void notifyUser(String username, XMLParsable objectToSend) {
 		System.out.println("Notifying " + username);
 		ServerConnectionHandler handler = getHandler(username);
-		if(handler != null) handler.sendUpdate(objectToSend.toXml());
+		if(handler != null) {
+			handler.sendUpdate(objectToSend.toXml());
+			System.out.println("Sent to: " + handler.getUser().getUsername());
+		}
 	}
 	
 	public ServerConnectionHandler getHandler(String username) {

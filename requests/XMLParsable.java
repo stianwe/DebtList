@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.management.modelmbean.XMLParseException;
 
 import logic.Debt;
+import logic.DebtStatus;
 import logic.User;
 
 
@@ -188,7 +189,7 @@ public abstract class XMLParsable {
 			break;
 		case "Debt":
 			// TODO: Include isDeleted, isDone and isConfirmed
-			o = new Debt(Long.parseLong((String) vars.get("id")), Double.parseDouble((String) vars.get("amount")), (String) vars.get("what"), (User) vars.get("from"), (User) vars.get("to"), (String) vars.get("comment"), (User) vars.get("requestedBy"));
+			o = new Debt(Long.parseLong((String) vars.get("id")), Double.parseDouble((String) vars.get("amount")), (String) vars.get("what"), (User) vars.get("from"), (User) vars.get("to"), (String) vars.get("comment"), (User) vars.get("requestedBy"), DebtStatus.values()[Integer.parseInt((String) vars.get("status"))]);
 			break;
 		default:
 			throw new RuntimeException("SOMETHING WENT WRONG WHEN ASSEMBLING OBJECT! className=" + className);

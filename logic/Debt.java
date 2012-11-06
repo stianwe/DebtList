@@ -11,6 +11,17 @@ public class Debt extends Sendable {
 //	private boolean isDone, isConfirmed, isDeleted;
 	private DebtStatus status;
 	
+	public static void main(String[] args) {
+		System.out.println(DebtStatus.REQUESTED);
+		System.out.println(DebtStatus.CONFIRMED);
+		System.out.println(DebtStatus.values()[Integer.parseInt((String) DebtStatus.CONFIRMED.toString())]);
+		Debt d = new Debt(1, 2, "ja", null, null, "asd", null, DebtStatus.values()[Integer.parseInt((String) DebtStatus.CONFIRMED.toString())]);
+		System.out.println(d.getStatus());
+		System.out.println(d.getVariable("status"));
+		System.out.println(DebtStatus.values()[Integer.parseInt((String) d.getVariable("status").toString())]);
+		System.out.println(new Debt(2, 2, "asd", null, null, "asd", null, DebtStatus.CONFIRMED).toSendable(false).toXml());
+	}
+	
 	public Debt(long id, double amount, String what, User from, User to, String comment, User requestedBy) {
 		setAmount(amount);
 		this.id = id;
@@ -142,7 +153,7 @@ public class Debt extends Sendable {
 	 */
 	@Override
 	public Sendable toSendable(boolean fromServer) {
-		return new Debt(id, amount, what, (User) from.toSendable(false), (User) to.toSendable(false), comment, (User) requestedBy.toSendable(false));
+		return new Debt(id, amount, what, (User) from.toSendable(false), (User) to.toSendable(false), comment, (User) requestedBy.toSendable(false), status);
 	}
 	
 }
