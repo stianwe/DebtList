@@ -62,7 +62,7 @@ public class Main {
 				}
 			}
 			if(d == null) {
-				System.out.println("You cannot " + (acceptOrDecline.equals("accept") ? "accept" : "decline") + " that debt.");
+				System.out.println("You cannot " + acceptOrDecline + " that debt.");
 				return;
 			}
 			if(acceptOrDecline.equals("accept")) {

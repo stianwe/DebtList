@@ -38,6 +38,7 @@ public class ServerConnection {
 	}
 	
 	public void notifyUser(String username, XMLParsable objectToSend) {
+		System.out.println("Notifying " + username);
 		ServerConnectionHandler handler = getHandler(username);
 		if(handler != null) handler.sendUpdate(objectToSend.toXml());
 	}
@@ -91,24 +92,20 @@ public class ServerConnection {
 		}
 		
 		// TODO: TEST IF LOADED DEBTS IS SENT
-		Debt d1 = new Debt(0, 100, "g", arne, stian, "goldz", stian);
-		Debt d2 = new Debt(1, 12, "s", stian, arne, "s", stian);
-		Debt d3 = new Debt(2, 1337, "slaps", stian, arne, ":D", arne);
-		Debt d4 = new Debt(2, 42, "42ere", arne, stian, "haha", arne);
-//		d4.setIsConfirmed(true);
-		d4.setStatus(DebtStatus.CONFIRMED);
-		stian.addPendingDebt(d1);
-		stian.addPendingDebt(d2);
-		stian.addPendingDebt(d3);
-		stian.addConfirmedDebt(d4);
-		arne.addPendingDebt(d1);
-		arne.addPendingDebt(d2);
-		arne.addPendingDebt(d3);
-		arne.addConfirmedDebt(d4);
+//		Debt d1 = new Debt(0, 100, "g", arne, stian, "goldz", stian);
+//		Debt d2 = new Debt(1, 12, "s", stian, arne, "s", stian);
+//		Debt d3 = new Debt(2, 1337, "slaps", stian, arne, ":D", arne);
+//		Debt d4 = new Debt(2, 42, "42ere", arne, stian, "haha", arne);
+//		d4.setStatus(DebtStatus.CONFIRMED);
+//		stian.addPendingDebt(d1);
+//		stian.addPendingDebt(d2);
+//		stian.addPendingDebt(d3);
+//		stian.addConfirmedDebt(d4);
+//		arne.addPendingDebt(d1);
+//		arne.addPendingDebt(d2);
+//		arne.addPendingDebt(d3);
+//		arne.addConfirmedDebt(d4);
 		
-//		ServerConnectionHandler h = new ServerConnectionHandler(new Socket(), server);
-//		h.setUser(stian);
-//		h.processDebt(new Debt(-1, 100, "testers", stian, (User) arne.toSendable(), "testing", stian));
 		server.accept(13337);
 	}
 }

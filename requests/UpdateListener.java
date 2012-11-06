@@ -16,7 +16,6 @@ public class UpdateListener implements Runnable {
 	private int port;
 
 	public UpdateListener(int port) {
-		System.out.println("UPDATELISTENER CREATED!!!!!!!!!!!!!!!!!!!!!");
 		this.port = port;
 	}
 	
@@ -28,10 +27,10 @@ public class UpdateListener implements Runnable {
 		PrintWriter writer = null;
 		try {
 			ss = new ServerSocket(port);
+			sock = ss.accept();
+			reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			writer = new PrintWriter(sock.getOutputStream(), true);
 			while(true) {
-				sock = ss.accept();
-				reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-				writer = new PrintWriter(sock.getOutputStream(), true);
 				// TODO: Does this need to be in a separate thread?
 				// Will the server send many updates at once?
 				// Will it use the same connection?
