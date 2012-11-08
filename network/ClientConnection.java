@@ -13,6 +13,11 @@ public class ClientConnection {
 	private PrintWriter writer;
 	private boolean isConnected;
 	
+	/**
+	 * Connect to the given host at the given port, and create the reader and the writer from the socket connection
+	 * @param host	The host
+	 * @param port	The port
+	 */
 	public void connect(String host, int port) {
 		isConnected = false;
 		try {
@@ -29,11 +34,18 @@ public class ClientConnection {
 		}
 	}
 	
+	/**
+	 * Checks if this ClientConnection is connected to something
+	 * @return	True if connected, false if not
+	 */
 	public boolean isConnected() {
 //		return connection != null && connection.isConnected();
 		return isConnected;
 	}
 	
+	/**
+	 * Close this connection
+	 */
 	public void close() {
 		isConnected = false;
 		try {
@@ -47,10 +59,19 @@ public class ClientConnection {
 		} catch (Exception e) {}
 	}
 	
+	/**
+	 * Sends the given message to the host this ClientConnection is connected to
+	 * @param msg	The message to send
+	 */
 	public void send(String msg) {
 		writer.println(msg);
 	}
 	
+	/**
+	 * Tries to receive a message from the host that this ClientConnection is connected to.
+	 * Will block while receiving
+	 * @return	The received message
+	 */
 	public String receive() {
 		// TODO: Should perhaps have a separate thread that accepts incoming Strings and handles them instead?
 		try {

@@ -41,18 +41,33 @@ public class ServerConnectionHandler extends Thread {
 		}
 	}
 	
-	public void sendUpdate(String xml) {
-		updateSender.send(xml);
+	/**
+	 * Sends the given message to this ServerConnectionHandler's UpdateSender (if existing)
+	 * @param msg
+	 */
+	public void sendUpdate(String msg) {
+		if(updateSender != null) updateSender.send(msg);
 	}
 	
+	/**
+	 * Sets this ServerConnectionHandler's user to the specified user
+	 * @param u	The user
+	 */
 	public void setUser(User u) {
 		this.user = u;
 	}
 	
+	/**
+	 * @return	This ServerConnectionHandler's user
+	 */
 	public User getUser() {
 		return user;
 	}
 	
+	/**
+	 * This method will try to receive messages from the connected client, and will pass the messages to the appropriate process method.
+	 * Will run until stoped.
+	 */
 	@Override
 	public void run() {
 		running = true;
@@ -89,6 +104,10 @@ public class ServerConnectionHandler extends Thread {
 		running = false;
 	}
 	
+	/**
+	 * Process the given CreateUserRequest
+	 * @param req	The CreateUserRequest
+	 */
 	public void processCreateUserRequest(CreateUserRequest req) {
 		if(serverConnection.getUser(req.getUsername()) == null) {
 			// TODO: Add check on username
@@ -100,6 +119,11 @@ public class ServerConnectionHandler extends Thread {
 		send(temp);
 	}
 	
+	/**
+	 * Process the given LogInRequest by setting this ServerConnectionHandler's user if login is correct.
+	 * Will also on correct login start a UpdateSender for this connection at the port specified in the LogInRequest
+	 * @param req	The LogInRequest
+	 */
 	public void processLoginRequest(LogInRequest req) {
 		System.out.println("Received log in request!");
 		User user = serverConnection.getUser(req.getUserName());
@@ -134,6 +158,10 @@ public class ServerConnectionHandler extends Thread {
 		send(temp);
 	}
 	
+	/**
+	 * Process the given debt
+	 * @param d	The debt
+	 */
 	public void processDebt(Debt d) {
 		switch(d.getStatus()) {
 		case REQUESTED:

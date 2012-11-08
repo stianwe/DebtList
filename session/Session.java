@@ -28,6 +28,9 @@ public class Session {
 		connection = new ClientConnection();
 	}
 	
+	/**
+	 * This method starts the GUI by displaying the log in screen
+	 */
 	public void startGUI() {
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,14 +42,29 @@ public class Session {
 		frame.setSize(frame.getWidth() + 100, frame.getHeight() + 100);
 	}
 	
+	/**
+	 * Checks if this Session's user's connection is connected to the server
+	 * @return	True if connected, false if not
+	 */
 	public boolean isConnected() {
 		return connection.isConnected();
 	}
 	
+	/**
+	 * Checks if this Session's user is logged in
+	 * @return	True if the user is logged in, false if not
+	 */
 	public boolean isLoggedIn() {
 		return user != null;
 	}
 	
+	/**
+	 * Tries to log in by sending a LogInRequest to the server connected to by the connection
+	 * @param username		The user name
+	 * @param password		The password
+	 * @param updatePort	The port to send updates
+	 * @return				The status of the received response
+	 */
 	public LogInRequestStatus logIn(String username, String password, int updatePort) {
 		send(new LogInRequest(username, password, updatePort).toXml());
 		LogInRequest resp = (LogInRequest) XMLParsable.toObject(receive());
@@ -56,20 +74,37 @@ public class Session {
 		return resp.getStatus();
 	}
 	
+	/**
+	 * Connects t the given host at the given port, if not already connected to a host
+	 * @param host
+	 * @param port
+	 */
 	public void connect(String host, int port) {
 		if(!isConnected()) {
 			connection.connect(host, port);
 		}
 	}
 	
+	/**
+	 * Sends the given message to the connected host
+	 * @param msg	The message to send
+	 */
 	public void send(String msg) {
 		connection.send(msg);
 	}
-	
+
+	/**
+	 * Tries to receive a message from the connected host
+	 * @return	The received message
+	 */
 	public String receive() {
 		return connection.receive();
 	}
 	
+	/**
+	 * Adds the given JPanel to this Session's JFrame
+	 * @param panel	The JPanel to add
+	 */
 	public void addPanel(JPanel panel) {
 		currentPanel.setVisible(false);
 		currentPanel = panel;
@@ -78,6 +113,9 @@ public class Session {
 		fixFrame();
 	}
 	
+	/**
+	 * Fixes this Session's JFrame by repainting it, packing it, moving it to the middle and setting it's size by adding some space
+	 */
 	public void fixFrame() {
 		frame.repaint();
 		frame.pack();
@@ -99,15 +137,6 @@ public class Session {
 	
 	public User getUser() {
 		return user;
-	}
-	
-	public static void callOnUser(int stian){
-		if (stian > 1){
-			System.out.println("Stian e stein");
-		}
-		else{
-			System.out.println("Stian e steinar");
-		}
 	}
 	
 	public void processUpdate(Object o) {
@@ -136,9 +165,5 @@ public class Session {
 			if(d.isConfirmed()) user.addConfirmedDebt(d);
 			else user.addPendingDebt(d);
 		}
-	}
-	
-	public static void main(String[] args) {
-		Session.session.startGUI();
 	}
 }

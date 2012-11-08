@@ -2,7 +2,6 @@ package network;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.Map;
 
 import requests.XMLParsable;
 
-import logic.Debt;
-import logic.DebtStatus;
 import logic.User;
 
 public class ServerConnection {
@@ -33,10 +30,18 @@ public class ServerConnection {
 		this.handlers.remove(handler);
 	}
 	
+	/**
+	 * @return	The next available debt id
+	 */
 	public synchronized long getNextDebtId() {
 		return nextDebtId++;
 	}
 	
+	/**
+	 * Notifies the specified user by sending the given object to the user's UpdateListener
+	 * @param username		The user to notify
+	 * @param objectToSend	The object to send
+	 */
 	public void notifyUser(String username, XMLParsable objectToSend) {
 		System.out.println("Notifying " + username);
 		ServerConnectionHandler handler = getHandler(username);
@@ -46,6 +51,11 @@ public class ServerConnection {
 		}
 	}
 	
+	/**
+	 * Returns the specified user's ServerConnectionHandler
+	 * @param username	The user's user name
+	 * @return			The user's ServerConnectionHandler
+	 */
 	public ServerConnectionHandler getHandler(String username) {
 		for (ServerConnectionHandler h : handlers) {
 			if(h.getUser().getUsername().equals(username)) return h;
@@ -53,14 +63,19 @@ public class ServerConnection {
 		return null;
 	}
 	
-	public void accept(int port) throws IllegalArgumentException {
+	/**
+	 * Listens at the specified port for incoming connections.
+	 * Incoming connections are given to a ServerConnectionHandler that is started in a separate Thread.
+	 * This method will run "forever"
+	 * @param port						The port to listen to
+	 */
+	public void accept(int port) {
 		ServerSocket ss = null;
 		try {
 			ss = new ServerSocket(port);
 			while(true) {
 				System.out.println("Listening for incomming connections..");
 				new ServerConnectionHandler(ss.accept(), this).start();
-				System.out.println("Someone connected!");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
