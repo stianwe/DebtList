@@ -58,7 +58,8 @@ public class Main {
 			Debt d = null;
 			if(!acceptOrDecline.equals("complete")) {
 				for (int i = 0; i < Session.session.getUser().getNumberOfPendingDebts(); i++) {
-					if(Session.session.getUser().getPendingDebt(i).getId() == id) {
+					// Find the debt with the specified ID, and check that this user is not the one that requested it
+					if(Session.session.getUser().getPendingDebt(i).getId() == id && !Session.session.getUser().getPendingDebt(i).getRequestedBy().equals(Session.session.getUser())) {
 						d = Session.session.getUser().getPendingDebt(i);
 						break;
 					}
@@ -67,6 +68,11 @@ public class Main {
 				for (int i = 0; i < Session.session.getUser().getNumberOfConfirmedDebts(); i++) {
 					if(Session.session.getUser().getConfirmedDebt(i).getId() == id) {
 						d = Session.session.getUser().getConfirmedDebt(i);
+						// Check if this user already has completed this debt
+						if((d.getTo().equals(Session.session.getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_TO) || (d.getFrom().equals(Session.session.getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_FROM)) {
+							System.out.println("You have already marked this debt as completed.");
+							return;
+						}
 						break;
 					}
 				}
@@ -84,7 +90,6 @@ public class Main {
 			}
 			Session.session.send(d.toSendable(false).toXml());
 			Session.session.processUpdate(XMLParsable.toObject(Session.session.receive()));
-			// TODO	What will we receive?
 		} catch (Exception e) {
 			System.out.println("Syntax error!");
 			System.out.println("Correct syntax: <accept/decline/complete> debt <ID>");

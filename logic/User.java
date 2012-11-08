@@ -80,6 +80,10 @@ public class User extends Sendable{
 		return confirmedDebts;
 	}
 	
+	public boolean removePendingDebt(Debt d) {
+		return pendingDebts.remove(d);
+	}
+	
 	public int getNumberOfWaitingDebts() {
 		int c = 0;
 		for (Debt d : pendingDebts) {
