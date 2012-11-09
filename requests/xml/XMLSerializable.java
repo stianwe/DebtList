@@ -3,6 +3,10 @@ package requests.xml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -32,6 +36,7 @@ abstract public class XMLSerializable {
 	private static final String TAG_BOOLEAN = "boolean";
 	private static final String TAG_LONG = "long";
 	private static final String TAG_XMLSER = "xmlserializable";
+	private static final String TAG_ENUM = "enum";
 	private static final String TAG_OUTER = "xml";
 	
 	/**
@@ -129,7 +134,6 @@ abstract public class XMLSerializable {
 	 * @param inner
 	 * @param obj
 	 */
-	@SuppressWarnings("rawtypes")
 	private void serializeValue(Set<String> registeredIds, StringBuilder inner, StringBuilder pre, Object obj) {
 		if(obj instanceof String) {
 			inner.append("<"+TAG_STRING+"><![CDATA["+obj.toString()+"]]></"+TAG_STRING+">");					
@@ -143,8 +147,8 @@ abstract public class XMLSerializable {
 			if(!registeredIds.contains(s.getGlobalId())) {
 				pre.append(s.toXML(registeredIds));
 			}
-		} else if(obj instanceof List) {
-			List l = (List) obj;
+		} else if(obj instanceof List<?>) {
+			List<?> l = (List<?>) obj;
 			inner.append("<"+TAG_LIST+">");
 			for(Object lo : l) {
 				serializeValue(registeredIds, inner, pre, lo);
@@ -156,6 +160,8 @@ abstract public class XMLSerializable {
 			inner.append("<"+TAG_LONG+">"+obj.toString()+"</"+TAG_LONG+">");
 		} else if(obj instanceof Boolean) {
 			inner.append("<"+TAG_BOOLEAN+">"+(obj.toString())+"</"+TAG_BOOLEAN+">");
+		} else if(obj instanceof Enum) {
+			inner.append("<"+TAG_ENUM+" class=\""+obj.getClass().getName()+"\">"+obj+"</"+TAG_ENUM+">");
 		} else {
 			throw new RuntimeException("Uknown type "+obj.getClass().getName());
 		}
@@ -180,15 +186,17 @@ abstract public class XMLSerializable {
 	 *     objects in memory
 	 * 
 	 */
+	@SuppressWarnings("rawtypes")
 	private static DefaultHandler handler = new DefaultHandler() {
 		
 		private Map<String, XMLSerializable> reg;
 		private XMLSerializable object;
 		private String varName;
 		private String type;
-		private List list;
+		private List<Object> list;
 		private int stage = -1;
 		private int listPos;
+		private Class enumClass;
 		
 		/**
 		 * Start of a tag
@@ -197,16 +205,17 @@ abstract public class XMLSerializable {
 		 * variable for later reference
 		 * 
 		 * @param uri
-		 * @param localName
+		 * @param name
 		 * @param qName
 		 * @param attributes
 		 * @throws SAXException
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
-		public void startElement(String uri, String localName, String qName,
+		public void startElement(String uri, String name, String qName,
 				Attributes attributes) throws SAXException {
 
-			if(localName.equals(TAG_OUTER)) {
+			if(name.equals(TAG_OUTER)) {
 				if(stage == -1 || stage == 2) {
 					stage = 1;
 					reg = new HashMap<String, XMLSerializable>();
@@ -217,40 +226,45 @@ abstract public class XMLSerializable {
 			} else if(object == null) {
 				if(stage == 1) {
 					try {
-						Object o = getClass().getClassLoader().loadClass(localName)
+						Object o = getClass().getClassLoader().loadClass(name)
 								.newInstance();
 						if(o instanceof XMLSerializable) {
 							object = (XMLSerializable) o;
 							reg.put(attributes.getValue("id"), object);
 						} else {
-							throw new RuntimeException("Unknown class name "+localName);
+							throw new Exception("Class "+name+" is not an"+
+									"instance of XMLSerializable");
 						}
-					} catch (InstantiationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (Exception e) {
+						throw new SAXException(
+								"Unable to instanciate sent class "+name, e
+								);
 					}
 				} else if(stage == 2) {
 					object = reg.get(attributes.getValue("id"));
 				}
 			} else if(varName == null) {
-				varName = localName;
+				varName = name;
 			} else if(type == null) {
-				if(localName.equals(TAG_LIST)) {
+				if(name.equals(TAG_LIST)) {
 					listPos = 0;
 					if(stage == 1) {
-						list = new LinkedList();						
+						list = new LinkedList<Object>();						
 						object.setVariable(varName, list);
 					} else if(stage == 2) {
-						list = (List) object.getVariable(varName);
+						list = (List<Object>) object.getVariable(varName);
+					}
+				} else if(name.equals(TAG_ENUM)) {
+					try {
+						enumClass = getClass().getClassLoader()
+								.loadClass(attributes.getValue("class"));
+					} catch (ClassNotFoundException e) {
+						throw new SAXException(
+								"Unable to instanciate sent enum class "+name, e
+								);
 					}
 				} else {
-					type = localName;
+					type = name;
 				}
 			}				
 		}
@@ -285,6 +299,7 @@ abstract public class XMLSerializable {
 		 * @param length
 		 * @throws SAXException
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public void characters(char[] ch, int start, int length)
 				throws SAXException {
@@ -294,6 +309,9 @@ abstract public class XMLSerializable {
 					if(list != null) {
 						list.add(obj);
 						type = null;
+					} else if(enumClass != null) { 
+						object.setVariable(varName, Enum.valueOf(enumClass, 
+								new String(ch, start, length)));
 					} else {
 						object.setVariable(varName, obj);
 						varName = type = null;
@@ -354,8 +372,9 @@ abstract public class XMLSerializable {
 	 * above
 	 * 
 	 * @param xml
+	 * @return the restored object
 	 */
-	public static XMLSerializable toObject(String xml) {
+	public static XMLSerializable toObject(String xml) throws IOException {
 		XMLReader xr;
 		try {
 			xr = XMLReaderFactory.createXMLReader();
@@ -376,12 +395,10 @@ abstract public class XMLSerializable {
 	        return toObject;	        
 	        
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IOException("Invalid XML data", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Should really never happen
+			throw new IOException("IOException handling XML data", e);
 		}
-		return null;
-	}	
+	}
 }
