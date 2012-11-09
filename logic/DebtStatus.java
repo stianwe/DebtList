@@ -6,12 +6,12 @@ public enum DebtStatus {
 	
 	public static int NUMBER_OF_STATUSES = 6;
 	
-	public String toString() {
+	/*public String toString() {
 		for (int i = 0; i < NUMBER_OF_STATUSES; i++) {
 			if(this.ordinal() == i) {
 				return i + "";
 			}
 		}
 		return -1 + "";
-	}
+	}*/
 }
