@@ -1,4 +1,4 @@
-package xml;
+package requests.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,6 +16,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
+
+import xml.User;
 
 /**
  * A object that supports serializing to and from a simple XML format
@@ -57,7 +59,7 @@ abstract public class XMLSerializable {
 	 * 
 	 * @return
 	 */
-	protected abstract String getId();
+	protected abstract long getId();
 	
 	/**
 	 * Get a globally unique id number by combining the Id with the class name

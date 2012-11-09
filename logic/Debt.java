@@ -1,8 +1,9 @@
 package logic;
 
-import requests.XMLParsable;
+import requests.xml.XMLSerializable;
 
-public class Debt extends Sendable {
+
+public class Debt extends XMLSerializable {
 
 	private long id;
 	private double amount;
@@ -11,44 +12,58 @@ public class Debt extends Sendable {
 //	private boolean isDone, isConfirmed, isDeleted;
 	private DebtStatus status;
 	
-	public static void main(String[] args) {
-		System.out.println(DebtStatus.REQUESTED);
-		System.out.println(DebtStatus.CONFIRMED);
-		System.out.println(DebtStatus.values()[Integer.parseInt((String) DebtStatus.CONFIRMED.toString())]);
-		Debt d = new Debt(1, 2, "ja", null, null, "asd", null, DebtStatus.values()[Integer.parseInt((String) DebtStatus.CONFIRMED.toString())]);
-		System.out.println(d.getStatus());
-		System.out.println(d.getVariable("status"));
-		System.out.println(DebtStatus.values()[Integer.parseInt((String) d.getVariable("status").toString())]);
-		System.out.println(new Debt(2, 2, "asd", null, null, "asd", null, DebtStatus.CONFIRMED).toSendable(false).toXml());
-	}
+	/**
+	 * Empty constructor used when restoring objects from XML
+	 */
+	public Debt() {}
 	
+	/**
+	 * Create a new Debt 
+	 * 
+	 * @param id
+	 * @param amount
+	 * @param what
+	 * @param from
+	 * @param to
+	 * @param comment
+	 * @param requestedBy
+	 */
 	public Debt(long id, double amount, String what, User from, User to, String comment, User requestedBy) {
 		setAmount(amount);
-		this.id = id;
-		addVariable("id", id);
+		setVariable("id", id);
 		setWhat(what);
 //		setIsDeleted(false);
 		setFrom(from);
 		setTo(to);
 //		setDone(false);
 		setComment(comment);
-		this.requestedBy = requestedBy;
-		addVariable("requestedBy", requestedBy);
+		setVariable("requestedBy", requestedBy);
 		setStatus(DebtStatus.REQUESTED);
 	}
 	
+	/**
+	 * Create a new Debt with a predefined status
+	 * 
+	 * @param id
+	 * @param amount
+	 * @param what
+	 * @param from
+	 * @param to
+	 * @param comment
+	 * @param requestedBy
+	 * @param status
+	 */
 	public Debt(long id, double amount, String what, User from, User to, String comment, User requestedBy, DebtStatus status) {
 		this(id, amount, what, from, to, comment, requestedBy);
 		setStatus(status);
 	}
 	
 	public DebtStatus getStatus() {
-		return status;
+		return (DebtStatus) getVariable("status");
 	}
 	
 	public void setStatus(DebtStatus status) {
-		this.status = status;
-		addVariable("status", status);
+		setVariable("status", status);
 	}
 	
 //	public void setIsDeleted(boolean isDeleted) {
@@ -61,12 +76,12 @@ public class Debt extends Sendable {
 //	}
 	
 	public long getId(){
-		return id;
+		return (Long) getVariable("id");
 	}
 	
 	public boolean isConfirmed() {
 //		return isConfirmed;
-		return status == DebtStatus.CONFIRMED;
+		return getVariable("status") == DebtStatus.CONFIRMED;
 	}
 	
 //	public void setIsConfirmed(boolean isConfirmed) {
@@ -75,16 +90,15 @@ public class Debt extends Sendable {
 //	}
 	
 	public User getRequestedBy() {
-		return requestedBy;
+		return (User) getVariable("requestedBy");
 	}
 	
 	public String getComment() {
-		return comment;
+		return (String) getVariable("comment");
 	}
 	
 	public void setComment(String comment) {
-		this.comment = comment;
-		addVariable("comment", comment);
+		setVariable("comment", comment);
 	}
 	
 //	public boolean isDone() {
@@ -97,63 +111,42 @@ public class Debt extends Sendable {
 //	}
 	
 	public double getAmount() {
-		return amount;
+		return (Double) getVariable("amount");
 	}
 
 	public String getWhat() {
-		return what;
+		return (String) getVariable("what");
 	}
 
 	public void setId(long id) {
-		this.id = id;
-		addVariable("id", id);
+		setVariable("id", id);
 	}
 	
 	public void setWhat(String what) {
-		this.what = what;
-		addVariable("what", what);
+		setVariable("what", what);
 	}
 
 	public User getFrom() {
-		return from;
+		return (User) getVariable("from");
 	}
 
 	public void setFrom(User from) {
-		this.from = from;
-		addVariable("from", from);
+		setVariable("from", from);
 	}
 
 	public User getTo() {
-		return to;
+		return (User) getVariable("to");
 	}
 
 	public void setTo(User to) {
-		this.to = to;
-		addVariable("to", to);
+		setVariable("to", to);
 	}
 
 	public void setAmount(double amount) {
-		this.amount = amount;
-		addVariable("amount", amount);
-	}
-
-	@Override
-	public String getClassName() {
-		return "Debt";
+		setVariable("amount", amount);
 	}
 	
 	public String toString() {
 		return "Amount: " + amount + ", what: " + what + ", from: " + from.getUsername() + ", to: " + to.getUsername() + ", comment: " + comment;
-	}
-
-	/**
-	 * Returns a sendable version of this object. Will e.g. use the toSendable()-method on included users.
-	 * @param fromServer	If the returned object will be sent from the server (true) or not (false). 
-	 * @return				A sendable version of this object.
-	 */
-	@Override
-	public Sendable toSendable(boolean fromServer) {
-		return new Debt(id, amount, what, (User) from.toSendable(false), (User) to.toSendable(false), comment, (User) requestedBy.toSendable(false), status);
-	}
-	
+	}	
 }
