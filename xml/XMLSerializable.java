@@ -25,6 +25,12 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 abstract public class XMLSerializable {
 
+	private static final String TAG_LIST = "listz";
+	private static final String TAG_STRING = "stringz";
+	private static final String TAG_INTEGER = "intz";
+	private static final String TAG_XMLSER = "xmlserializablez";
+	private static final String TAG_OUTER = "xmlz";
+	
 	/**
 	 * All serializable variables in the object
 	 */
@@ -88,7 +94,7 @@ abstract public class XMLSerializable {
 	 * @return
 	 */
 	public String toXML() {
-		return "<xml>"+toXML(null)+"</xml>";
+		return "<"+TAG_OUTER+">"+toXML(null)+"</"+TAG_OUTER+">";
 	}
 	
 	/**
@@ -123,25 +129,24 @@ abstract public class XMLSerializable {
 	@SuppressWarnings("rawtypes")
 	private void serializeValue(Set<String> registeredIds, StringBuilder inner, StringBuilder pre, Object obj) {
 		if(obj instanceof String) {
-			inner.append("<string>"+obj.toString()+"</string>");					
+			inner.append("<"+TAG_STRING+">"+obj.toString()+"</"+TAG_STRING+">");					
 		} else if(obj instanceof Integer) {
-			inner.append("<int>"+obj.toString()+"</int>");
+			inner.append("<"+TAG_INTEGER+">"+obj.toString()+"</"+TAG_INTEGER+">");
 		} else if(obj instanceof XMLSerializable) {
 			XMLSerializable s = (XMLSerializable) obj;
 			inner.append(String.format(
-					"<xmlserializable>%s</xmlserializable>", 
-					s.getGlobalId()
+					"<%s>%s</%s>", TAG_XMLSER, s.getGlobalId(), TAG_XMLSER
 				));
 			if(!registeredIds.contains(s.getGlobalId())) {
 				pre.append(s.toXML(registeredIds));
 			}
 		} else if(obj instanceof List) {
 			List l = (List) obj;
-			inner.append("<list>");
+			inner.append("<"+TAG_LIST+">");
 			for(Object lo : l) {
 				serializeValue(registeredIds, inner, pre, lo);
 			}
-			inner.append("</list>");
+			inner.append("</"+TAG_LIST+">");
 		} else {
 			throw new RuntimeException("Uknown type "+obj.getClass().getName());
 		}
@@ -192,7 +197,7 @@ abstract public class XMLSerializable {
 		public void startElement(String uri, String localName, String qName,
 				Attributes attributes) throws SAXException {
 
-			if(localName.equals("xml")) {
+			if(localName.equals(TAG_OUTER)) {
 				if(stage == -1 || stage == 2) {
 					stage = 1;
 					reg = new HashMap<String, XMLSerializable>();
@@ -227,8 +232,8 @@ abstract public class XMLSerializable {
 			} else if(varName == null) {
 				varName = localName;
 			} else if(type == null) {
-				if(localName.equals("list")) {
-					listPos = -1;
+				if(localName.equals(TAG_LIST)) {
+					listPos = 0;
 					if(stage == 1) {
 						list = new LinkedList();						
 						object.setVariable(varName, list);
@@ -251,11 +256,11 @@ abstract public class XMLSerializable {
 		 * @throws SAXException
 		 */
 		public void endElement(String uri, String localName, String qName) throws SAXException {
-			if(list != null && localName.equals("list")) {
+			if(list != null && localName.equals(TAG_LIST)) {
 				list = null;
 				varName = null;
 			} else if(object != null && localName.equals(object.getClass().getName())) {
-				if(stage == 2) toObject = object;
+				toObject = object;
 				object = null;				
 			}
 		};
@@ -284,9 +289,8 @@ abstract public class XMLSerializable {
 						object.setVariable(varName, obj);
 						varName = type = null;
 					}
-				} else if(stage == 2) {
-					if(list != null) listPos++;					
-					if(type.equals("xmlserializable")) {
+				} else if(stage == 2) {			
+					if(type.equals(TAG_XMLSER)) {
 						Object obj = reg.get(new String(ch, start, length));
 						if(list != null) {
 							list.remove(listPos);
@@ -296,6 +300,12 @@ abstract public class XMLSerializable {
 							object.setVariable(varName, obj);
 							varName = type = null;
 						}
+					}
+					if(list != null) {
+						type = null;
+						listPos++;
+					} else {
+						varName = type = null;
 					}
 				}
 			}
@@ -308,11 +318,11 @@ abstract public class XMLSerializable {
 		 * @return
 		 */
 		private Object toObjectHelper(String data) {
-			if(type.equals("int")) {
+			if(type.equals(TAG_INTEGER)) {
 				return Integer.parseInt(data);
-			} else if(type.equals("string")) {
+			} else if(type.equals(TAG_STRING)) {
 				return data;
-			} else if(type.equals("xmlserializable")){
+			} else if(type.equals(TAG_XMLSER)){
 				// Placeholder data
 				return null;				
 			} else {
@@ -364,9 +374,8 @@ abstract public class XMLSerializable {
 		User u = new User();
 		System.out.println(u.toXML());
 		User u1 = (User) XMLSerializable.toObject(u.toXML());
+		System.out.println(u1);
 		System.out.println(u1.getVariable("group"));
-		
-		
 	}
 	
 }
