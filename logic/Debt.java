@@ -5,13 +5,20 @@ import requests.xml.XMLSerializable;
 
 public class Debt extends XMLSerializable {
 
-	private long id;
-	private double amount;
-	private String what, comment;
-	private User from, to, requestedBy;
-//	private boolean isDone, isConfirmed, isDeleted;
-	private DebtStatus status;
+	public static void main(String[] args) throws Exception {
+		User u1 = new User(1, "tset");
+		User u2 = new User(2, "test");
+		Debt d = new Debt(1, 100, "Penger", u1, u2, "Viktig kommentar!", u1);
+		
+		String xml = d.toXML();
+		
+		System.out.println(xml);
+		
+		Debt d2 = (Debt) XMLSerializable.toObject(xml);
+		System.out.println(d.getRequestedBy().getUsername());
+	}
 	
+//	private boolean isDone, isConfirmed, isDeleted;
 	/**
 	 * Empty constructor used when restoring objects from XML
 	 */
@@ -147,6 +154,6 @@ public class Debt extends XMLSerializable {
 	}
 	
 	public String toString() {
-		return "Amount: " + amount + ", what: " + what + ", from: " + from.getUsername() + ", to: " + to.getUsername() + ", comment: " + comment;
+		return "Amount: " + getAmount() + ", what: " + getWhat() + ", from: " + getFrom().getUsername() + ", to: " + getTo().getUsername() + ", comment: " + getComment();
 	}	
 }

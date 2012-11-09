@@ -2,48 +2,60 @@ package logic;
 import java.util.ArrayList;
 import java.util.List;
 
-import requests.XMLParsable;
+import requests.xml.XMLSerializable;
 
 
-public class User extends Sendable{
+public class User extends XMLSerializable {
 
-	private String username, password, surName, lastName;
-	private List<User> friends;
-	private List<Debt> pendingDebts, confirmedDebts;
 //	private DebtList debts;
 	private boolean isOnline;
 	
+	/**
+	 * Empty constructor for 
+	 */
+	public User() {}
+	
+	public User(long ID, String username) {
+		this(ID, username, null);
+	}
+	
 	public User(String username, String password) {
+		this(-1, username, password);
+	}
+	
+	public User(long ID, String username, String password) {
+		this(ID, username, password, null);
+	}	
+	
+	public User(long ID, String username, String password, List<User> friends) {	
+		setVariable("id", ID);
 		// TODO: Add all variables to the list!
-		this.username = username;
-		addVariable("username", this.username);
-		this.password = password;
-		addVariable("password", this.password);
+		setVariable("username", username);
+		setVariable("password", password);
 		// TODO: FIX UNDER!
 //		debts = new DebtList(this, null);
-		pendingDebts = new ArrayList<Debt>();
-		addVariable("pendingDebts", pendingDebts);
-		confirmedDebts = new ArrayList<Debt>();
-		addVariable("confirmedDebts", confirmedDebts);
+		setVariable("pendingDebts", new ArrayList<Debt>());
+		setVariable("confirmedDebts", new ArrayList<Debt>());
+		setVariable("friends", friends);
 	}
 	
-	public User(String username) {
-		this(username, null);
-	}
-	
-	public User(String username, String password, List<User> friends) {
-		this(username, password);
-		this.friends = friends;
-		addVariable("friends", friends);
-	}
-	
-	private User(String username, String password, List<String> friendUsernames, List<Debt> pendingDebts, List<Debt> confirmedDebts) {
+	// ?
+	/*private User(String username, String password, List<String> friendUsernames, List<Debt> pendingDebts, List<Debt> confirmedDebts) {
 		this(username, password);
 		for (String s : friendUsernames) {
 			addFriend(new User(s));
 		}
-		addVariable("pendingDebts", pendingDebts);
-		addVariable("confirmedDebts", confirmedDebts);
+		setVariable("pendingDebts", pendingDebts);
+		setVariable("confirmedDebts", confirmedDebts);
+	}*/
+	
+	/**
+	 * User identification
+	 * 
+	 * @return
+	 */
+	public long getId() {
+		return (Long) getVariable("id");
 	}
 	
 	/**
@@ -51,7 +63,7 @@ public class User extends Sendable{
 	 * @param fromServer	If the returned object will be sent from the server (true) or not (false). If false debts will not be included.
 	 * @return				A sendable version of this object.
 	 */
-	public Sendable toSendable(boolean fromServer) {
+	/*public Sendable toSendable(boolean fromServer) {
 		List<String> friendUsernames = new ArrayList<String>();
 		if(friends != null) {
 			for (User f : friends) {
@@ -70,50 +82,50 @@ public class User extends Sendable{
 			}
 		}
 		return new User(username, password, friendUsernames, (fromServer ? pd : null), (fromServer ? cd : null));
-	}
+	}*/
 	
 	public List<Debt> getPendingDebts() {
-		return pendingDebts;
+		return (List<Debt>) getVariable("pendingDebts");
 	}
 	
 	public List<Debt> getConfirmedDebts() {
-		return confirmedDebts;
+		return (List<Debt>) getVariable("confirmedDebts");
 	}
 	
 	public int getNumberOfWaitingDebts() {
 		int c = 0;
-		for (Debt d : pendingDebts) {
+		for (Debt d : getPendingDebts()) {
 			if(d.getRequestedBy() != this) c++;
 		}
 		return c;
 	}
 	
 	public int getNumberOfPendingDebts() {
-		return pendingDebts.size();
+		return getPendingDebts().size();
 	}
 	
 	public int getNumberOfConfirmedDebts() {
-		return confirmedDebts.size();
+		return getConfirmedDebts().size();
 	}
 	
 	public Debt getPendingDebt(int i) {
-		return pendingDebts.get(i);
+		return getPendingDebts().get(i);
 	}
 	
 	public Debt getConfirmedDebt(int i) {
-		return confirmedDebts.get(i);
+		return getConfirmedDebts().get(i);
 	}
 	
 	public void addPendingDebt(Debt d) {
-		pendingDebts.add(d);
+		getPendingDebts().add(d);
 	}
 	
 	public void addConfirmedDebt(Debt d) {
-		confirmedDebts.add(d);
+		getConfirmedDebts().add(d);
 	}
 	
 	public int getNumberOfTotalDebts() {
-		return pendingDebts.size() + confirmedDebts.size();
+		return getNumberOfPendingDebts() + getNumberOfConfirmedDebts();
 	}
 	
 //	public void addDebt(Debt d) {
@@ -132,20 +144,24 @@ public class User extends Sendable{
 		return null;
 	}
 	
+	private List<User> getFriends() {
+		return (List<User>) getVariable("friends");
+	}
+	
 	public int getNumberOfFriends() {
-		return friends.size();
+		return getFriends().size();
 	}
 	
 	public User getFriend(int i) {
-		return friends.get(i);
+		return getFriends().get(i);
 	}
 	
 	public String getUsername() {
-		return username;
+		return (String) getVariable("username");
 	}
 	
 	public String getPassword() {
-		return password;
+		return (String) getVariable("password");
 	}
 	
 	public boolean isOnline() {
@@ -157,30 +173,24 @@ public class User extends Sendable{
 	}
 
 	public Debt removeConfirmedDebt(int i) {
-		return confirmedDebts.remove(i);
+		return getConfirmedDebts().remove(i);
 	}
 	
 	public Debt removePendingDebt(int i) {
-		return pendingDebts.remove(i);
-	}
-	
-	@Override
-	public String getClassName() {
-		return "User";
+		return getPendingDebts().remove(i);
 	}
 	
 	public void addFriend(User friend) {
-		if(friends == null) {
-			this.friends = new ArrayList<User>();
-			addVariable("friends", this.friends);
+		if(getFriends() == null) {
+			setVariable("friends", new ArrayList<User>());
 		}
-		friends.add(friend);
+		getFriends().add(friend);
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if(!(o instanceof User)) return false;
-		return username.equals(((User)o).getUsername());
+		return getUsername().equals(((User)o).getUsername());
 //		User u = (User) o;
 //		if(this.getNumberOfVariables() != u.getNumberOfVariables()) return false;
 //		for (int i = 0; i < this.getNumberOfVariables(); i++) {
@@ -191,12 +201,13 @@ public class User extends Sendable{
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Username: " + username + ", password: " + password);
-		if(friends != null) {
+		sb.append("Username: " + getUsername() + ", password: " + getPassword());
+		if(getFriends() != null) {
 			sb.append(", friends = [");
-			for (int i = 0; i < friends.size(); i++) {
-				sb.append(friends.get(i).toString());
-				if(i < friends.size() - 1) {
+			for (int i = 0; i < getFriends().size(); i++) {
+				User f = getFriends().get(i);
+				sb.append(f.toString());
+				if(i < getFriends().size() - 1) {
 					sb.append(", ");
 				}
 			}

@@ -3,9 +3,6 @@ package requests.xml;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +34,7 @@ abstract public class XMLSerializable {
 	private static final String TAG_LONG = "long";
 	private static final String TAG_XMLSER = "xmlserializable";
 	private static final String TAG_ENUM = "enum";
+	private static final String TAG_NULL = "null";
 	private static final String TAG_OUTER = "xml";
 	
 	/**
@@ -162,6 +160,8 @@ abstract public class XMLSerializable {
 			inner.append("<"+TAG_BOOLEAN+">"+(obj.toString())+"</"+TAG_BOOLEAN+">");
 		} else if(obj instanceof Enum) {
 			inner.append("<"+TAG_ENUM+" class=\""+obj.getClass().getName()+"\">"+obj+"</"+TAG_ENUM+">");
+		} else if(obj == null) {
+			inner.append("<"+TAG_NULL+" />");
 		} else {
 			throw new RuntimeException("Uknown type "+obj.getClass().getName());
 		}
@@ -258,6 +258,7 @@ abstract public class XMLSerializable {
 					try {
 						enumClass = getClass().getClassLoader()
 								.loadClass(attributes.getValue("class"));
+						type = TAG_ENUM;
 					} catch (ClassNotFoundException e) {
 						throw new SAXException(
 								"Unable to instanciate sent enum class "+name, e
@@ -308,14 +309,11 @@ abstract public class XMLSerializable {
 					Object obj = toObjectHelper(new String(ch, start, length));
 					if(list != null) {
 						list.add(obj);
-						type = null;
-					} else if(enumClass != null) { 
-						object.setVariable(varName, Enum.valueOf(enumClass, 
-								new String(ch, start, length)));
 					} else {
 						object.setVariable(varName, obj);
-						varName = type = null;
+						varName = null;
 					}
+					enumClass = null; type = null;
 				} else if(stage == 2) {			
 					if(type.equals(TAG_XMLSER)) {
 						Object obj = reg.get(new String(ch, start, length));
@@ -344,6 +342,7 @@ abstract public class XMLSerializable {
 		 * @param data
 		 * @return
 		 */
+		@SuppressWarnings("unchecked")
 		private Object toObjectHelper(String data) {
 			if(type.equals(TAG_INTEGER)) {
 				return Integer.parseInt(data);
@@ -358,6 +357,10 @@ abstract public class XMLSerializable {
 				return Long.parseLong(data);
 			} else if(type.equals(TAG_DOUBLE)) {
 				return Double.parseDouble(data);
+			} else if(type.equals(TAG_NULL)) {
+				return null;
+			} else if(type.equals(TAG_ENUM)) {
+				return Enum.valueOf(enumClass, data);
 			} else {
 				System.err.println("Unknown type "+type);
 			}
@@ -373,6 +376,7 @@ abstract public class XMLSerializable {
 	 * 
 	 * @param xml
 	 * @return the restored object
+	 * @throws IOException on errors parsing the XML
 	 */
 	public static XMLSerializable toObject(String xml) throws IOException {
 		XMLReader xr;
@@ -391,13 +395,11 @@ abstract public class XMLSerializable {
 		        xmlStream.reset();
 		        xr.parse(new InputSource(xmlStream));
 			}
-	        
-	        return toObject;	        
-	        
+	        return toObject;
 		} catch (SAXException e) {
 			throw new IOException("Invalid XML data", e);
 		} catch (IOException e) {
-			// Should really never happen
+			// Should really never happen (?)
 			throw new IOException("IOException handling XML data", e);
 		}
 	}
