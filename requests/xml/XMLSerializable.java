@@ -17,8 +17,6 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import xml.User;
-
 /**
  * A object that supports serializing to and from a simple XML format
  * 
@@ -27,11 +25,14 @@ import xml.User;
  */
 abstract public class XMLSerializable {
 
-	private static final String TAG_LIST = "listz";
-	private static final String TAG_STRING = "stringz";
-	private static final String TAG_INTEGER = "intz";
-	private static final String TAG_XMLSER = "xmlserializablez";
-	private static final String TAG_OUTER = "xmlz";
+	private static final String TAG_LIST = "list";
+	private static final String TAG_STRING = "string";
+	private static final String TAG_INTEGER = "int";
+	private static final String TAG_DOUBLE = "double";
+	private static final String TAG_BOOLEAN = "boolean";
+	private static final String TAG_LONG = "long";
+	private static final String TAG_XMLSER = "xmlserializable";
+	private static final String TAG_OUTER = "xml";
 	
 	/**
 	 * All serializable variables in the object
@@ -131,7 +132,7 @@ abstract public class XMLSerializable {
 	@SuppressWarnings("rawtypes")
 	private void serializeValue(Set<String> registeredIds, StringBuilder inner, StringBuilder pre, Object obj) {
 		if(obj instanceof String) {
-			inner.append("<"+TAG_STRING+">"+obj.toString()+"</"+TAG_STRING+">");					
+			inner.append("<"+TAG_STRING+"><![CDATA["+obj.toString()+"]]></"+TAG_STRING+">");					
 		} else if(obj instanceof Integer) {
 			inner.append("<"+TAG_INTEGER+">"+obj.toString()+"</"+TAG_INTEGER+">");
 		} else if(obj instanceof XMLSerializable) {
@@ -149,6 +150,12 @@ abstract public class XMLSerializable {
 				serializeValue(registeredIds, inner, pre, lo);
 			}
 			inner.append("</"+TAG_LIST+">");
+		} else if(obj instanceof Double) {
+			inner.append("<"+TAG_DOUBLE+">"+obj.toString()+"</"+TAG_DOUBLE+">");
+		} else if(obj instanceof Long) {
+			inner.append("<"+TAG_LONG+">"+obj.toString()+"</"+TAG_LONG+">");
+		} else if(obj instanceof Boolean) {
+			inner.append("<"+TAG_BOOLEAN+">"+(obj.toString())+"</"+TAG_BOOLEAN+">");
 		} else {
 			throw new RuntimeException("Uknown type "+obj.getClass().getName());
 		}
@@ -159,7 +166,7 @@ abstract public class XMLSerializable {
 	 * resulting object. (The resulting object is always the last object
 	 * defined within the XML)
 	 */
-	private static Object toObject;
+	private static XMLSerializable toObject;
 	
 	/**
 	 * SAX handler used for object restoration
@@ -262,7 +269,7 @@ abstract public class XMLSerializable {
 				list = null;
 				varName = null;
 			} else if(object != null && localName.equals(object.getClass().getName())) {
-				toObject = object;
+				toObject = (XMLSerializable) object;
 				object = null;				
 			}
 		};
@@ -327,6 +334,12 @@ abstract public class XMLSerializable {
 			} else if(type.equals(TAG_XMLSER)){
 				// Placeholder data
 				return null;				
+			} else if(type.equals(TAG_BOOLEAN)) {
+				return data.equals("true");
+			} else if(type.equals(TAG_LONG)) {
+				return Long.parseLong(data);
+			} else if(type.equals(TAG_DOUBLE)) {
+				return Double.parseDouble(data);
 			} else {
 				System.err.println("Unknown type "+type);
 			}
@@ -342,7 +355,7 @@ abstract public class XMLSerializable {
 	 * 
 	 * @param xml
 	 */
-	public static Object toObject(String xml) {
+	public static XMLSerializable toObject(String xml) {
 		XMLReader xr;
 		try {
 			xr = XMLReaderFactory.createXMLReader();
@@ -370,14 +383,5 @@ abstract public class XMLSerializable {
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	public static void main(String[] args) {
-		User u = new User();
-		System.out.println(u.toXML());
-		User u1 = (User) XMLSerializable.toObject(u.toXML());
-		System.out.println(u1);
-		System.out.println(u1.getVariable("group"));
-	}
-	
+	}	
 }
