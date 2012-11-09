@@ -109,7 +109,7 @@ abstract public class XMLSerializable {
 			serializeValue(registeredIds, inner, pre, getVariable(key));
 			inner.append("</"+key+">");
 		}
-		return pre.toString() + "<" + getClass().getName() + ">\n" +
+		return pre.toString() + "<" + getClass().getName() + " id=\""+getGlobalId()+"\">\n" +
 			"\n" + inner.toString() + "</" + getClass().getName() + ">";
 	}
 	
@@ -148,13 +148,23 @@ abstract public class XMLSerializable {
 	}
 	
 	/**
-	 * This object is set to the result object by the SAX handler after
-	 * parsing the entire xml 
+	 * After the SAX handlers two stage process this object is set to the
+	 * resulting object. (The resulting object is always the last object
+	 * defined within the XML)
 	 */
 	private static Object toObject;
 	
 	/**
 	 * SAX handler used for object restoration
+	 * 
+	 * Restoration is a two stage process:
+	 * 
+	 * 	1. All objects are recreated, an all simple data types are restored.
+	 *     Any references to other objects within the same transmission are set
+	 *     to null.
+	 *  2. All object references are now restored, as we now have all the
+	 *     objects in memory
+	 * 
 	 */
 	private static DefaultHandler handler = new DefaultHandler() {
 		
@@ -163,66 +173,130 @@ abstract public class XMLSerializable {
 		private String varName;
 		private String type;
 		private List list;
+		private int stage = -1;
+		private int listPos;
 		
+		/**
+		 * Start of a tag
+		 * 
+		 * Depending on the current state store the name of the tag in a
+		 * variable for later reference
+		 * 
+		 * @param uri
+		 * @param localName
+		 * @param qName
+		 * @param attributes
+		 * @throws SAXException
+		 */
 		@Override
 		public void startElement(String uri, String localName, String qName,
 				Attributes attributes) throws SAXException {
-			if(localName.equals("xml") && reg == null) {
-				reg = new HashMap<String, XMLSerializable>();
-				varName = type = null; list = null; object = null;
+
+			if(localName.equals("xml")) {
+				if(stage == -1 || stage == 2) {
+					stage = 1;
+					reg = new HashMap<String, XMLSerializable>();
+					varName = type = null; list = null; object = null;
+				} else if(stage == 1) {
+					stage = 2;
+				}
 			} else if(object == null) {
-				try {
-					Object o = getClass().getClassLoader().loadClass(localName)
-							.newInstance();
-					if(o instanceof XMLSerializable) {
-						object = (XMLSerializable) o;
-					} else {
-						throw new RuntimeException("Unknown class name "+localName);
+				if(stage == 1) {
+					try {
+						Object o = getClass().getClassLoader().loadClass(localName)
+								.newInstance();
+						if(o instanceof XMLSerializable) {
+							object = (XMLSerializable) o;
+							reg.put(attributes.getValue("id"), object);
+						} else {
+							throw new RuntimeException("Unknown class name "+localName);
+						}
+					} catch (InstantiationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} else if(stage == 2) {
+					object = reg.get(attributes.getValue("id"));
 				}
 			} else if(varName == null) {
 				varName = localName;
 			} else if(type == null) {
 				if(localName.equals("list")) {
-					list = new LinkedList();
-					object.setVariable(varName, list);
+					listPos = -1;
+					if(stage == 1) {
+						list = new LinkedList();						
+						object.setVariable(varName, list);
+					} else if(stage == 2) {
+						list = (List) object.getVariable(varName);
+					}
 				} else {
 					type = localName;
 				}
 			}				
 		}
 		
+		/**
+		 * End of a tag
+		 * 
+		 * 
+		 * @param uri
+		 * @param localName
+		 * @param qName
+		 * @throws SAXException
+		 */
 		public void endElement(String uri, String localName, String qName) throws SAXException {
 			if(list != null && localName.equals("list")) {
 				list = null;
 				varName = null;
 			} else if(object != null && localName.equals(object.getClass().getName())) {
-				reg.put(object.getClass().getName(), object);
-				toObject = object;
+				if(stage == 2) toObject = object;
 				object = null;				
 			}
 		};
 		
+		/**
+		 * Raw data found 
+		 * 
+		 * If this should be the value of a parameter we'll store it where it
+		 * belongs
+		 * 
+		 * @param ch
+		 * @param start
+		 * @param length
+		 * @throws SAXException
+		 */
 		@Override
 		public void characters(char[] ch, int start, int length)
 				throws SAXException {
-			if(varName != null && type != null) {
-				Object obj = toObjectHelper(new String(ch, start, length));
-				if(list != null) {
-					list.add(obj);
-					type = null;
-				} else {
-					object.setVariable(varName, obj);
-					varName = type = null;
+			if(varName != null && type != null) {				
+				if(stage == 1) {
+					Object obj = toObjectHelper(new String(ch, start, length));
+					if(list != null) {
+						list.add(obj);
+						type = null;
+					} else {
+						object.setVariable(varName, obj);
+						varName = type = null;
+					}
+				} else if(stage == 2) {
+					if(list != null) listPos++;					
+					if(type.equals("xmlserializable")) {
+						Object obj = reg.get(new String(ch, start, length));
+						if(list != null) {
+							list.remove(listPos);
+							list.add(obj);
+							type = null;
+						} else {
+							object.setVariable(varName, obj);
+							varName = type = null;
+						}
+					}
 				}
 			}
 		}
@@ -238,16 +312,21 @@ abstract public class XMLSerializable {
 				return Integer.parseInt(data);
 			} else if(type.equals("string")) {
 				return data;
+			} else if(type.equals("xmlserializable")){
+				// Placeholder data
+				return null;				
 			} else {
-				System.err.println("Placeholder for object");
+				System.err.println("Unknown type "+type);
 			}
 			return null;
-		}
-		
+		}		
 	};
 	
 	/**
 	 * Convert the given XML back into object form
+	 * 
+	 * This is a two stage process, implemented in the DefaultHandler instance
+	 * above
 	 * 
 	 * @param xml
 	 */
@@ -255,11 +334,19 @@ abstract public class XMLSerializable {
 		XMLReader xr;
 		try {
 			xr = XMLReaderFactory.createXMLReader();
-	        xr.setContentHandler(handler);
-	        xr.setErrorHandler(handler);
-	        InputStream xmlStream = new ByteArrayInputStream(
-	        		xml.getBytes("UTF-8"));
-	        xr.parse(new InputSource(xmlStream));
+			
+			// Only a single thread may access the handler at the time
+			synchronized(handler) {
+		        xr.setContentHandler(handler);
+		        xr.setErrorHandler(handler);
+		        InputStream xmlStream = new ByteArrayInputStream(
+		        		xml.getBytes("UTF-8"));
+		        
+		        // Parse the data twice
+		        xr.parse(new InputSource(xmlStream));
+		        xmlStream.reset();
+		        xr.parse(new InputSource(xmlStream));
+			}
 	        
 	        return toObject;	        
 	        
@@ -277,7 +364,7 @@ abstract public class XMLSerializable {
 		User u = new User();
 		System.out.println(u.toXML());
 		User u1 = (User) XMLSerializable.toObject(u.toXML());
-		System.out.println(u1.getVariable("username"));
+		System.out.println(u1.getVariable("group"));
 		
 		
 	}
