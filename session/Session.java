@@ -1,18 +1,18 @@
 package session;
+import java.io.IOException;
+
 import gui.LogInPanel;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import requests.LogInRequest;
-import requests.LogInRequestStatus;
-import requests.XMLParsable;
-
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
-
 import network.ClientConnection;
+import requests.LogInRequest;
+import requests.LogInRequestStatus;
+import requests.xml.XMLSerializable;
 
 
 public class Session {
@@ -48,10 +48,16 @@ public class Session {
 	}
 	
 	public LogInRequestStatus logIn(String username, String password, int updatePort) {
-		send(new LogInRequest(username, password, updatePort).toXml());
-		LogInRequest resp = (LogInRequest) XMLParsable.toObject(receive());
-		if(resp.isAccepted()) {
-			setUser(resp.getUser());
+		LogInRequest resp = null;
+		try {
+			send(new LogInRequest(username, password, updatePort).toXML());
+			resp = (LogInRequest) XMLSerializable.toObject(receive());
+			if(resp.isAccepted()) {
+				setUser(resp.getUser());
+			}
+		} catch(IOException e) {
+			// TODO 
+			e.printStackTrace();
 		}
 		return resp.getStatus();
 	}

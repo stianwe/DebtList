@@ -9,10 +9,9 @@ import java.util.List;
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
-
 import requests.LogInRequestStatus;
 import requests.UpdateListener;
-import requests.XMLParsable;
+import requests.xml.XMLSerializable;
 import session.Session;
 
 public class Main {
@@ -82,8 +81,8 @@ public class Main {
 			} else {
 				d.setStatus((d.getFrom().equals(Session.session.getUser()) ? DebtStatus.COMPLETED_BY_FROM : DebtStatus.COMPLETED_BY_TO));
 			}
-			Session.session.send(d.toSendable(false).toXml());
-			Session.session.processUpdate(XMLParsable.toObject(Session.session.receive()));
+			Session.session.send(d.toXML());
+			Session.session.processUpdate(XMLSerializable.toObject(Session.session.receive()));
 			// TODO	What will we receive?
 		} catch (Exception e) {
 			System.out.println("Syntax error!");
@@ -110,8 +109,8 @@ public class Main {
 				System.out.println("You can only create debts with your friends.");
 				return;
 			}
-			Session.session.send(new Debt(-1, amount, what, (toFrom.equals("to") ? Session.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : Session.session.getUser()), comment, Session.session.getUser()).toSendable(false).toXml());
-			Debt d = (Debt)XMLParsable.toObject(Session.session.receive());
+			Session.session.send(new Debt(-1, amount, what, (toFrom.equals("to") ? Session.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : Session.session.getUser()), comment, Session.session.getUser()).toXML());
+			Debt d = (Debt)XMLSerializable.toObject(Session.session.receive());
 			if(d.getId() != -1) {
 				System.out.println("Debt created.");
 				Session.session.processUpdate(d);

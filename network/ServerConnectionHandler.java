@@ -9,11 +9,10 @@ import java.net.Socket;
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
-
 import requests.CreateUserRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
-import requests.XMLParsable;
+import requests.xml.XMLSerializable;
 
 public class ServerConnectionHandler extends Thread {
 
@@ -60,7 +59,7 @@ public class ServerConnectionHandler extends Thread {
 			System.out.println("Received XML: " + xml);
 			// Receive LogInRequest
 			try {
-				Object o = XMLParsable.toObject(xml);
+				Object o = XMLSerializable.toObject(xml);
 				System.out.println("Done parsing object!");
 				// TODO: remember to notify affected users if they are online
 				if(o instanceof LogInRequest) {
@@ -93,7 +92,7 @@ public class ServerConnectionHandler extends Thread {
 			serverConnection.addUser(req.getRequestedUser());
 			req.setIsAproved(true);
 		}
-		String temp = req.toXml();
+		String temp = req.toXML();
 		System.out.println("Sending XML: " + temp);
 		send(temp);
 	}
@@ -115,7 +114,7 @@ public class ServerConnectionHandler extends Thread {
 				System.out.println("Log in is set to accepted!");
 			}
 			// Load the user variables
-			req.setUser((User) user.toSendable(true));
+			req.setUser((User) user);
 			// Now that the user is logged in, we can start a updateSender
 			updateSender = new UpdateSender(connection.getInetAddress().getHostAddress(), req.getUpdatePort());
 			updateSenderThread = new Thread(updateSender);
@@ -127,7 +126,7 @@ public class ServerConnectionHandler extends Thread {
 			req.setStatus(LogInRequestStatus.WRONG_INFORMATION);
 			System.out.println("Username or password failed");
 		}
-		String temp = req.toXml();
+		String temp = req.toXML();
 		System.out.println("Sending XML: " + temp);
 		send(temp);
 	}
@@ -166,7 +165,7 @@ public class ServerConnectionHandler extends Thread {
 		} 
 		old.setStatus(d.getStatus());
 		serverConnection.notifyUser((old.getTo() == getUser() ? old.getTo().getUsername() : old.getFrom().getUsername()), old);
-		send(old.toSendable(false).toXml());
+		send(old.toXML());
 	}
 	
 	public void processConfirmedDeclinedDebt(Debt d) {
@@ -186,8 +185,8 @@ public class ServerConnectionHandler extends Thread {
 		}
 		our.setStatus(d.getStatus());
 		// Let the requesting user know about the accept/decline
-		serverConnection.notifyUser(d.getRequestedBy().getUsername(), our.toSendable(true));
-		send(d.toSendable(false).toXml());
+		serverConnection.notifyUser(d.getRequestedBy().getUsername(), our);
+		send(d.toXML());
 		// TODO Anything else?
 	}
 	
@@ -226,7 +225,7 @@ public class ServerConnectionHandler extends Thread {
 			// Notify other user
 			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
 		}
-		send(d.toXml());
+		send(d.toXML());
 	}
 	
 	public String receive() {

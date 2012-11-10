@@ -2,17 +2,13 @@ package network;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import requests.XMLParsable;
-
-import logic.Debt;
-import logic.DebtStatus;
 import logic.User;
+import requests.xml.XMLSerializable;
 
 public class ServerConnection {
 
@@ -37,11 +33,11 @@ public class ServerConnection {
 		return nextDebtId++;
 	}
 	
-	public void notifyUser(String username, XMLParsable objectToSend) {
+	public void notifyUser(String username, XMLSerializable objectToSend) {
 		System.out.println("Notifying " + username);
 		ServerConnectionHandler handler = getHandler(username);
 		if(handler != null) {
-			handler.sendUpdate(objectToSend.toXml());
+			handler.sendUpdate(objectToSend.toXML());
 			System.out.println("Sent to: " + handler.getUser().getUsername());
 		}
 	}
