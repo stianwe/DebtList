@@ -49,6 +49,11 @@ public class Main {
 		return false;
 	}
 	
+	/**
+	 * Process the given command as a accept debt, decline debt or complete debt.
+	 * Command syntax: "<accept/decline/complete> debt"
+	 * @param command	The command to process
+	 */
 	public static void processAcceptDeclineCompleteDebt(String command) {
 		try {
 			String[] cs = command.split(" ");
@@ -57,7 +62,8 @@ public class Main {
 			Debt d = null;
 			if(!acceptOrDecline.equals("complete")) {
 				for (int i = 0; i < Session.session.getUser().getNumberOfPendingDebts(); i++) {
-					if(Session.session.getUser().getPendingDebt(i).getId() == id) {
+					// Find the debt with the specified ID, and check that this user is not the one that requested it
+					if(Session.session.getUser().getPendingDebt(i).getId() == id && !Session.session.getUser().getPendingDebt(i).getRequestedBy().equals(Session.session.getUser())) {
 						d = Session.session.getUser().getPendingDebt(i);
 						break;
 					}
@@ -66,6 +72,11 @@ public class Main {
 				for (int i = 0; i < Session.session.getUser().getNumberOfConfirmedDebts(); i++) {
 					if(Session.session.getUser().getConfirmedDebt(i).getId() == id) {
 						d = Session.session.getUser().getConfirmedDebt(i);
+						// Check if this user already has completed this debt
+						if((d.getTo().equals(Session.session.getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_TO) || (d.getFrom().equals(Session.session.getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_FROM)) {
+							System.out.println("You have already marked this debt as completed.");
+							return;
+						}
 						break;
 					}
 				}
@@ -81,15 +92,22 @@ public class Main {
 			} else {
 				d.setStatus((d.getFrom().equals(Session.session.getUser()) ? DebtStatus.COMPLETED_BY_FROM : DebtStatus.COMPLETED_BY_TO));
 			}
+			
 			Session.session.send(d.toXML());
 			Session.session.processUpdate(XMLSerializable.toObject(Session.session.receive()));
 			// TODO	What will we receive?
+
 		} catch (Exception e) {
 			System.out.println("Syntax error!");
 			System.out.println("Correct syntax: <accept/decline/complete> debt <ID>");
 		}
 	}
 	
+	/**
+	 * Process the given command as create debt
+	 * Command syntax: "create debt <amount> "<what>" <to/from> "<to/from username>" "<comment>"
+	 * @param command	The command to process
+	 */
 	public static void processCreateDebt(String command) {
 		if(!Session.session.isLoggedIn()) {
 			System.out.println("Please log in first.");
@@ -122,6 +140,10 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * @deprecated Is now automatically done with the connect command
+	 * @param command	The command to process
+	 */
 	public static void processCreateUpdateListener(String command) {
 		try {
 			new Thread(new UpdateListener(Integer.parseInt(command.split(" ")[2]))).start();
@@ -131,17 +153,32 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * Prints the specified number of tabs (white space) in System.out
+	 * @param numberOfTabs	The number of tabs
+	 */
 	private static void printTabs(int numberOfTabs) {
 		for (int i = 0; i < numberOfTabs; i++) {
 			System.out.print("\t");
 		}
 	}
 	
+	/**
+	 * Prints the given string with the specified amount space specified with tabs in System.out
+	 * @param s		The string to print
+	 * @param tabs	The total number of tabs (white space) the string + white space should fill
+	 */
 	private static void print(String s, int tabs) {
 		System.out.print(s);
 		printTabs(tabs - ((int) Math.ceil(s.length() / 8)));
 	}
 	
+	/**
+	 * Prints the given debts with the given title and the specified number of tabs for each column
+	 * @param debts			The debts to print
+	 * @param title			The title of this "table"
+	 * @param numberOfTabs	The amount of space each column should be, specified in a number of tabs
+	 */
 	private static void printDebtsHelper(List<Debt> debts, String title, int[] numberOfTabs) {
 		System.out.println(title + ":");
 		print("ID", numberOfTabs[0]);
@@ -168,6 +205,11 @@ public class Main {
 		if(debts.isEmpty()) System.out.println("None");
 	}
 	
+	/**
+	 * Prints the given debts with the given title
+	 * @param debts		The debts
+	 * @param listTitle	The title
+	 */
 	public static void printDebts(List<Debt> debts, String listTitle) {
 		List<Debt> fromMe = new ArrayList<Debt>(), toMe = new ArrayList<Debt>();
 		int[] maxChars = new int[6];
@@ -191,6 +233,9 @@ public class Main {
 		printDebtsHelper(fromMe, listTitle + " from me", maxChars);
 	}
 	
+	/**
+	 * Process the "ls debts" command by printing every debt this user is involved in
+	 */
 	public static void processLsDebts() {
 		if(!Session.session.isLoggedIn()) System.out.println("Log in first.");
 		else {
@@ -199,6 +244,13 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * Process the given command as a connect command. Will connect to the specified server and send a LogInRequest.
+	 * Will also start a UpdateListener at the port specified in the command.
+	 * Will also set the Sessions' user by calling it's logIn()-method.
+	 * Syntax: "connect <username> <password> <host> <host port> <UpdateListener port>"
+	 * @param command	The command to process
+	 */
 	public static void processConnect(String command) {
 		try {
 			String[] cs = command.split(" ");

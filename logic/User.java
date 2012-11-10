@@ -92,6 +92,10 @@ public class User extends XMLSerializable {
 		return (List<Debt>) getVariable("confirmedDebts");
 	}
 	
+	public boolean removePendingDebt(Debt d) {
+		return getPendingDebts().remove(d);
+	}
+	
 	public int getNumberOfWaitingDebts() {
 		int c = 0;
 		for (Debt d : getPendingDebts()) {

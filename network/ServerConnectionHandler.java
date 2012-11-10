@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import console.Main;
+
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
@@ -38,18 +40,33 @@ public class ServerConnectionHandler extends Thread {
 		}
 	}
 	
-	public void sendUpdate(String xml) {
-		updateSender.send(xml);
+	/**
+	 * Sends the given message to this ServerConnectionHandler's UpdateSender (if existing)
+	 * @param msg
+	 */
+	public void sendUpdate(String msg) {
+		if(updateSender != null) updateSender.send(msg);
 	}
 	
+	/**
+	 * Sets this ServerConnectionHandler's user to the specified user
+	 * @param u	The user
+	 */
 	public void setUser(User u) {
 		this.user = u;
 	}
 	
+	/**
+	 * @return	This ServerConnectionHandler's user
+	 */
 	public User getUser() {
 		return user;
 	}
 	
+	/**
+	 * This method will try to receive messages from the connected client, and will pass the messages to the appropriate process method.
+	 * Will run until stoped.
+	 */
 	@Override
 	public void run() {
 		running = true;
@@ -86,6 +103,10 @@ public class ServerConnectionHandler extends Thread {
 		running = false;
 	}
 	
+	/**
+	 * Process the given CreateUserRequest
+	 * @param req	The CreateUserRequest
+	 */
 	public void processCreateUserRequest(CreateUserRequest req) {
 		if(serverConnection.getUser(req.getUsername()) == null) {
 			// TODO: Add check on username
@@ -97,6 +118,11 @@ public class ServerConnectionHandler extends Thread {
 		send(temp);
 	}
 	
+	/**
+	 * Process the given LogInRequest by setting this ServerConnectionHandler's user if login is correct.
+	 * Will also on correct login start a UpdateSender for this connection at the port specified in the LogInRequest
+	 * @param req	The LogInRequest
+	 */
 	public void processLoginRequest(LogInRequest req) {
 		System.out.println("Received log in request!");
 		User user = serverConnection.getUser(req.getUserName());
@@ -131,6 +157,10 @@ public class ServerConnectionHandler extends Thread {
 		send(temp);
 	}
 	
+	/**
+	 * Process the given debt
+	 * @param d	The debt
+	 */
 	public void processDebt(Debt d) {
 		switch(d.getStatus()) {
 		case REQUESTED:
@@ -158,13 +188,21 @@ public class ServerConnectionHandler extends Thread {
 		}
 		if(old == null) {
 			System.out.println("Something wrong happened while processing completedDebt");
+			Main.printDebts(getUser().getConfirmedDebts(), "Confirmed debts");
+			Main.printDebts(getUser().getPendingDebts(), "Pending debts");
 			return;
 		}
+		// Check that this user has not already completed this debt. NO why should we? (Not this way at least.)
+//		if((d.getTo().equals(getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_TO) || (d.getFrom().equals(getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_FROM)) {
+//			// TODO: Then what? Send back a correct version of the debt?
+//			System.out.println("Completing of debt failed, because this user has already marked the debt as complete");
+//			return;
+//		}
 		if((old.getStatus() == DebtStatus.COMPLETED_BY_FROM && d.getStatus() == DebtStatus.COMPLETED_BY_TO) || (old.getStatus() == DebtStatus.COMPLETED_BY_TO && d.getStatus() == DebtStatus.COMPLETED_BY_FROM)) {
 			d.setStatus(DebtStatus.COMPLETED);
 		} 
 		old.setStatus(d.getStatus());
-		serverConnection.notifyUser((old.getTo() == getUser() ? old.getTo().getUsername() : old.getFrom().getUsername()), old);
+		serverConnection.notifyUser((old.getTo().equals(getUser()) ? old.getFrom() : old.getTo()).getUsername(), old);
 		send(old.toXML());
 	}
 	
@@ -186,6 +224,20 @@ public class ServerConnectionHandler extends Thread {
 		our.setStatus(d.getStatus());
 		// Let the requesting user know about the accept/decline
 		serverConnection.notifyUser(d.getRequestedBy().getUsername(), our);
+		// Remove the debt from the pending list (since it is now confirmed or declined)
+		User other = serverConnection.getUser((our.getFrom().equals(getUser()) ? our.getTo() : our.getFrom()).getUsername());
+		System.out.println("Other user is: " + other.getUsername());
+		getUser().removePendingDebt(our);
+		if(other.removePendingDebt(our)) System.out.println("Other's debt was removed!");
+		else System.out.println("Other's debt was NOT(!!!!!!!!!!!) removed!");
+		if(our.getStatus() == DebtStatus.CONFIRMED) {
+			// If the debt is now confirmed, we must move it to the correct lists
+			getUser().addConfirmedDebt(our);
+			// For both users
+			other.addConfirmedDebt(our);
+		} else {
+			// If the debt was deleted we simply let it be removed..
+		}
 		send(d.toXML());
 		// TODO Anything else?
 	}
