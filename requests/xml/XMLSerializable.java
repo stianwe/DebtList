@@ -219,7 +219,7 @@ abstract public class XMLSerializable {
 				if(stage == -1 || stage == 2) {
 					stage = 1;
 					reg = new HashMap<String, XMLSerializable>();
-					varName = type = null; list = null; object = null;
+					varName = type = null; list = null; object = null; enumClass = null;
 				} else if(stage == 1) {
 					stage = 2;
 				}
@@ -264,6 +264,9 @@ abstract public class XMLSerializable {
 								"Unable to instanciate sent enum class "+name, e
 								);
 					}
+				} else if(name.equals(TAG_NULL)) {
+					object.setVariable(varName, null);
+					varName = null;
 				} else {
 					type = name;
 				}
@@ -300,7 +303,6 @@ abstract public class XMLSerializable {
 		 * @param length
 		 * @throws SAXException
 		 */
-		@SuppressWarnings("unchecked")
 		@Override
 		public void characters(char[] ch, int start, int length)
 				throws SAXException {
@@ -319,7 +321,7 @@ abstract public class XMLSerializable {
 						Object obj = reg.get(new String(ch, start, length));
 						if(list != null) {
 							list.remove(listPos);
-							list.add(obj);
+							list.add(listPos, obj);
 							type = null;
 						} else {
 							object.setVariable(varName, obj);
@@ -357,8 +359,6 @@ abstract public class XMLSerializable {
 				return Long.parseLong(data);
 			} else if(type.equals(TAG_DOUBLE)) {
 				return Double.parseDouble(data);
-			} else if(type.equals(TAG_NULL)) {
-				return null;
 			} else if(type.equals(TAG_ENUM)) {
 				return Enum.valueOf(enumClass, data);
 			} else {
