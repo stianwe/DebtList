@@ -12,7 +12,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import requests.CreateUserRequest;
-import requests.XMLParsable;
+import requests.xml.XMLSerializable;
 import session.Session;
 
 public class CreateUserPanel extends JPanel {
@@ -64,9 +64,9 @@ public class CreateUserPanel extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				if(!usernameField.getText().equals("") && !passwordField1.getText().equals("") && passwordField1.getText().equals(passwordField2.getText())) {
 					Session.session.connect("localhost", 13337);
-					Session.session.send(new CreateUserRequest(usernameField.getText(), passwordField1.getText()).toXml());
+					Session.session.send(new CreateUserRequest(usernameField.getText(), passwordField1.getText()).toXML());
 					try {
-						CreateUserRequest cur = (CreateUserRequest) XMLParsable.toObject(Session.session.receive());
+						CreateUserRequest cur = (CreateUserRequest) XMLSerializable.toObject(Session.session.receive());
 						if(cur.isApproved()) {
 							System.out.println("User created!");
 							Session.session.addPanel(prevPanel);
