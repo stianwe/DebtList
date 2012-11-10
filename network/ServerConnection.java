@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import logic.Debt;
+import logic.DebtStatus;
 import logic.User;
 import requests.xml.XMLSerializable;
 
@@ -91,19 +93,19 @@ public class ServerConnection {
 		}
 		
 		// TODO: TEST IF LOADED DEBTS IS SENT
-//		Debt d1 = new Debt(0, 100, "g", arne, stian, "goldz", stian);
-//		Debt d2 = new Debt(1, 12, "s", stian, arne, "s", stian);
-//		Debt d3 = new Debt(2, 1337, "slaps", stian, arne, ":D", arne);
-//		Debt d4 = new Debt(2, 42, "42ere", arne, stian, "haha", arne);
-//		d4.setStatus(DebtStatus.CONFIRMED);
-//		stian.addPendingDebt(d1);
-//		stian.addPendingDebt(d2);
-//		stian.addPendingDebt(d3);
-//		stian.addConfirmedDebt(d4);
-//		arne.addPendingDebt(d1);
-//		arne.addPendingDebt(d2);
-//		arne.addPendingDebt(d3);
-//		arne.addConfirmedDebt(d4);
+		Debt d1 = new Debt(0, 100, "g", arne, stian, "goldz", stian);
+		Debt d2 = new Debt(1, 12, "s", stian, arne, "s", stian);
+		Debt d3 = new Debt(2, 1337, "slaps", stian, arne, ":D", arne);
+		Debt d4 = new Debt(2, 42, "42ere", arne, stian, "haha", arne);
+		d4.setStatus(DebtStatus.CONFIRMED);
+		stian.addPendingDebt(d1);
+		stian.addPendingDebt(d2);
+		stian.addPendingDebt(d3);
+		stian.addConfirmedDebt(d4);
+		arne.addPendingDebt(d1);
+		arne.addPendingDebt(d2);
+		arne.addPendingDebt(d3);
+		arne.addConfirmedDebt(d4);
 		
 		server.accept(13337);
 	}
