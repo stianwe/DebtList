@@ -114,7 +114,7 @@ public class ServerConnection {
 		Debt d1 = new Debt(0, 100, "g", arne, stian, "goldz", stian);
 		Debt d2 = new Debt(1, 12, "s", stian, arne, "s", stian);
 		Debt d3 = new Debt(2, 1337, "slaps", stian, arne, ":D", arne);
-		Debt d4 = new Debt(2, 42, "42ere", arne, stian, "haha", arne);
+		Debt d4 = new Debt(3, 42, "42ere", arne, stian, "haha", arne);
 		d4.setStatus(DebtStatus.CONFIRMED);
 		stian.addPendingDebt(d1);
 		stian.addPendingDebt(d2);
