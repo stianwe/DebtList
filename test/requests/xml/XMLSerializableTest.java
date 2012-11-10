@@ -12,12 +12,15 @@ import logic.User;
 
 import org.junit.Test;
 
+import requests.LogInRequest;
+import requests.LogInRequestStatus;
 import requests.xml.XMLSerializable;
 
 public class XMLSerializableTest extends TestCase {
 
 	private User u1, u2, simpleUser;
 	private Debt d1, d2, d3;
+	private LogInRequest simpleLIR, lIR;
 	
 	public void setUp() {
 		u1 = new User(1, "User1");
@@ -33,6 +36,8 @@ public class XMLSerializableTest extends TestCase {
 		u2.addConfirmedDebt(d3);
 		// Empty user
 		simpleUser = new User(3, "EmptyUser");
+		simpleLIR = new LogInRequest(simpleUser, false, LogInRequestStatus.UNHANDLED, 13338);
+		lIR = new LogInRequest(u1, false, LogInRequestStatus.UNHANDLED, 13339);
 	}
 	
 	public static junit.framework.Test suite() {
@@ -70,4 +75,29 @@ public class XMLSerializableTest extends TestCase {
 		}
 	}
 
+	/**
+	 * Test parsing of a simple LogInRequest
+	 */
+	@Test
+	public void testSimpleLogInRequestParsing() {
+		try {
+			LogInRequest parsedSimpleLIR = (LogInRequest) XMLSerializable.toObject(simpleLIR.toXML());
+			assertEquals("simpleLIR username test", simpleLIR.getUser().getUsername(), parsedSimpleLIR.getUser().getUsername());
+		} catch (IOException e) {
+			fail("Parsing simpleLIR to xml and back again threw an exception");
+		}
+	}
+	
+	/**
+	 * Test parsing of a LogInRequest containing a user with debts 
+	 */
+	@Test
+	public void testLogInReqeustParsing() {
+		try {
+			LogInRequest parsedLIR = (LogInRequest) XMLSerializable.toObject(lIR.toXML());
+			assertEquals("lIR first pending debt test", lIR.getUser().getPendingDebt(0), parsedLIR.getUser().getPendingDebt(0));
+		} catch (IOException e) {
+			fail("Parsing of lIR to xml and back again threw an exception");
+		}
+	}
 }
