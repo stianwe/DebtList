@@ -110,8 +110,8 @@ abstract public class XMLSerializable implements XMLConstants {
 			serializeValue(registeredIds, inner, pre, getVariable(key));
 			inner.append("</"+key+">");
 		}
-		return pre.toString() + "<" + getClass().getName() + " id=\""+getGlobalId()+"\">\n" +
-			"\n" + inner.toString() + "</" + getClass().getName() + ">";
+		return pre.toString() + "<" + getClass().getName() + " id=\""+getGlobalId()+"\">" +
+			inner.toString() + "</" + getClass().getName() + ">";
 	}
 	
 	/**
