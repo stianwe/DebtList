@@ -1,8 +1,6 @@
 package test.requests.xml;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

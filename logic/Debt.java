@@ -4,19 +4,6 @@ import requests.xml.XMLSerializable;
 
 
 public class Debt extends XMLSerializable {
-
-	public static void main(String[] args) throws Exception {
-		User u1 = new User(1, "tset");
-		User u2 = new User(2, "test");
-		Debt d = new Debt(1, 100, "Penger", u1, u2, "Viktig kommentar!", u1);
-		
-		String xml = d.toXML();
-		
-		System.out.println(xml);
-		
-		Debt d2 = (Debt) XMLSerializable.toObject(xml);
-		System.out.println(d.getRequestedBy().getUsername());
-	}
 	
 //	private boolean isDone, isConfirmed, isDeleted;
 	/**
@@ -155,5 +142,13 @@ public class Debt extends XMLSerializable {
 	
 	public String toString() {
 		return "Amount: " + getAmount() + ", what: " + getWhat() + ", from: " + getFrom().getUsername() + ", to: " + getTo().getUsername() + ", comment: " + getComment();
-	}	
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof Debt) {
+			return ((Debt) o).getId() == getId();
+		}
+		return false;
+	}
 }
