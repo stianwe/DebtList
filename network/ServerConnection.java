@@ -99,8 +99,8 @@ public class ServerConnection {
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection();
 		server.nextDebtId = 1;
-		User arne = new User("arnegopro", "qazqaz");
-		User stian = new User("stian", "asd");
+		User arne = new User(1, "arnegopro", "qazqaz");
+		User stian = new User(2, "stian", "asd");
 		stian.addFriend(arne);
 		arne.addFriend(stian);
 		server.users.put("arnegopro", arne);

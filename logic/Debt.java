@@ -23,16 +23,7 @@ public class Debt extends XMLSerializable {
 	 * @param requestedBy
 	 */
 	public Debt(long id, double amount, String what, User from, User to, String comment, User requestedBy) {
-		setAmount(amount);
-		setVariable("id", id);
-		setWhat(what);
-//		setIsDeleted(false);
-		setFrom(from);
-		setTo(to);
-//		setDone(false);
-		setComment(comment);
-		setVariable("requestedBy", requestedBy);
-		setStatus(DebtStatus.REQUESTED);
+		this(id, amount, what, from, to, comment, requestedBy, DebtStatus.REQUESTED);
 	}
 	
 	/**
@@ -47,8 +38,15 @@ public class Debt extends XMLSerializable {
 	 * @param requestedBy
 	 * @param status
 	 */
-	public Debt(long id, double amount, String what, User from, User to, String comment, User requestedBy, DebtStatus status) {
-		this(id, amount, what, from, to, comment, requestedBy);
+	public Debt(long id, double amount, String what, User from, User to, 
+			String comment, User requestedBy, DebtStatus status) {
+		setAmount(amount);
+		setVariable("id", id);
+		setWhat(what);
+		setFrom(from);
+		setTo(to);
+		setComment(comment);
+		setVariable("requestedBy", requestedBy);
 		setStatus(status);
 	}
 	
