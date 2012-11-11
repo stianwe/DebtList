@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import requests.xml.XMLSerializable;
 import session.Session;
 
 import logic.Debt;
@@ -34,7 +35,7 @@ public class UpdateListener implements Runnable {
 				// TODO: Does this need to be in a separate thread?
 				// Will the server send many updates at once?
 				// Will it use the same connection?
-				Session.session.processUpdate(XMLParsable.toObject(reader.readLine()));
+				Session.session.processUpdate(XMLSerializable.toObject(reader.readLine()));
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

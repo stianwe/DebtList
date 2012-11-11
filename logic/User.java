@@ -93,7 +93,7 @@ public class User extends XMLSerializable {
 	}
 	
 	public boolean removePendingDebt(Debt d) {
-		return pendingDebts.remove(d);
+		return getPendingDebts().remove(d);
 	}
 	
 	public int getNumberOfWaitingDebts() {
