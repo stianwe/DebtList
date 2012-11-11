@@ -119,7 +119,7 @@ public class DebtListPanel extends JPanel{
 				System.out.println(selectedDebt.getAmount() + " " + selectedDebt.getWhat());
 				selectedDebt.setIsConfirmed(e.getSource() == accept);
 				// TODO: Verify???!!!!?!??!?!?!?!?
-				Session.session.send(selectedDebt.toXml());
+				Session.session.send(selectedDebt.toXML());
 			}
 		};
 		decline.addActionListener(al);

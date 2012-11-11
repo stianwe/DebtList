@@ -1,87 +1,85 @@
 package requests;
 
+import requests.xml.XMLSerializable;
 import logic.User;
 
-public class LogInRequest extends XMLParsable {
+public class LogInRequest extends XMLSerializable {
 
 //	private String username, password;
-	private User uUser;
-	private boolean accepted;
-	private LogInRequestStatus status;
-	private int updatePort;
+	
+	/**
+	 * Empty constructor for XML restoration
+	 */
+	public LogInRequest() {}
 	
 	public LogInRequest(String username, String password, int updatePort) {
 		this(new User(username, password), false, LogInRequestStatus.UNHANDLED, updatePort);
 	}
 	
 	public LogInRequest(User user, boolean isAccepted, LogInRequestStatus status, int updatePort) {
-		this.accepted = isAccepted;
-		this.status = status;
-		this.updatePort = updatePort;
 		setUser(user);
-		addVariable("accepted", this.accepted);
-		addVariable("status", this.status);
-		addVariable("updatePort", updatePort);
+		setVariable("accepted", isAccepted);
+		setVariable("status", status);
+		setVariable("updatePort", updatePort);
 	}
 	
 	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status, int updatePort) {
 		this(new User(username, password), isAccepted, status, updatePort);
 	}
 	
+	/**
+	 * We need an id for XML serialization
+	 * 
+	 * As only one LogInRequest will be sent between the user and the server 1
+	 * should suffice as the id number.
+	 */
+	public long getId() {
+		return 1;
+	}
+	
 	public void setStatus(LogInRequestStatus status) {
-		this.status = status;
-		updateVariable("status", status);
+		setVariable("status", status);
 	}
 	
 	public void setUser(User u) {
-		this.uUser = u;
-		addVariable("uUser", uUser);
+		setVariable("user", u);
 	}
 	
 	public boolean isAccepted() {
-		return accepted;
+		return (Boolean) getVariable("accepted");
 	}
 	
 	public int getUpdatePort() {
-		return updatePort;
+		return (Integer) getVariable("updatePort");
 	}
 	
 	public User getUser() {
-		return uUser;
+		return (User) getVariable("user");
 	}
 	
 	public LogInRequestStatus getStatus() {
-		return status;
+		return (LogInRequestStatus) getVariable("status");
 	}
 	
 	public void setAccepted(boolean isAccepted) {
-		this.accepted = isAccepted;
-		updateVariable("accepted", isAccepted);
-//		updateVariable("accepted", isAccepted ? "true" : "false");
+		setVariable("accepted", isAccepted);
 	}
-	
-	@Override
-	public String getClassName() {
-		return "LogInRequest";
-	}
-	
+		
 	public String getUserName() {
-//		return username;
-		return uUser.getUsername();
+		return getUser().getUsername();
 	}
 	
 	public String getPassword() {
-//		return password;
-		return uUser.getPassword();
+		return getUser().getPassword();
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		// TODO: When somebody exists as a friend, it's friends doesn't need to be parsed! Perhaps use ID?
 		CreateUserRequest cur = new CreateUserRequest("Stian", "123");
 		cur.setIsAproved(true);
-		String xml = cur.toXml();
+		String xml = cur.toXML();
 		System.out.println(xml);
-		cur = (CreateUserRequest) XMLParsable.toObject(xml);
+		cur = (CreateUserRequest) XMLSerializable.toObject(xml);
 		System.out.println(cur.getUsername());
 		System.out.println(cur.getPassword());
 		System.out.println(cur.isApproved());
@@ -91,9 +89,9 @@ public class LogInRequest extends XMLParsable {
 //		User c = new User("Jan", "JANJANHEILEDAN!");
 //		a.addFriend(b);
 //		a.addFriend(c);
-//		String xml = a.toXml();
+//		String xml = a.toXML();
 //		System.out.println(xml);
-//		User stian = (User) XMLParsable.toObject(xml);
+//		User stian = (User) XMLSerializable.toObject(xml);
 //		System.out.println(stian);
 		
 //		List<LogInR>
