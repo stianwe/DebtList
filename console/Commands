@@ -3,8 +3,6 @@ connect <username> <password> <host> <port> <updatePort> // Make updatePort opti
 create updateListener <port> // Can be removed, since a updateListener is started by a successful connect
 create debt <amount> "<what>" <to/from> "<to/from username>" "<comment>" // Make comment optional?
 <accept/decline> debt <ID>
-ls <debts/friends>			// ls friends not yet implemented (should also list friend requests?)
+ls <debts/friends>
 complete debt <ID>
-
-# Not yet implemented:
 <accept/decline> friend <username/ID?>
