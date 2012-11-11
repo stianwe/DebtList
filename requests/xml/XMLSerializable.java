@@ -84,7 +84,7 @@ abstract public class XMLSerializable implements XMLConstants {
 	}
 	
 	/**
-	 * Serialize the variables in the variable map to XML
+	 * Serialize this object to XML
 	 * 
 	 * @return
 	 */
@@ -93,7 +93,7 @@ abstract public class XMLSerializable implements XMLConstants {
 	}
 	
 	/**
-	 * Serialize the variables in the variable map to XML
+	 * Serialize this object to XML
 	 * 
 	 * @param registeredIds id numbers of objects already in the XML
 	 * @return XML representation of this object and all referenced objects
@@ -105,42 +105,78 @@ abstract public class XMLSerializable implements XMLConstants {
 		if(registeredIds == null) 
 			registeredIds = new HashSet<String>();
 		registeredIds.add(getGlobalId());
-		for(String key : getVariableMap().keySet()) {
-			inner.append("<"+key+">");
-			serializeValue(registeredIds, inner, pre, getVariable(key));
-			inner.append("</"+key+">");
-		}
-		return pre.toString() + "<" + getClass().getName() + " id=\""+getGlobalId()+"\">" +
-			inner.toString() + "</" + getClass().getName() + ">";
+		
+		toXML(getVariableMap(), registeredIds, inner, pre);
+		
+		return String.format("%s<object class=\"%s\" id=\"%s\">%s</object>",
+				pre, getClass().getName(), getGlobalId(), inner);
 	}
 	
 	/**
-	 * Serialize a single value to a XML representation
+	 * Serialize the given Map to XML
 	 * 
-	 * @param registeredIds
-	 * @param inner
-	 * @param obj
+	 * @param map			map to be serialized
+	 * @param registeredIds IDs of already handled objects 
+	 * @param inner			builder used to build this object
+	 * @param pre			builder used to build XML of references objects
 	 */
-	private void serializeValue(Set<String> registeredIds, StringBuilder inner, StringBuilder pre, Object obj) {
-		if(obj instanceof String) {
-			inner.append("<"+TAG_STRING+"><![CDATA["+obj.toString()+"]]></"+TAG_STRING+">");					
+	private void toXML(Map<String, Object> map, Set<String> registeredIds,
+			StringBuilder inner, StringBuilder pre) {
+		inner.append("<map>");
+		for(String s : map.keySet()) {
+			inner.append(String.format("<element key=\"%s\">", s));
+			toXML(map.get(s), registeredIds, inner, pre);
+			inner.append("</element>");
+		}
+		inner.append("</map>");
+	}
+	
+	/**
+	 * Serialize the given List to XML
+	 * 
+	 * @param list			list to be serialized
+	 * @param registeredIds IDs of already handled objects 
+	 * @param inner			builder used to build this object
+	 * @param pre			builder used to build XML of references objects
+	 */
+	private void toXML(List<Object> list, Set<String> registeredIds,
+			StringBuilder inner, StringBuilder pre) {
+		inner.append("<list>");
+		for(Object o : list) {
+			inner.append("<element>");
+			toXML(o, registeredIds, inner, pre);
+			inner.append("</element>");
+		}
+		inner.append("</list>");
+	}
+	
+	/**
+	 * Serialize the given Object to XML
+	 * @param obj
+	 * @param registeredIds
+	 * @param innner
+	 * @param pre
+	 */
+	@SuppressWarnings("unchecked")
+	private void toXML(Object obj, Set<String> registeredIds,
+			StringBuilder inner, StringBuilder pre) {
+		if(obj instanceof List) {
+			toXML((List) obj, registeredIds, inner, pre);
+		} else if(obj instanceof Map) {
+			toXML((Map) obj, registeredIds, inner, pre);
+		} else if(obj instanceof String) {
+			inner.append(String.format("<%s><![CDATA[%s]]></%s>",
+					TAG_STRING, obj.toString(), TAG_STRING));
 		} else if(obj instanceof Integer) {
 			inner.append("<"+TAG_INTEGER+">"+obj.toString()+"</"+TAG_INTEGER+">");
 		} else if(obj instanceof XMLSerializable) {
 			XMLSerializable s = (XMLSerializable) obj;
 			inner.append(String.format(
-					"<%s>%s</%s>", TAG_XMLSER, s.getGlobalId(), TAG_XMLSER
+					"<%s>%s</%s>", TAG_OBJREF, s.getGlobalId(), TAG_OBJREF
 				));
 			if(!registeredIds.contains(s.getGlobalId())) {
 				pre.append(s.toXML(registeredIds));
 			}
-		} else if(obj instanceof List<?>) {
-			List<?> l = (List<?>) obj;
-			inner.append("<"+TAG_LIST+">");
-			for(Object lo : l) {
-				serializeValue(registeredIds, inner, pre, lo);
-			}
-			inner.append("</"+TAG_LIST+">");
 		} else if(obj instanceof Double) {
 			inner.append("<"+TAG_DOUBLE+">"+obj.toString()+"</"+TAG_DOUBLE+">");
 		} else if(obj instanceof Long) {
@@ -155,6 +191,80 @@ abstract public class XMLSerializable implements XMLConstants {
 			throw new RuntimeException("Uknown type "+obj.getClass().getName());
 		}
 	}
+	
+	public static void main(String[] args) {
+		XMLSerializable o = new XMLSerializable(){			
+			@Override
+			protected long getId() {
+				return 137;
+			}
+			
+		};
+		XMLSerializable o1 = new XMLSerializable() {
+			protected long getId() { return 7; }
+		};
+		
+		ArrayList<String> l = new ArrayList<String>();
+		l.add("This");
+		l.add("Is");
+		l.add("A list");
+		o.setVariable("list", l);
+		o.setVariable("s", "This is a string");
+		o.setVariable("i", 135486);
+		o.setVariable("l", 21354L);
+		o.setVariable("b", true);
+		o.setVariable("null", null);
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put("s", "map-in-map");
+		m.put("list-in-list", l);
+		o.setVariable("m", m);
+		o.setVariable("obj", o1);
+		
+		o1.setVariable("other", o);
+		o1.setVariable("test", "123");
+		
+		System.out.println(o.toXML());
+	}
+	
+	/*
+	 * <xml>
+	 * 	<object class="requests.xml.XMLSerializable$2" id="requests.xml.XMLSerializable$2-7">
+	 * 		<map>
+	 * 			<element key="other"><object-reference>requests.xml.XMLSerializable$1-137</object-reference></element>
+	 * 			<element key="test"><string><![CDATA[123]]></string></element>
+	 * 		</map>
+	 * 	</object>
+	 * 	<object class="requests.xml.XMLSerializable$1" id="requests.xml.XMLSerializable$1-137">
+	 * 		<map>
+	 * 			<element key="b"><boolean>true</boolean></element>
+	 * 			<element key="s"><string><![CDATA[This is a string]]></string></element>
+	 * 			<element key="obj"><object-reference>requests.xml.XMLSerializable$2-7</object-reference></element>
+	 * 			<element key="l"><long>21354</long></element>
+	 * 			<element key="list">
+	 * 				<list>
+	 * 					<element><string><![CDATA[This]]></string></element>
+	 * 					<element><string><![CDATA[Is]]></string></element>
+	 * 					<element><string><![CDATA[A list]]></string></element>
+	 * 				</list>
+	 * 			</element>
+	 * 			<element key="m">
+	 * 				<map>
+	 * 					<element key="s"><string><![CDATA[map-in-map]]></string></element>
+	 * 					<element key="list-in-list">
+	 * 						<list>
+	 * 							<element><string><![CDATA[This]]></string></element>
+	 * 							<element><string><![CDATA[Is]]></string></element>
+	 * 							<element><string><![CDATA[A list]]></string></element>
+	 * 						</list>
+	 * 					</element>
+	 * 				</map>
+	 * 			</element>
+	 * 			<element key="null"><null /></element>
+	 * 			<element key="i"><int>135486</int></element>
+	 * 		</map>
+	 * 	</object>
+	 * </xml>
+	 */
 	
 	/**
 	 * The SAX handler object
@@ -351,7 +461,7 @@ class XMLObjectHandler extends DefaultHandler implements XMLConstants  {
 				}
 				enumClass = null; type = null;
 			} else if(stage == 2) {			
-				if(type.equals(TAG_XMLSER)) {
+				if(type.equals(TAG_OBJREF)) {
 					Object obj = reg.get(new String(ch, start, length));
 					if(list != null) {
 						list.remove(listPos);
@@ -384,7 +494,7 @@ class XMLObjectHandler extends DefaultHandler implements XMLConstants  {
 			return Integer.parseInt(data);
 		} else if(type.equals(TAG_STRING)) {
 			return data;
-		} else if(type.equals(TAG_XMLSER)){
+		} else if(type.equals(TAG_OBJREF)){
 			// Placeholder data
 			return null;				
 		} else if(type.equals(TAG_BOOLEAN)) {
