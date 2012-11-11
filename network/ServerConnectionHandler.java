@@ -12,8 +12,10 @@ import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
 import requests.CreateUserRequest;
+import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
+import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 
 public class ServerConnectionHandler extends Thread {
@@ -85,6 +87,8 @@ public class ServerConnectionHandler extends Thread {
 					processCreateUserRequest((CreateUserRequest) o);
 				} else if(o instanceof Debt) {
 					processDebt((Debt) o);
+				} else if(o instanceof FriendRequest) {
+					processFriendRequest((FriendRequest) o);
 				} else {
 					System.out.println("Received something unknown!");
 					// TODO
@@ -104,17 +108,78 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	/**
+	 * Process the given FriendRequest.
+	 * Will reply with a request with the following status:
+	 * 	- This is a requests to create a friend request:
+	 * 		o USER_NOT_FOUND if the requesting friend was not found in the server's database
+	 * 		o PENDING if the request has been sent to the target user (friend)
+	 * 		o UNHANDLED if the request was not valid
+	 * 	- This is a response to a friend request:
+	 * 		o A copy of the request received
+	 * @param request	The FriendRequest
+	 */
+	public void processFriendRequest(FriendRequest request) {
+		// Validate
+		boolean valid = true;
+		// TODO: This should be unnecessary (should be able to use this.getUser())
+		User thisUser = serverConnection.getUser(this.getUser().getUsername());
+		// Check that this is the requesting user's handler
+		if(!request.getFromUser().equals(this.getUser())) valid = false;
+		// Check that the FriendRequest's target exists
+		if(serverConnection.getUser(request.getFriendUsername()) == null) {
+			valid = false;
+			request.setStatus(FriendRequestStatus.USER_NOT_FOUND);
+		}
+		// Check that the sending user is allowed to set the given status
+		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
+		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername())) {
+			valid = false;
+		}
+		if(request.getStatus() == FriendRequestStatus.USER_NOT_FOUND) valid = false;
+		// If this is a response to a friend request, check that this has a corresponding friend request
+		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !thisUser.hasFriendRequest(request)) {
+			valid = false;
+		}
+		if(valid) {
+			User otherUser = (request.getFromUser().equals(this.getUser()) ? serverConnection.getUser(request.getFriendUsername()) : request.getFromUser()); 
+			System.out.println("FriendRequest was valid.");
+			// If this is a new friend request..
+			if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
+				// Set the correct status
+				request.setStatus(FriendRequestStatus.PENDING);
+				// Add it to the target friend
+				serverConnection.getUser(request.getFriendUsername()).addFriendRequest(request);
+				// And let the requesting user know
+				send(request.toXML());
+			} else {
+				// If this is a accepted/declined friend request, update the requesting user's friends (if accepted, if not accepted we do nothig except to remove the request)
+				if(request.getStatus() == FriendRequestStatus.ACCEPTED) {
+					// Add friends
+					otherUser.addFriend(thisUser);
+					thisUser.addFriend(otherUser);
+				} 
+				// Remove friend request
+				otherUser.removeFriendRequest(request);
+			}
+			// Notify other user
+			serverConnection.notifyUser(otherUser.getUsername(), request);
+		} else {
+			System.out.println("FriendRequest was not valid.");
+			send(request.toXML());
+		}
+	}
+	
+	/**
 	 * Process the given CreateUserRequest
 	 * @param req	The CreateUserRequest
 	 */
 	public void processCreateUserRequest(CreateUserRequest req) {
 		if(serverConnection.getUser(req.getUsername()) == null) {
 			// TODO: Add check on username
-			serverConnection.addUser(req.getRequestedUser());
+			serverConnection.addUser(req.getRequestedUser(), req.getPassword());
 			req.setIsAproved(true);
 		}
 		String temp = req.toXML();
-		System.out.println("Sending XML: " + temp);
 		send(temp);
 	}
 	
@@ -129,7 +194,7 @@ public class ServerConnectionHandler extends Thread {
 		if(user == null) {
 			System.out.println("User not found!");
 		}
-		if(user != null && user.getUsername().equals(req.getUserName()) && user.getPassword().equals(req.getPassword()) && !user.isOnline()) {
+		if(user != null && user.getUsername().equals(req.getUserName()) && req.getPassword().equals(req.getPassword()) && !user.isOnline()) {
 			// TODO: Add all the user's variables before sending the response back!
 			System.out.println("Log in OK!");
 			user.setIsOnline(true);

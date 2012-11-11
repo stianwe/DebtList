@@ -15,12 +15,17 @@ import requests.xml.XMLSerializable;
 public class ServerConnection {
 
 	private Map<String, User> users;
+	private Map<String, String> passwords;
 	private List<ServerConnectionHandler> handlers;
 	private long nextDebtId;
 	
 	public ServerConnection() {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
 		users = new HashMap<String, User>();
+	}
+	
+	public void addPassword(String username, String password) {
+		passwords.put(username, password);
 	}
 	
 	public synchronized void addConnectionHandler(ServerConnectionHandler handler) {
@@ -88,23 +93,29 @@ public class ServerConnection {
 		}
 	}
 	
+	/**
+	 * Returns the user with the given username, or null if no user is found.
+	 * @param username	The username
+	 * @return			The user or null
+	 */
 	synchronized public User getUser(String username) {
 		return users.get(username);
 	}
 	
-	synchronized public void addUser(User user) {
+	synchronized public void addUser(User user, String password) {
 		users.put(user.getUsername(), user);
+		passwords.put(user.getUsername(), password);
 	}
 	
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection();
 		server.nextDebtId = 0;
-		User arne = new User(1, "arnegopro", "qazqaz");
-		User stian = new User(2, "stian", "asd");
+		User arne = new User(1, "arnegopro");
+		User stian = new User(2, "stian");
 		stian.addFriend(arne);
 		arne.addFriend(stian);
-		server.users.put("arnegopro", arne);
-		server.users.put("stian", stian);
+		server.addUser(arne, "qazqaz");
+		server.addUser(stian, "asd");
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
 			System.out.println(s);

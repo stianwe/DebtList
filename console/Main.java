@@ -9,8 +9,10 @@ import java.util.List;
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
+import requests.FriendRequest;
 import requests.LogInRequestStatus;
 import requests.UpdateListener;
+import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 import session.Session;
 
@@ -40,13 +42,114 @@ public class Main {
 		if(command.equals("exit")) return true;
 		else if(command.startsWith("connect")) processConnect(command);
 		else if(command.equals("ls debts")) processLsDebts();
+		else if(command.equals("ls friends")) processLsFriends();
 		else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
 		else if(command.startsWith("create debt")) processCreateDebt(command);
 		else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
 		else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
+		else if(command.startsWith("add friend")) processAddFriend(command);
+		else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
 		
 		else System.out.println("Unknown command.");
 		return false;
+	}
+	
+	/**
+	 * Process accepting/declining friend request
+	 * Syntax: <accept/decline> friend <username>
+	 * @param command	The command
+	 */
+	public static void processAcceptDeclineFriend(String command) {
+		try {
+			boolean accepted = command.split(" ")[0].equals("accept");
+			// Find the entered username
+			String username = command.split(" ")[2];
+			// Find the corresponding friend request
+			FriendRequest request = Session.session.getUser().getFriendRequestFrom(username);
+			if(request == null) {
+				System.out.println("You do not have any friend requests that match that username.");
+				return;
+			}
+			// Update the status
+			request.setStatus((accepted ? FriendRequestStatus.ACCEPTED : FriendRequestStatus.DECLINED));
+			try {
+				// Send the request to the server
+				Session.session.send(request.toXML());
+				// Wait for response
+				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
+				if(response.getStatus() == request.getStatus()) System.out.println("Friend request " + (accepted ? "accepted" : "declined"));
+				else System.out.println("An error occurred! Please try again.");
+				// If we accepted the request, and the server processed it ok..
+				if(response.getStatus() == FriendRequestStatus.ACCEPTED) {
+					// Add the friend
+					Session.session.getUser().addFriend(response.getFromUser());
+				}
+			} catch (IOException e) {
+				// Reset status
+				request.setStatus(FriendRequestStatus.PENDING);
+				// Print error
+				printConnectionErrorMessage();
+			}
+		} catch(Exception e) {
+			printSyntaxErrorMessage("<accept/decline> friend <username>");
+		}
+	}
+	
+	/**
+	 * Process the command "ls friends" by listing all friends in the console.
+	 */
+	public static void processLsFriends() {
+		if(!Session.session.isLoggedIn()) {
+			System.out.println("You need to log in first.");
+			return;
+		}
+		// Check if we have any friends
+		if(Session.session.getUser().getNumberOfFriends() == 0) {
+			System.out.println("You have no friends.\nTo add a new friend use the 'add friend <username>' command.");
+		} else if(Session.session.getUser().getNumberOfFriendRequests() != 0) {
+			// Print friends
+			System.out.println("Your friends:");
+			for (int i = 0; i < Session.session.getUser().getNumberOfFriends(); i++) {
+				System.out.println(Session.session.getUser().getFriend(i).getUsername());
+			}
+		}
+		// Print friend requests
+		if(Session.session.getUser().getNumberOfFriendRequests() != 0) {
+			System.out.println("\nYour pending friend requests:");
+			for (int i = 0; i < Session.session.getUser().getNumberOfFriendRequests(); i++) {
+				System.out.println(Session.session.getUser().getFriendRequest(i).getFromUser().getUsername());
+			}
+		}
+	}
+	
+	/**
+	 * Process the add friend command by sending a friend request to the server, which will be forwarded to the specified user.
+	 * Syntax: "add friend <username>"
+	 * @param command	The add friend command
+	 */
+	public static void processAddFriend(String command) {
+		try {
+			// Send the friend request
+			Session.session.send(new FriendRequest(command.split(" ")[2], Session.session.getUser()).toXML());
+			// TODO Will we get a reply? Yes
+			try {
+				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
+				switch(response.getStatus()) {
+				case USER_NOT_FOUND:
+					System.out.println("The user does not exist.");
+					break;
+				case UNHANDLED:
+					System.err.println("Something wrong happened while sending your friend request. You should probably try again.");
+					break;
+				default:
+					System.out.println("Friend request sent.");
+				}
+			} catch (IOException e) {
+				printConnectionErrorMessage();
+			}
+		} catch (Exception e) {
+			printSyntaxErrorMessage("add friend <username>");
+		}
 	}
 	
 	/**
@@ -94,13 +197,30 @@ public class Main {
 			}
 			
 			Session.session.send(d.toXML());
-			Session.session.processUpdate(XMLSerializable.toObject(Session.session.receive()));
-			// TODO	What will we receive?
-
+			try{
+				Session.session.processUpdate(XMLSerializable.toObject(Session.session.receive()));
+			} catch (IOException e) {
+				printConnectionErrorMessage();
+			}
 		} catch (Exception e) {
-			System.out.println("Syntax error!");
-			System.out.println("Correct syntax: <accept/decline/complete> debt <ID>");
+			printSyntaxErrorMessage("<accept/decline/complete> debt <ID>");
 		}
+	}
+	
+	/**
+	 * Prints a simple syntax error message with the correct syntax in System.out
+	 * @param correctSyntax	The correct syntax
+	 */
+	public static void printSyntaxErrorMessage(String correctSyntax) {
+		System.out.println("Syntax error!");
+		if(correctSyntax != null) System.out.println("Correct stynax: " + correctSyntax);
+	}
+	
+	/**
+	 * Prints a simple connection error message in System.out
+	 */
+	public static void printConnectionErrorMessage() {
+		System.out.println("An error occurred while communicating with the server. Please check your internet connection and try again.");
 	}
 	
 	/**
@@ -128,15 +248,17 @@ public class Main {
 				return;
 			}
 			Session.session.send(new Debt(-1, amount, what, (toFrom.equals("to") ? Session.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : Session.session.getUser()), comment, Session.session.getUser()).toXML());
-			Debt d = (Debt)XMLSerializable.toObject(Session.session.receive());
-			if(d.getId() != -1) {
-				System.out.println("Debt created.");
-				Session.session.processUpdate(d);
-			} else System.out.println("An error occured when sending debt to server.");
+			try {
+				Debt d = (Debt)XMLSerializable.toObject(Session.session.receive());
+				if(d.getId() != -1) {
+					System.out.println("Debt created.");
+					Session.session.processUpdate(d);
+				} else System.out.println("An error occured when sending debt to server.");
+			} catch(IOException e) {
+				printConnectionErrorMessage();
+			}
 		} catch (Exception e) {
-			System.out.println("Syntax error!");
-			System.out.println("Correct syntax: create debt <amount> " +'"' + "<what>" +'"' + " <to/from>" +'"' + "<to/from username>" +'"' +  +'"' + "<comment" +'"');
-			e.printStackTrace();
+			printSyntaxErrorMessage("create debt <amount> " +'"' + "<what>" +'"' + " <to/from>" +'"' + "<to/from username>" +'"' +  +'"' + "<comment" +'"');
 		}
 	}
 	
@@ -148,8 +270,7 @@ public class Main {
 		try {
 			new Thread(new UpdateListener(Integer.parseInt(command.split(" ")[2]))).start();
 		} catch (Exception e) {
-			System.out.println("Syntax error!");
-			System.out.println("Correct syntax: start updateListener <port>");
+			printSyntaxErrorMessage("start updateListener <port>");
 		}
 	}
 	
@@ -276,9 +397,7 @@ public class Main {
 				System.out.println("Connection failed.");
 			}
 		} catch(Exception e) {
-			System.out.println("Syntax error!");
-			System.out.println("Correct syntax: connect <username> <password> <host> <port>");
-			e.printStackTrace();
+			printSyntaxErrorMessage("connect <username> <password> <host> <port>");
 		}
 	}
 }

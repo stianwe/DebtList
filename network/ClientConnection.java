@@ -70,23 +70,17 @@ public class ClientConnection {
 	/**
 	 * Tries to receive a message from the host that this ClientConnection is connected to.
 	 * Will block while receiving
+	 * @throws IOException if an error occurs while trying to receive message.
 	 * @return	The received message
 	 */
-	public String receive() {
-		// TODO: Should perhaps have a separate thread that accepts incoming Strings and handles them instead?
-		try {
-			String temp;
-			System.out.println("Waiting for answer (1)..");
-			while((temp = reader.readLine()) == null) {
-				System.out.println("Waiting for answer (2)..");
-			}
-			System.out.println("Receive: " + temp);
-			return temp;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception!");
-			e.printStackTrace();
-			return null;
+	public String receive() throws IOException {
+		String temp;
+		System.out.println("Waiting for answer (1)..");
+		while((temp = reader.readLine()) == null) {
+			// TODO: Add timeout!
+			System.out.println("Waiting for answer (2)..");
 		}
+		System.out.println("Receive: " + temp);
+		return temp;
 	}
 }

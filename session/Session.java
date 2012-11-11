@@ -10,8 +10,10 @@ import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
 import network.ClientConnection;
+import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
+import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 
 
@@ -101,9 +103,10 @@ public class Session {
 
 	/**
 	 * Tries to receive a message from the connected host
-	 * @return	The received message
+	 * @throws IOException if an error occurs while trying to receive messages
+	 * @return The received message
 	 */
-	public String receive() {
+	public String receive() throws IOException {
 		return connection.receive();
 	}
 	
@@ -149,11 +152,6 @@ public class Session {
 		System.out.println("Update received: " + o);
 		if(o instanceof Debt) {
 			Debt d = (Debt) o;
-			// TODO: Would this take care of accepting/declining?
-			// TODO: Will the users be correct?
-			// TODO: Process new Debt and updated Debt!
-			// Check if Debt already exists
-			//for...
 			for (int i = 0; i < (user.getNumberOfConfirmedDebts() > user.getNumberOfPendingDebts() ? user.getNumberOfConfirmedDebts(): user.getNumberOfPendingDebts()); i++) {
 				if(user.getNumberOfConfirmedDebts() > i && user.getConfirmedDebt(i).getId() == d.getId()) {
 					user.removeConfirmedDebt(i);
@@ -170,6 +168,21 @@ public class Session {
 			// Should probably add the debt in one of the lists if the method reaches this far?
 			if(d.isConfirmed()) user.addConfirmedDebt(d);
 			else user.addPendingDebt(d);
+		} else if(o instanceof FriendRequest) {
+			FriendRequest req = (FriendRequest) o;
+			switch(req.getStatus()) {
+			case DECLINED:
+				// TODO: Notify user (or?)
+				break;
+			case ACCEPTED:
+				// Someone accepted our friend request, add him/her as friend
+				getUser().addFriend(new User(req.getFriendUsername()));
+				break;
+			case PENDING:
+				// We received a new friend request, add it
+				getUser().addFriendRequest(req);
+				break;
+			}
 		}
 	}
 }

@@ -2,10 +2,9 @@ exit
 connect <username> <password> <host> <port> <updatePort> // Make updatePort optional and use predefined if not specified?
 create updateListener <port> // Can be removed, since a updateListener is started by a successful connect
 create debt <amount> "<what>" <to/from> "<to/from username>" "<comment>" // Make comment optional?
-<accept/decline> debt <ID>	// Not done
-ls <debts/friends>			// ls friends not yet implemented
+<accept/decline> debt <ID>
+ls <debts/friends>			// ls friends not yet implemented (should also list friend requests?)
+complete debt <ID>
 
-
-
-
-complete debt <ID> // No method for completing debts exists yet...
+# Not yet implemented:
+<accept/decline> friend <username/ID?>

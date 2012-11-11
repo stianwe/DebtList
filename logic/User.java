@@ -2,12 +2,12 @@ package logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import requests.FriendRequest;
 import requests.xml.XMLSerializable;
 
 
 public class User extends XMLSerializable {
 
-//	private DebtList debts;
 	private boolean isOnline;
 	
 	/**
@@ -19,35 +19,18 @@ public class User extends XMLSerializable {
 		this(ID, username, null);
 	}
 	
-	public User(String username, String password) {
-		this(-1, username, password);
+	public User(String username) {
+		this(-1, username);
 	}
 	
-	public User(long ID, String username, String password) {
-		this(ID, username, password, null);
-	}	
-	
-	public User(long ID, String username, String password, List<User> friends) {	
+	public User(long ID, String username, List<User> friends) {	
 		setVariable("id", ID);
-		// TODO: Add all variables to the list!
 		setVariable("username", username);
-		setVariable("password", password);
-		// TODO: FIX UNDER!
-//		debts = new DebtList(this, null);
 		setVariable("pendingDebts", new ArrayList<Debt>());
 		setVariable("confirmedDebts", new ArrayList<Debt>());
+		setVariable("friendRequests", new ArrayList<FriendRequest>());
 		setVariable("friends", friends);
 	}
-	
-	// ?
-	/*private User(String username, String password, List<String> friendUsernames, List<Debt> pendingDebts, List<Debt> confirmedDebts) {
-		this(username, password);
-		for (String s : friendUsernames) {
-			addFriend(new User(s));
-		}
-		setVariable("pendingDebts", pendingDebts);
-		setVariable("confirmedDebts", confirmedDebts);
-	}*/
 	
 	/**
 	 * User identification
@@ -56,6 +39,88 @@ public class User extends XMLSerializable {
 	 */
 	public long getId() {
 		return (Long) getVariable("id");
+	}
+	
+	/**
+	 * Adds the given friend request to this user
+	 * @param req	The friend request to add
+	 */
+	public synchronized void addFriendRequest(FriendRequest req) {
+		((List<FriendRequest>) getVariable("friendRequest")).add(req);
+	}
+	
+	/**
+	 * Finds the given friend request's index
+	 * @param req	The friend request
+	 * @return		The index of the given friend request, or -1 if not found
+	 */
+	public synchronized int indexOfFriendRequest(FriendRequest req) {
+		// We assume that only the user that can respond to the request has it saved 
+		if(!req.getFriendUsername().equals(this.getUsername())) return -1;
+		// Find the given request among ours
+		for (int i = 0; i < this.getNumberOfFriendRequests(); i++) {
+			if(req.getFromUser().equals(this.getFriendRequest(i).getFromUser())) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Checks if this user has the given friend request
+	 * @param req	The friend request to check
+	 * @return		True if this user has the given friend request, false if not
+	 */
+	public synchronized boolean hasFriendRequest(FriendRequest req) {
+		return indexOfFriendRequest(req) != -1;
+	}
+	
+	/**
+	 * Finds and returns the FriendRequest from the user with the given username
+	 * @param username	The username of the user to look for
+	 * @return			The corresponding friend request or null if none is found
+	 */
+	public synchronized FriendRequest getFriendRequestFrom(String username) {
+		for (int i = 0; i < getNumberOfFriendRequests(); i++) {
+			if(getFriendRequest(i).getFromUser().getUsername().equals(username)) {
+				return getFriendRequest(i); 
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Removes the given friend request (recognized by fromUser and friendUsername)
+	 * @param req	The friend request to remove
+	 * @return		True if the request was present, false if not
+	 */
+	public synchronized boolean removeFriendRequest(FriendRequest req) {
+		int i = indexOfFriendRequest(req);
+		if(i == -1) return false;
+		getFriendRequests().remove(i);
+		return true;
+	}
+	
+	/**
+	 * @return	This user's friend requests
+	 */
+	private synchronized List<FriendRequest> getFriendRequests() {
+		return (List<FriendRequest>) getVariable("friendRequest");
+	}
+	
+	/**
+	 * @param i	The index
+	 * @return	The ith friend request
+	 */
+	public synchronized FriendRequest getFriendRequest(int i) {
+		return getFriendRequest(i);
+	}
+	
+	/**
+	 * @return	The number of pending friend requests
+	 */
+	public synchronized int getNumberOfFriendRequests() {
+		return getFriendRequests().size();
 	}
 	
 	/**
@@ -84,19 +149,19 @@ public class User extends XMLSerializable {
 		return new User(username, password, friendUsernames, (fromServer ? pd : null), (fromServer ? cd : null));
 	}*/
 	
-	public List<Debt> getPendingDebts() {
+	public synchronized List<Debt> getPendingDebts() {
 		return (List<Debt>) getVariable("pendingDebts");
 	}
 	
-	public List<Debt> getConfirmedDebts() {
+	public synchronized List<Debt> getConfirmedDebts() {
 		return (List<Debt>) getVariable("confirmedDebts");
 	}
 	
-	public boolean removePendingDebt(Debt d) {
+	public synchronized boolean removePendingDebt(Debt d) {
 		return getPendingDebts().remove(d);
 	}
 	
-	public int getNumberOfWaitingDebts() {
+	public synchronized int getNumberOfWaitingDebts() {
 		int c = 0;
 		for (Debt d : getPendingDebts()) {
 			if(d.getRequestedBy() != this) c++;
@@ -104,68 +169,55 @@ public class User extends XMLSerializable {
 		return c;
 	}
 	
-	public int getNumberOfPendingDebts() {
+	public synchronized int getNumberOfPendingDebts() {
 		return getPendingDebts().size();
 	}
 	
-	public int getNumberOfConfirmedDebts() {
+	public synchronized int getNumberOfConfirmedDebts() {
 		return getConfirmedDebts().size();
 	}
 	
-	public Debt getPendingDebt(int i) {
+	public synchronized Debt getPendingDebt(int i) {
 		return getPendingDebts().get(i);
 	}
 	
-	public Debt getConfirmedDebt(int i) {
+	public synchronized Debt getConfirmedDebt(int i) {
 		return getConfirmedDebts().get(i);
 	}
 	
-	public void addPendingDebt(Debt d) {
+	public synchronized void addPendingDebt(Debt d) {
 		getPendingDebts().add(d);
 	}
 	
-	public void addConfirmedDebt(Debt d) {
+	public synchronized void addConfirmedDebt(Debt d) {
 		getConfirmedDebts().add(d);
 	}
 	
-	public int getNumberOfTotalDebts() {
+	public synchronized int getNumberOfTotalDebts() {
 		return getNumberOfPendingDebts() + getNumberOfConfirmedDebts();
 	}
-	
-//	public void addDebt(Debt d) {
-//		debts.addPendingDebt(d);
-//		pendingDebts.add(d);
-//	}
-	
-//	public DebtList getDebts() {
-//		return debts;
-//	}
 
-	public User getFriend(String username) {
+	public synchronized User getFriend(String username) {
 		for (int i = 0; i < getNumberOfFriends(); i++) {
 			if(getFriend(i).getUsername().equalsIgnoreCase(username)) return getFriend(i);
 		}
 		return null;
 	}
 	
-	private List<User> getFriends() {
+	private synchronized List<User> getFriends() {
 		return (List<User>) getVariable("friends");
 	}
 	
-	public int getNumberOfFriends() {
+	public synchronized int getNumberOfFriends() {
 		return getFriends().size();
 	}
 	
-	public User getFriend(int i) {
+	public synchronized User getFriend(int i) {
 		return getFriends().get(i);
 	}
 	
 	public String getUsername() {
 		return (String) getVariable("username");
-	}
-	
-	public String getPassword() {
-		return (String) getVariable("password");
 	}
 	
 	public boolean isOnline() {
@@ -176,15 +228,15 @@ public class User extends XMLSerializable {
 		this.isOnline = isOnline;
 	}
 
-	public Debt removeConfirmedDebt(int i) {
+	public synchronized Debt removeConfirmedDebt(int i) {
 		return getConfirmedDebts().remove(i);
 	}
 	
-	public Debt removePendingDebt(int i) {
+	public synchronized Debt removePendingDebt(int i) {
 		return getPendingDebts().remove(i);
 	}
 	
-	public void addFriend(User friend) {
+	public synchronized void addFriend(User friend) {
 		if(getFriends() == null) {
 			setVariable("friends", new ArrayList<User>());
 		}
@@ -195,17 +247,11 @@ public class User extends XMLSerializable {
 	public boolean equals(Object o) {
 		if(!(o instanceof User)) return false;
 		return getUsername().equals(((User)o).getUsername());
-//		User u = (User) o;
-//		if(this.getNumberOfVariables() != u.getNumberOfVariables()) return false;
-//		for (int i = 0; i < this.getNumberOfVariables(); i++) {
-//			if(!u.getVariable(this.getVariableName(i)).equals(this.getVariable(i))) return false;
-//		}
-//		return true;
 	}
 	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Username: " + getUsername() + ", password: " + getPassword());
+		sb.append("Username: " + getUsername());
 		if(getFriends() != null) {
 			sb.append(", friends = [");
 			for (int i = 0; i < getFriends().size(); i++) {
