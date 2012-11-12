@@ -34,8 +34,8 @@ public class XMLSerializableTest extends TestCase {
 		u2.addConfirmedDebt(d3);
 		// Empty user
 		simpleUser = new User(3, "EmptyUser");
-		simpleLIR = new LogInRequest(simpleUser, false, LogInRequestStatus.UNHANDLED, 13338);
-		lIR = new LogInRequest(u1, false, LogInRequestStatus.UNHANDLED, 13339);
+		simpleLIR = new LogInRequest(simpleUser, "asd", false, LogInRequestStatus.UNHANDLED, 13338);
+		lIR = new LogInRequest(u1, "asd", false, LogInRequestStatus.UNHANDLED, 13339);
 	}
 	
 	public static junit.framework.Test suite() {
