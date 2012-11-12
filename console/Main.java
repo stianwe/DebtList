@@ -6,9 +6,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import network.Constants;
+
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
+import requests.CreateUserRequest;
 import requests.FriendRequest;
 import requests.LogInRequestStatus;
 import requests.UpdateListener;
@@ -40,7 +43,10 @@ public class Main {
 	 */
 	public static boolean processCommand(String command) {
 		if(command.equals("exit")) return true;
-		else if(command.startsWith("connect")) processConnect(command);
+		else if(command.startsWith("connect")) {
+			if(command.split(" ").length == 3) processConnect(command);
+			else processConnectOLD(command);
+		}
 		else if(command.equals("ls debts")) processLsDebts();
 		else if(command.equals("ls friends")) processLsFriends();
 		else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
@@ -49,9 +55,27 @@ public class Main {
 		else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
 		else if(command.startsWith("add friend")) processAddFriend(command);
 		else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
+		else if(command.startsWith("create user")) processCreateUser(command);
+		else if(command.startsWith("login")) processLogin(command);
 		
 		else System.out.println("Unknown command.");
 		return false;
+	}
+	
+	public static void processCreateUser(String command) {
+		try {
+			// Find username and password
+			String username = command.split(" ")[2], password = command.split(" ")[3];
+			Session.session.send(new CreateUserRequest(username, password).toXML());
+			try {
+				if(((CreateUserRequest) XMLSerializable.toObject(Session.session.receive())).isApproved()) System.out.println("User created.");
+				else System.out.println("Could not create user.");
+			} catch(IOException e) {
+				printConnectionErrorMessage();
+			}
+		} catch (Exception e) {
+			printSyntaxErrorMessage("create user <username> <password>");
+		}
 	}
 	
 	/**
@@ -365,14 +389,59 @@ public class Main {
 		}
 	}
 	
+	public static void processLogin(String command) {
+		if(!Session.session.isConnected()) {
+			System.out.println("Please connect first.");
+			return;
+		}
+		try {
+			String username = command.split(" ")[1], password = command.split(" ")[2];
+			Thread t = new Thread(new UpdateListener(Constants.STANDARD_UPDATE_PORT));
+			t.start();
+			// Attempt to log in
+			switch(Session.session.logIn(username, password, Constants.STANDARD_UPDATE_PORT)) {
+			case ACCEPTED:
+				System.out.println("Log in ok.");
+				break;
+			case ALREADY_LOGGED_ON:
+				System.out.println("Logged in on another device.");
+				t.interrupt();
+				break;
+			case WRONG_INFORMATION:
+				System.out.println("Wrong username or password.");
+				t.interrupt();
+				break;
+			case UNHANDLED:
+				System.out.println("Something went wrong. Did your remember to connect first?");
+				t.interrupt();
+				break;
+			}
+		} catch (Exception e) {
+			printSyntaxErrorMessage("login <username> <password>");
+		}
+	}
+	
+	public static void processConnect(String command) {
+		try {
+			String host = command.split(" ")[1];
+			int port = Integer.parseInt(command.split(" ")[2]);
+			Session.session.connect(host, port);
+			if(Session.session.isConnected()) System.out.println("Connected.");
+			else System.out.println("Could not connect to " + host + ":" + port);
+		} catch (Exception e) {
+			printSyntaxErrorMessage("connect <host> <port>");
+		}
+	}
+	
 	/**
+	 * @deprecated or useful?
 	 * Process the given command as a connect command. Will connect to the specified server and send a LogInRequest.
 	 * Will also start a UpdateListener at the port specified in the command.
 	 * Will also set the Sessions' user by calling it's logIn()-method.
 	 * Syntax: "connect <username> <password> <host> <host port> <UpdateListener port>"
 	 * @param command	The command to process
 	 */
-	public static void processConnect(String command) {
+	public static void processConnectOLD(String command) {
 		try {
 			String[] cs = command.split(" ");
 			String username = cs[1], password = cs[2], host = cs[3];

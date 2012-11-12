@@ -22,6 +22,7 @@ public class ServerConnection {
 	public ServerConnection() {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
 		users = new HashMap<String, User>();
+		passwords = new HashMap<String, String>();
 	}
 	
 	public void addPassword(String username, String password) {
