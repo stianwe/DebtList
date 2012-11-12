@@ -10,6 +10,7 @@ import java.util.Map;
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
+import requests.Update;
 import requests.xml.XMLSerializable;
 
 public class ServerConnection {
@@ -53,8 +54,7 @@ public class ServerConnection {
 		System.out.println("Notifying " + username);
 		ServerConnectionHandler handler = getHandler(username);
 		if(handler != null) {
-			handler.sendUpdate(objectToSend.toXML());
-			System.out.println("Sent to: " + handler.getUser().getUsername());
+			handler.sendUpdate(objectToSend);
 		}
 	}
 	

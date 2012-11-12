@@ -396,24 +396,19 @@ public class Main {
 		}
 		try {
 			String username = command.split(" ")[1], password = command.split(" ")[2];
-			Thread t = new Thread(new UpdateListener(Constants.STANDARD_UPDATE_PORT));
-			t.start();
 			// Attempt to log in
-			switch(Session.session.logIn(username, password, Constants.STANDARD_UPDATE_PORT)) {
+			switch(Session.session.logIn(username, password)) {
 			case ACCEPTED:
 				System.out.println("Log in ok.");
 				break;
 			case ALREADY_LOGGED_ON:
 				System.out.println("Logged in on another device.");
-				t.interrupt();
 				break;
 			case WRONG_INFORMATION:
 				System.out.println("Wrong username or password.");
-				t.interrupt();
 				break;
 			case UNHANDLED:
 				System.out.println("Something went wrong. Did your remember to connect first?");
-				t.interrupt();
 				break;
 			}
 		} catch (Exception e) {
@@ -438,29 +433,23 @@ public class Main {
 	 * Process the given command as a connect command. Will connect to the specified server and send a LogInRequest.
 	 * Will also start a UpdateListener at the port specified in the command.
 	 * Will also set the Sessions' user by calling it's logIn()-method.
-	 * Syntax: "connect <username> <password> <host> <host port> <UpdateListener port>"
+	 * Syntax: "connect <username> <password> <host> <host port>"
 	 * @param command	The command to process
 	 */
 	public static void processConnectOLD(String command) {
 		try {
 			String[] cs = command.split(" ");
 			String username = cs[1], password = cs[2], host = cs[3];
-			int port = Integer.parseInt(cs[4]), updatePort = Integer.parseInt(cs[5]);
+			int port = Integer.parseInt(cs[4]);
 			Session.session.connect(host, port);
-			Thread t = null;
 			if(Session.session.isConnected()) {
 				System.out.println("Connected.");
-				t = new Thread(new UpdateListener(updatePort));
-				t.start();
-				System.out.println("Update listener started on port " + updatePort);
-				LogInRequestStatus status = Session.session.logIn(username, password, updatePort);
+				LogInRequestStatus status = Session.session.logIn(username, password);
 				if(status == LogInRequestStatus.ACCEPTED) {
 					System.out.println("Logged in successfully.");
 				}
 				else {
 					System.out.println("Log in failed.");
-					System.out.println("Trying to kill UpdateListener");
-					t.interrupt();
 				}
 			} else {
 				System.out.println("Connection failed.");

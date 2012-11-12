@@ -9,20 +9,19 @@ public class LogInRequest extends Request {
 	 */
 	public LogInRequest() {}
 	
-	public LogInRequest(String username, String password, int updatePort) {
-		this(new User(username), password, false, LogInRequestStatus.UNHANDLED, updatePort);
+	public LogInRequest(String username, String password) {
+		this(new User(username), password, false, LogInRequestStatus.UNHANDLED);
 	}
 	
-	public LogInRequest(User user, String password, boolean isAccepted, LogInRequestStatus status, int updatePort) {
+	public LogInRequest(User user, String password, boolean isAccepted, LogInRequestStatus status) {
 		setUser(user);
 		setVariable("accepted", isAccepted);
 		setVariable("status", status);
-		setVariable("updatePort", updatePort);
 		setVariable("password", password);
 	}
 	
-	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status, int updatePort) {
-		this(new User(username), password, isAccepted, status, updatePort);
+	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status) {
+		this(new User(username), password, isAccepted, status);
 	}
 	
 	public void setStatus(LogInRequestStatus status) {
@@ -35,10 +34,6 @@ public class LogInRequest extends Request {
 	
 	public boolean isAccepted() {
 		return (Boolean) getVariable("accepted");
-	}
-	
-	public int getUpdatePort() {
-		return (Integer) getVariable("updatePort");
 	}
 	
 	public User getUser() {

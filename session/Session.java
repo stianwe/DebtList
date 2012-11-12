@@ -64,13 +64,12 @@ public class Session {
 	 * Tries to log in by sending a LogInRequest to the server connected to by the connection
 	 * @param username		The user name
 	 * @param password		The password
-	 * @param updatePort	The port to send updates
 	 * @return				The status of the received response
 	 */
-	public LogInRequestStatus logIn(String username, String password, int updatePort) {
+	public LogInRequestStatus logIn(String username, String password) {
 		LogInRequest resp = null;
 		try {
-			send(new LogInRequest(username, password, updatePort).toXML());
+			send(new LogInRequest(username, password).toXML());
 			resp = (LogInRequest) XMLSerializable.toObject(receive());
 			if(resp.isAccepted()) {
 				setUser(resp.getUser());

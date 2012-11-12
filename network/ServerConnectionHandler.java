@@ -15,6 +15,7 @@ import requests.CreateUserRequest;
 import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
+import requests.Update;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 
@@ -26,8 +27,7 @@ public class ServerConnectionHandler extends Thread {
 	private PrintWriter writer;
 	private User user;
 	private boolean running;
-	private UpdateSender updateSender;
-	private Thread updateSenderThread;
+	private Update update;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
@@ -43,11 +43,11 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	/**
-	 * Sends the given message to this ServerConnectionHandler's UpdateSender (if existing)
-	 * @param msg
+	 * Adds the given object to this user's send queue
+	 * @param o	The object to send
 	 */
-	public void sendUpdate(String msg) {
-		if(updateSender != null) updateSender.send(msg);
+	public void sendUpdate(XMLSerializable o) {
+		update.add(o);
 	}
 	
 	/**
@@ -80,7 +80,6 @@ public class ServerConnectionHandler extends Thread {
 			try {
 				Object o = XMLSerializable.toObject(xml);
 				System.out.println("Done parsing object!");
-				// TODO: remember to notify affected users if they are online
 				if(o instanceof LogInRequest) {
 					processLoginRequest((LogInRequest) o);
 				} else if(o instanceof CreateUserRequest) {
@@ -89,6 +88,8 @@ public class ServerConnectionHandler extends Thread {
 					processDebt((Debt) o);
 				} else if(o instanceof FriendRequest) {
 					processFriendRequest((FriendRequest) o);
+				} else if(o instanceof Update) {
+					processUpdate();
 				} else {
 					System.out.println("Received something unknown!");
 					// TODO
@@ -99,12 +100,12 @@ public class ServerConnectionHandler extends Thread {
 				e.printStackTrace();
 			}
 		}
-		// TODO
-		System.out.println("Killing UpdateSender.");
-		updateSender.setRunning(false);
-		updateSenderThread.interrupt();
 		System.out.println("Killing thread.");
 		running = false;
+	}
+	
+	public void processUpdate() {
+		send(update.toXML());
 	}
 	
 	/**
@@ -206,10 +207,6 @@ public class ServerConnectionHandler extends Thread {
 			}
 			// Load the user variables
 			req.setUser((User) user);
-			// Now that the user is logged in, we can start a updateSender
-			updateSender = new UpdateSender(connection.getInetAddress().getHostAddress(), req.getUpdatePort());
-			updateSenderThread = new Thread(updateSender);
-			updateSenderThread.start();
 		} else if(user != null && user.isOnline()){
 			req.setStatus(LogInRequestStatus.ALREADY_LOGGED_ON);
 			System.out.println("User already online.");
