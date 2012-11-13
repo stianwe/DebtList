@@ -5,9 +5,9 @@ import java.util.List;
 
 import requests.xml.XMLSerializable;
 
-public class Update extends Request {
+public class UpdateRequest extends Request {
 
-	public Update() {
+	public UpdateRequest() {
 		setVariable("objects", new ArrayList<XMLSerializable>());
 	}
 	

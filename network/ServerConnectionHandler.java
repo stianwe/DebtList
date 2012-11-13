@@ -15,7 +15,7 @@ import requests.CreateUserRequest;
 import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
-import requests.Update;
+import requests.UpdateRequest;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 
@@ -27,7 +27,7 @@ public class ServerConnectionHandler extends Thread {
 	private PrintWriter writer;
 	private User user;
 	private boolean running;
-	private Update update;
+	private UpdateRequest update;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
@@ -88,7 +88,7 @@ public class ServerConnectionHandler extends Thread {
 					processDebt((Debt) o);
 				} else if(o instanceof FriendRequest) {
 					processFriendRequest((FriendRequest) o);
-				} else if(o instanceof Update) {
+				} else if(o instanceof UpdateRequest) {
 					processUpdate();
 				} else {
 					System.out.println("Received something unknown!");

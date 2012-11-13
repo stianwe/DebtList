@@ -10,7 +10,7 @@ import java.util.Map;
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
-import requests.Update;
+import requests.UpdateRequest;
 import requests.xml.XMLSerializable;
 
 public class ServerConnection {
