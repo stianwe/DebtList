@@ -16,7 +16,7 @@ public class User extends XMLSerializable {
 	public User() {}
 	
 	public User(long ID, String username) {
-		this(ID, username, null);
+		this(ID, username, new ArrayList<User>());
 	}
 	
 	public User(String username) {
