@@ -466,7 +466,7 @@ public class Main {
 				System.out.println("Connection failed.");
 			}
 		} catch(Exception e) {
-			printSyntaxErrorMessage("connect <username> <password> <host> <port>");
+			printSyntaxErrorMessage("connect <username> <password> <host> <port> <update port>");
 		}
 	}
 }
