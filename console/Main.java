@@ -44,29 +44,32 @@ public class Main {
 	 * @return			True if the command was "exit", false if not
 	 */
 	public static boolean processCommand(String command) {
+		// Commands that are accessible both if the user is logged in or not
 		if(command.equals("exit")) return true;
-		else if(command.startsWith("connect")) {
-			if(command.split(" ").length == 3) processConnect(command);
-			else processConnectOLD(command);
-		}
-		else if(command.startsWith("login")) processLogin(command);
 		else if(command.startsWith("create user")) processCreateUser(command);
 		else {
-			// Check that the user is online before processing any other command
 			if(!Session.session.isLoggedIn()) {
-				System.out.println("Please log in first.");
-				return false;
+				// Commands that only are accessible when the user is not logged in
+				if(command.startsWith("connect")) {
+					if(command.split(" ").length == 3) processConnect(command);
+					else processConnectOLD(command);
+				}
+				else if(command.startsWith("login")) processLogin(command);
+				
+				else System.out.println("Unknown command.");
+			} else {
+				// Commands that require the user to be logged in
+				if(command.equals("ls debts")) processLsDebts();
+				else if(command.equals("ls friends")) processLsFriends();
+				else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
+				else if(command.startsWith("create debt")) processCreateDebt(command);
+				else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
+				else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
+				else if(command.startsWith("add friend")) processAddFriend(command);
+				else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
+
+				else System.out.println("Unknown command.");
 			}
-			if(command.equals("ls debts")) processLsDebts();
-			else if(command.equals("ls friends")) processLsFriends();
-			else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
-			else if(command.startsWith("create debt")) processCreateDebt(command);
-			else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
-			else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
-			else if(command.startsWith("add friend")) processAddFriend(command);
-			else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
-			
-			else System.out.println("Unknown command.");
 		}
 		return false;
 	}
@@ -164,8 +167,14 @@ public class Main {
 	 */
 	public static void processAddFriend(String command) {
 		try {
+			String friendUsername = command.split(" ")[2];
+			// Check that the user is not sending a request to himself
+			if(friendUsername.equals(Session.session.getUser().getUsername())) {
+				System.out.println("You cannot send a friend request to yourself! What are you?!");
+				return;
+			}
 			// Send the friend request
-			Session.session.send(new FriendRequest(command.split(" ")[2], Session.session.getUser()).toXML());
+			Session.session.send(new FriendRequest(friendUsername, Session.session.getUser()).toXML());
 			try {
 				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
 				switch(response.getStatus()) {
@@ -177,7 +186,7 @@ public class Main {
 					break;
 				case ALREADY_EXISTS:
 					// Check if this user already has a request from the requested friend
-					String otherUsername = command.split(" ")[2];
+					String otherUsername = friendUsername;
 					if(Session.session.getUser().hasFriendRequestFrom(otherUsername))
 						System.out.println("You already have a friend request from that user.");
 					else

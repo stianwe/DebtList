@@ -152,7 +152,7 @@ public class ServerConnectionHandler extends Thread {
 			valid = false;
 		}
 		User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername()));
-		// If this is a new friend request, check that these two users don't already have any requests for each other
+		// If this is a new friend request, check that these two users don't already have any requests for each other, or that the user is sending a request to himself
 		if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
 			if(thisUser.hasFriendRequest(request) || otherUser.hasFriendRequest(request) ||
 					// Check the oposite way too
@@ -160,6 +160,8 @@ public class ServerConnectionHandler extends Thread {
 				valid = false;
 				request.setStatus(FriendRequestStatus.ALREADY_EXISTS);
 			}
+			if(request.getFriendUsername().equals(thisUser.getUsername()))
+				valid = false;
 		}
 		if(valid) {
 			System.out.println("FriendRequest was valid.");
@@ -188,8 +190,7 @@ public class ServerConnectionHandler extends Thread {
 		} else {
 			System.out.println("FriendRequest was not valid.");
 			// Send some garbage that will trigger an error
-			// TODO Change to another status!
-			request.setStatus(FriendRequestStatus.USER_NOT_FOUND);
+			// TODO Set a crap status?? But don't overwrite already set error status!
 		}
 		send(request.toXML());
 	}
