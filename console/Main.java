@@ -34,6 +34,8 @@ public class Main {
 				continue;
 			}
 		} while(!processCommand(command));
+		// TODO: Kill update listener if existing..
+		System.out.println("Bye!");
 	}
 	
 	/**
@@ -47,18 +49,25 @@ public class Main {
 			if(command.split(" ").length == 3) processConnect(command);
 			else processConnectOLD(command);
 		}
-		else if(command.equals("ls debts")) processLsDebts();
-		else if(command.equals("ls friends")) processLsFriends();
-		else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
-		else if(command.startsWith("create debt")) processCreateDebt(command);
-		else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
-		else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
-		else if(command.startsWith("add friend")) processAddFriend(command);
-		else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
-		else if(command.startsWith("create user")) processCreateUser(command);
 		else if(command.startsWith("login")) processLogin(command);
-		
-		else System.out.println("Unknown command.");
+		else if(command.startsWith("create user")) processCreateUser(command);
+		else {
+			// Check that the user is online before processing any other command
+			if(!Session.session.isLoggedIn()) {
+				System.out.println("Please log in first.");
+				return false;
+			}
+			if(command.equals("ls debts")) processLsDebts();
+			else if(command.equals("ls friends")) processLsFriends();
+			else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
+			else if(command.startsWith("create debt")) processCreateDebt(command);
+			else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
+			else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
+			else if(command.startsWith("add friend")) processAddFriend(command);
+			else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
+			
+			else System.out.println("Unknown command.");
+		}
 		return false;
 	}
 	
@@ -102,12 +111,18 @@ public class Main {
 				// Wait for response
 				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
 				if(response.getStatus() == request.getStatus()) System.out.println("Friend request " + (accepted ? "accepted" : "declined"));
-				else System.out.println("An error occurred! Please try again.");
+				else {
+					System.out.println("An error occurred! Please try again.");
+					return;
+				}
 				// If we accepted the request, and the server processed it ok..
 				if(response.getStatus() == FriendRequestStatus.ACCEPTED) {
 					// Add the friend
 					Session.session.getUser().addFriend(response.getFromUser());
+					
 				}
+				// And remove the request since it has been answered
+				Session.session.getUser().removeFriendRequest(request);
 			} catch (IOException e) {
 				// Reset status
 				request.setStatus(FriendRequestStatus.PENDING);
@@ -123,14 +138,10 @@ public class Main {
 	 * Process the command "ls friends" by listing all friends in the console.
 	 */
 	public static void processLsFriends() {
-		if(!Session.session.isLoggedIn()) {
-			System.out.println("You need to log in first.");
-			return;
-		}
 		// Check if we have any friends
 		if(Session.session.getUser().getNumberOfFriends() == 0) {
 			System.out.println("You have no friends.\nTo add a new friend use the 'add friend <username>' command.");
-		} else if(Session.session.getUser().getNumberOfFriendRequests() != 0) {
+		} else {
 			// Print friends
 			System.out.println("Your friends:");
 			for (int i = 0; i < Session.session.getUser().getNumberOfFriends(); i++) {
@@ -153,6 +164,7 @@ public class Main {
 	 */
 	public static void processAddFriend(String command) {
 		try {
+			// TODO Don't let a user send a friend request to the same user twice.
 			// Send the friend request
 			Session.session.send(new FriendRequest(command.split(" ")[2], Session.session.getUser()).toXML());
 			// TODO Will we get a reply? Yes
@@ -399,22 +411,26 @@ public class Main {
 			Thread t = new Thread(new UpdateListener(Constants.STANDARD_UPDATE_PORT));
 			t.start();
 			// Attempt to log in
-			switch(Session.session.logIn(username, password, Constants.STANDARD_UPDATE_PORT)) {
-			case ACCEPTED:
-				System.out.println("Log in ok.");
-				break;
-			case ALREADY_LOGGED_ON:
-				System.out.println("Logged in on another device.");
-				t.interrupt();
-				break;
-			case WRONG_INFORMATION:
-				System.out.println("Wrong username or password.");
-				t.interrupt();
-				break;
-			case UNHANDLED:
-				System.out.println("Something went wrong. Did your remember to connect first?");
-				t.interrupt();
-				break;
+			try {
+				switch(Session.session.logIn(username, password, Constants.STANDARD_UPDATE_PORT)) {
+				case ACCEPTED:
+					System.out.println("Log in ok.");
+					break;
+				case ALREADY_LOGGED_ON:
+					System.out.println("Logged in on another device.");
+					t.interrupt();
+					break;
+				case WRONG_INFORMATION:
+					System.out.println("Wrong username or password.");
+					t.interrupt();
+					break;
+				case UNHANDLED:
+					System.out.println("Something went wrong. Did your remember to connect first?");
+					t.interrupt();
+					break;
+				}
+			} catch(IOException e) {
+				printConnectionErrorMessage();
 			}
 		} catch (Exception e) {
 			printSyntaxErrorMessage("login <username> <password>");
@@ -453,7 +469,12 @@ public class Main {
 				t = new Thread(new UpdateListener(updatePort));
 				t.start();
 				System.out.println("Update listener started on port " + updatePort);
-				LogInRequestStatus status = Session.session.logIn(username, password, updatePort);
+				LogInRequestStatus status = null;
+				try{
+					status = Session.session.logIn(username, password, updatePort);
+				} catch(IOException e) {
+					printConnectionErrorMessage();
+				}
 				if(status == LogInRequestStatus.ACCEPTED) {
 					System.out.println("Logged in successfully.");
 				}

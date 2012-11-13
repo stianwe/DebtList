@@ -65,19 +65,15 @@ public class Session {
 	 * @param username		The user name
 	 * @param password		The password
 	 * @param updatePort	The port to send updates
+	 * @throws IOException	If an IOException occured while attempting to log in
 	 * @return				The status of the received response
 	 */
-	public LogInRequestStatus logIn(String username, String password, int updatePort) {
+	public LogInRequestStatus logIn(String username, String password, int updatePort) throws IOException {
 		LogInRequest resp = null;
-		try {
-			send(new LogInRequest(username, password, updatePort).toXML());
-			resp = (LogInRequest) XMLSerializable.toObject(receive());
-			if(resp.isAccepted()) {
-				setUser(resp.getUser());
-			}
-		} catch(IOException e) {
-			// TODO 
-			e.printStackTrace();
+		send(new LogInRequest(username, password, updatePort).toXML());
+		resp = (LogInRequest) XMLSerializable.toObject(receive());
+		if(resp.isAccepted()) {
+			setUser(resp.getUser());
 		}
 		return resp.getStatus();
 	}
@@ -183,6 +179,8 @@ public class Session {
 				getUser().addFriendRequest(req);
 				break;
 			}
+		} else {
+			System.out.println("ERROR: Received something unknown!");
 		}
 	}
 }

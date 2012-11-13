@@ -39,20 +39,15 @@ public class FriendRequest extends Request {
 	 * @param from				The requesting user
 	 */
 	public FriendRequest(String friendUsername, User from) {
+		this(friendUsername, from, FriendRequestStatus.UNHANDLED);
+	}
+	
+	public FriendRequest(String friendUsername, User from, FriendRequestStatus status) {
 		setFriendUsername(friendUsername);
 		setFromUser(from);
-	}
-	
-	public FriendRequest(long id, String friendUsername, User from, FriendRequestStatus status) {
-		this(friendUsername, from);
 		setStatus(status);
-		setId(id);
 	}
 
-	public void setId(long id) {
-		setVariable("id", id);
-	}
-	
 	public void setStatus(FriendRequestStatus status) {
 		setVariable("status", status);
 	}

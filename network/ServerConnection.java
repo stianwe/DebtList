@@ -10,6 +10,8 @@ import java.util.Map;
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
+import requests.FriendRequest;
+import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 
 public class ServerConnection {
@@ -113,10 +115,13 @@ public class ServerConnection {
 		server.nextDebtId = 0;
 		User arne = new User(1, "arnegopro");
 		User stian = new User(2, "stian");
+		User test = new User(3, "test");
+		stian.addFriendRequest(new FriendRequest(stian.getUsername(), test, FriendRequestStatus.PENDING));
 		stian.addFriend(arne);
 		arne.addFriend(stian);
 		server.addUser(arne, "qazqaz");
 		server.addUser(stian, "asd");
+		server.addUser(test, "test");
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
 			System.out.println(s);

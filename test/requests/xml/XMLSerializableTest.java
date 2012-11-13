@@ -10,13 +10,14 @@ import logic.User;
 
 import org.junit.Test;
 
+import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
 import requests.xml.XMLSerializable;
 
 public class XMLSerializableTest extends TestCase {
 
-	private User u1, u2, simpleUser;
+	private User u1, u2, simpleUser, userWithFriendRequest;
 	private Debt d1, d2, d3;
 	private LogInRequest simpleLIR, lIR;
 	
@@ -36,6 +37,8 @@ public class XMLSerializableTest extends TestCase {
 		simpleUser = new User(3, "EmptyUser");
 		simpleLIR = new LogInRequest(simpleUser, "asd", false, LogInRequestStatus.UNHANDLED, 13338);
 		lIR = new LogInRequest(u1, "asd", false, LogInRequestStatus.UNHANDLED, 13339);
+		userWithFriendRequest = new User(3, "userWithFriendRequest");
+		userWithFriendRequest.addFriendRequest(new FriendRequest("userWithFriendRequest", u1));
 	}
 	
 	public static junit.framework.Test suite() {
@@ -96,6 +99,19 @@ public class XMLSerializableTest extends TestCase {
 			assertEquals("lIR first pending debt test", lIR.getUser().getPendingDebt(0), parsedLIR.getUser().getPendingDebt(0));
 		} catch (IOException e) {
 			fail("Parsing of lIR to xml and back again threw an exception");
+		}
+	}
+	
+	/**
+	 * Test parsing of a User with friend requests
+	 */
+	@Test
+	public void testFriendRequestParsing() {
+		try {
+			User parsedUserWithFriendRequest = (User) XMLSerializable.toObject(userWithFriendRequest.toXML());
+			assertEquals("parsedUserWithFriendRequest friendRequest 0 test" , userWithFriendRequest.getFriendRequest(0).getFromUser().getUsername(), parsedUserWithFriendRequest.getFriendRequest(0).getFromUser().getUsername());
+		} catch (IOException e) {
+			fail("Parsing of user with friend request failed.");
 		}
 	}
 }

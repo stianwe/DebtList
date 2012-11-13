@@ -85,13 +85,18 @@ public class ServerConnectionHandler extends Thread {
 					processLoginRequest((LogInRequest) o);
 				} else if(o instanceof CreateUserRequest) {
 					processCreateUserRequest((CreateUserRequest) o);
-				} else if(o instanceof Debt) {
-					processDebt((Debt) o);
-				} else if(o instanceof FriendRequest) {
-					processFriendRequest((FriendRequest) o);
 				} else {
-					System.out.println("Received something unknown!");
-					// TODO
+					// Check that the connected user is logged in before processing any of these requests
+					// TODO: Send error message to user?
+					if(this.user == null || !this.user.isOnline()) continue;
+					if(o instanceof Debt) {
+						processDebt((Debt) o);
+					} else if(o instanceof FriendRequest) {
+						processFriendRequest((FriendRequest) o);
+					} else {
+						System.out.println("Received something unknown!");
+						// TODO
+					}
 				}
 			} catch(Exception e) {
 				// TODO
@@ -119,12 +124,18 @@ public class ServerConnectionHandler extends Thread {
 	 * @param request	The FriendRequest
 	 */
 	public void processFriendRequest(FriendRequest request) {
+		// TODO: Don't let a user send friend requests to the same user twice.
 		// Validate
 		boolean valid = true;
 		// TODO: This should be unnecessary (should be able to use this.getUser())
 		User thisUser = serverConnection.getUser(this.getUser().getUsername());
-		// Check that this is the requesting user's handler
-		if(!request.getFromUser().equals(this.getUser())) valid = false;
+		// Check that this is the requesting user's handler if this is a new request
+		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
+		// Check that this is the target user's handler if this is a response
+		else if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername()))
+			valid = false;
+		else if(request.getStatus() == FriendRequestStatus.PENDING || request.getStatus() == FriendRequestStatus.USER_NOT_FOUND)
+			valid = false;
 		// Check that the FriendRequest's target exists
 		if(serverConnection.getUser(request.getFriendUsername()) == null) {
 			valid = false;
@@ -141,17 +152,19 @@ public class ServerConnectionHandler extends Thread {
 			valid = false;
 		}
 		if(valid) {
-			User otherUser = (request.getFromUser().equals(this.getUser()) ? serverConnection.getUser(request.getFriendUsername()) : request.getFromUser()); 
+			User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername())); 
 			System.out.println("FriendRequest was valid.");
 			// If this is a new friend request..
 			if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
+				System.out.println("This was a new friend request.");
 				// Set the correct status
 				request.setStatus(FriendRequestStatus.PENDING);
 				// Add it to the target friend
 				serverConnection.getUser(request.getFriendUsername()).addFriendRequest(request);
-				// And let the requesting user know
-				send(request.toXML());
+				System.out.println("Added friend request to: " + serverConnection.getUser(request.getFriendUsername()).getUsername());
+				System.out.println("Friend request0: " + serverConnection.getUser(request.getFriendUsername()).getFriendRequest(0));
 			} else {
+				System.out.println("This was a reply to a friend request.");
 				// If this is a accepted/declined friend request, update the requesting user's friends (if accepted, if not accepted we do nothig except to remove the request)
 				if(request.getStatus() == FriendRequestStatus.ACCEPTED) {
 					// Add friends
@@ -159,14 +172,17 @@ public class ServerConnectionHandler extends Thread {
 					thisUser.addFriend(otherUser);
 				} 
 				// Remove friend request
-				otherUser.removeFriendRequest(request);
+				thisUser.removeFriendRequest(request);
 			}
 			// Notify other user
 			serverConnection.notifyUser(otherUser.getUsername(), request);
 		} else {
 			System.out.println("FriendRequest was not valid.");
-			send(request.toXML());
+			// Send some garbage that will trigger an error
+			// TODO Change to another status!
+			request.setStatus(FriendRequestStatus.USER_NOT_FOUND);
 		}
+		send(request.toXML());
 	}
 	
 	/**

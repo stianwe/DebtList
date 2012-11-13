@@ -46,7 +46,7 @@ public class User extends XMLSerializable {
 	 * @param req	The friend request to add
 	 */
 	public synchronized void addFriendRequest(FriendRequest req) {
-		((List<FriendRequest>) getVariable("friendRequest")).add(req);
+		((List<FriendRequest>) getVariable("friendRequests")).add(req);
 	}
 	
 	/**
@@ -113,7 +113,7 @@ public class User extends XMLSerializable {
 	 * @return	The ith friend request
 	 */
 	public synchronized FriendRequest getFriendRequest(int i) {
-		return getFriendRequest(i);
+		return getFriendRequests().get(i);
 	}
 	
 	/**
