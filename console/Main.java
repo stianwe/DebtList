@@ -164,10 +164,8 @@ public class Main {
 	 */
 	public static void processAddFriend(String command) {
 		try {
-			// TODO Don't let a user send a friend request to the same user twice.
 			// Send the friend request
 			Session.session.send(new FriendRequest(command.split(" ")[2], Session.session.getUser()).toXML());
-			// TODO Will we get a reply? Yes
 			try {
 				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
 				switch(response.getStatus()) {
@@ -176,6 +174,14 @@ public class Main {
 					break;
 				case UNHANDLED:
 					System.err.println("Something wrong happened while sending your friend request. You should probably try again.");
+					break;
+				case ALREADY_EXISTS:
+					// Check if this user already has a request from the requested friend
+					String otherUsername = command.split(" ")[2];
+					if(Session.session.getUser().hasFriendRequestFrom(otherUsername))
+						System.out.println("You already have a friend request from that user.");
+					else
+						System.out.println("You have already sent a friend request to that user.");
 					break;
 				default:
 					System.out.println("Friend request sent.");

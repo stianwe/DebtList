@@ -151,8 +151,17 @@ public class ServerConnectionHandler extends Thread {
 		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !thisUser.hasFriendRequest(request)) {
 			valid = false;
 		}
+		User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername()));
+		// If this is a new friend request, check that these two users don't already have any requests for each other
+		if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
+			if(thisUser.hasFriendRequest(request) || otherUser.hasFriendRequest(request) ||
+					// Check the oposite way too
+					thisUser.hasOppositeFriendRequest(request) || otherUser.hasOppositeFriendRequest(request)) {
+				valid = false;
+				request.setStatus(FriendRequestStatus.ALREADY_EXISTS);
+			}
+		}
 		if(valid) {
-			User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername())); 
 			System.out.println("FriendRequest was valid.");
 			// If this is a new friend request..
 			if(request.getStatus() == FriendRequestStatus.UNHANDLED) {

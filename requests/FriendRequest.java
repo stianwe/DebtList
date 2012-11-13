@@ -24,7 +24,11 @@ public class FriendRequest extends Request {
 		/**
 		 * The target user was not found
 		 */
-		USER_NOT_FOUND;
+		USER_NOT_FOUND,
+		/**
+		 * This request has already been sent
+		 */
+		ALREADY_EXISTS;
 	}
 	
 	/**

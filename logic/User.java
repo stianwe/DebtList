@@ -67,12 +67,25 @@ public class User extends XMLSerializable {
 	}
 	
 	/**
-	 * Checks if this user has the given friend request
+	 * Checks if this user has the given friend request (recognized by fromUser and friendUsername).
 	 * @param req	The friend request to check
 	 * @return		True if this user has the given friend request, false if not
 	 */
 	public synchronized boolean hasFriendRequest(FriendRequest req) {
 		return indexOfFriendRequest(req) != -1;
+	}
+	
+	public synchronized boolean hasFriendRequestFrom(String username) {
+		return hasFriendRequest(new FriendRequest(this.getUsername(), new User(username)));
+	}
+	
+	/**
+	 * Checks if this user has a friend request opposite of the one given as argument (recognized by fromUser and friendUsername).
+	 * @param req	The friend request to check the opposite of
+	 * @return		True if this user has the opposite friend request, false if not
+	 */
+	public synchronized boolean hasOppositeFriendRequest(FriendRequest req) {
+		return hasFriendRequest(new FriendRequest(req.getFromUser().getUsername(), new User(req.getFriendUsername())));
 	}
 	
 	/**
