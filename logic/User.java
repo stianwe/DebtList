@@ -105,7 +105,7 @@ public class User extends XMLSerializable {
 	 * @return	This user's friend requests
 	 */
 	private synchronized List<FriendRequest> getFriendRequests() {
-		return (List<FriendRequest>) getVariable("friendRequest");
+		return (List<FriendRequest>) getVariable("friendRequests");
 	}
 	
 	/**
