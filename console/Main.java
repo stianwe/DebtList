@@ -111,7 +111,7 @@ public class Main {
 				System.out.println("You do not have any friend requests that match that username.");
 				return;
 			}
-			// Update the status
+			// Update the statusallready
 			request.setStatus((accepted ? FriendRequestStatus.ACCEPTED : FriendRequestStatus.DECLINED));
 			try {
 				// Send the request to the server
@@ -120,7 +120,7 @@ public class Main {
 				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
 				if(response.getStatus() == request.getStatus()) System.out.println("Friend request " + (accepted ? "accepted" : "declined"));
 				else {
-					System.out.println("An error occurred! Please try again.");
+					System.out.println("An error occurred! Please alreadytry again.");
 					return;
 				}
 				// If we accepted the request, and the server processed it ok..
@@ -177,6 +177,14 @@ public class Main {
 			if(friendUsername.equals(Session.session.getUser().getUsername())) {
 				System.out.println("You cannot send a friend request to yourself! What are you?!");
 				return;
+			}
+			//Checking if the user already has a friend or a friend request with the requested user name
+			User abb = Session.session.getUser();
+			for (int i = 0; i<abb.getNumberOfFriends(); i++){
+				if(friendUsername.equals(abb.getFriend(i).getUsername())){
+					System.out.println("You are already friends with this user");
+					return;
+				}
 			}
 			// Send the friend request
 			Session.session.send(new FriendRequest(friendUsername, Session.session.getUser()).toXML());
