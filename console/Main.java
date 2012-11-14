@@ -111,7 +111,7 @@ public class Main {
 				System.out.println("You do not have any friend requests that match that username.");
 				return;
 			}
-			// Update the statusallready
+			// Update the status
 			request.setStatus((accepted ? FriendRequestStatus.ACCEPTED : FriendRequestStatus.DECLINED));
 			try {
 				// Send the request to the server
@@ -120,7 +120,7 @@ public class Main {
 				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
 				if(response.getStatus() == request.getStatus()) System.out.println("Friend request " + (accepted ? "accepted" : "declined"));
 				else {
-					System.out.println("An error occurred! Please alreadytry again.");
+					System.out.println("An error occurred! Please try again.");
 					return;
 				}
 				// If we accepted the request, and the server processed it ok..
