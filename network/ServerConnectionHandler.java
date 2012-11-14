@@ -141,6 +141,12 @@ public class ServerConnectionHandler extends Thread {
 			valid = false;
 			request.setStatus(FriendRequestStatus.USER_NOT_FOUND);
 		}
+		//CHECKING IF THE FRIEND REQUEST IS AN ALREADY ACCEPTED FRIEND
+		for(int i=0; i<thisUser.getNumberOfFriends(); i++){
+			if(request.getFriendUsername().equals(thisUser.getFriend(i).getUsername())){
+				valid=false;
+			}
+		}
 		// Check that the sending user is allowed to set the given status
 		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
 		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername())) {
