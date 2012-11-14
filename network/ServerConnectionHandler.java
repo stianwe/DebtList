@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import console.Main;
 
@@ -313,8 +315,6 @@ public class ServerConnectionHandler extends Thread {
 			return;
 		}
 		our.setStatus(d.getStatus());
-		// Let the requesting user know about the accept/decline
-		serverConnection.notifyUser(d.getRequestedBy().getUsername(), our);
 		// Remove the debt from the pending list (since it is now confirmed or declined)
 		User other = serverConnection.getUser((our.getFrom().equals(getUser()) ? our.getTo() : our.getFrom()).getUsername());
 		System.out.println("Other user is: " + other.getUsername());
@@ -322,13 +322,18 @@ public class ServerConnectionHandler extends Thread {
 		if(other.removePendingDebt(our)) System.out.println("Other's debt was removed!");
 		else System.out.println("Other's debt was NOT(!!!!!!!!!!!) removed!");
 		if(our.getStatus() == DebtStatus.CONFIRMED) {
-			// If the debt is now confirmed, we must move it to the correct lists
-			getUser().addConfirmedDebt(our);
-			// For both users
-			other.addConfirmedDebt(our);
+			d = mergeDebts(our);
+			
+			// No longer needed, since mergeDebts does this for us
+//			// If the debt is now confirmed, we must move it to the correct lists
+//			getUser().addConfirmedDebt(our);
+//			// For both users
+//			other.addConfirmedDebt(our);
 		} else {
 			// If the debt was deleted we simply let it be removed..
 		}
+		// Let the requesting user know about the accept/decline
+		serverConnection.notifyUser(d.getRequestedBy().getUsername(), d);
 		send(d.toXML());
 		// TODO Anything else?
 	}
@@ -369,6 +374,68 @@ public class ServerConnectionHandler extends Thread {
 			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
 		}
 		send(d.toXML());
+	}
+	
+	/**
+	 * 
+	 * @param d
+	 * @return	The debt to send to the clients (no matter if any merging was done)
+	 */
+	public Debt mergeDebts(Debt d) {
+		User thisUser = serverConnection.getUser(this.getUser().getUsername());
+		User otherUser = serverConnection.getUser((d.getTo().equals(thisUser) ? d.getFrom() : d.getTo()).getUsername());
+		List<Debt> debtsToMerge = new ArrayList<Debt>();
+		// Check if these two users already have debts between them
+		// Pending debts
+		for (int i = 0; i < thisUser.getNumberOfConfirmedDebts(); i++) {
+			Debt tDebt = thisUser.getConfirmedDebt(i);
+			if(tDebt.getTo().equals(otherUser) || tDebt.getFrom().equals(otherUser)) {
+				// Check if this debt uses the same currency
+				if(tDebt.getWhat().equalsIgnoreCase(d.getWhat())) {
+					// And check that it is not completed by any of the usersarg0
+					if(tDebt.getStatus() == DebtStatus.CONFIRMED) {
+						debtsToMerge.add(tDebt);
+					}
+				}
+			}
+		}
+		if(!debtsToMerge.isEmpty()) {
+			d.setComment('"' + d.getComment() + '"');
+		}
+		for (Debt debtToMerge : debtsToMerge) {
+			// Remove debts from users
+			thisUser.removeConfirmedDebt(debtToMerge);
+			otherUser.removeConfirmedDebt(debtToMerge);
+			// Merge amount
+			if(d.getTo().equals(debtToMerge.getTo())) {
+				d.setAmount(d.getAmount() + debtToMerge.getAmount());
+			} else {
+				d.setAmount(d.getAmount() - debtToMerge.getAmount());
+			}
+			// Merge comments
+			d.setComment(d.getComment() + " " + '"' + debtToMerge.getComment() + '"');
+		}
+		// Check if amount is negative
+		if(d.getAmount() < 0) {
+			// Swap to and from users
+			User temp = d.getFrom();
+			d.setFrom(d.getTo());
+			d.setTo(temp);
+			d.setAmount(d.getAmount() * -1);
+		}
+		// Check that amount is greater than zero
+		if(Math.abs(d.getAmount()) > 0) {
+			// Add the debt to the users
+			thisUser.addConfirmedDebt(d);
+			otherUser.addConfirmedDebt(d);
+		}
+		if(!debtsToMerge.isEmpty()) {
+			System.out.println("This was a merge!");
+			return new Debt(d.getId(), d.getAmount(), d.getWhat(), d.getFrom(), d.getTo(), d.getComment(), d.getRequestedBy(), DebtStatus.MERGE);
+		} else {
+			System.out.println("This was NOT a merge!");
+			return d;
+		}
 	}
 	
 	public String receive() {

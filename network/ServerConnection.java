@@ -127,20 +127,13 @@ public class ServerConnection {
 			System.out.println(s);
 		}
 		
-		// TODO: TEST IF LOADED DEBTS IS SENT
-		Debt d1 = new Debt(server.getNextDebtId(), 100, "g", arne, stian, "goldz", stian);
-		Debt d2 = new Debt(server.getNextDebtId(), 12, "s", stian, arne, "s", stian);
-		Debt d3 = new Debt(server.getNextDebtId(), 1337, "slaps", stian, arne, ":D", arne);
-		Debt d4 = new Debt(server.getNextDebtId(), 42, "42ere", arne, stian, "haha", arne);
-		d4.setStatus(DebtStatus.CONFIRMED);
-		stian.addPendingDebt(d1);
+		Debt d1 = new Debt(0, 15, "kr", stian, arne, "Tralalala", stian, DebtStatus.CONFIRMED);
+		stian.addConfirmedDebt(d1);
+		arne.addConfirmedDebt(d1);
+		Debt d2 = new Debt(1, 7, "kr", arne, stian, "Tralalla2", arne, DebtStatus.REQUESTED);
 		stian.addPendingDebt(d2);
-		stian.addPendingDebt(d3);
-		stian.addConfirmedDebt(d4);
-		arne.addPendingDebt(d1);
 		arne.addPendingDebt(d2);
-		arne.addPendingDebt(d3);
-		arne.addConfirmedDebt(d4);
+		server.nextDebtId = 2;
 		
 		server.accept(13337);
 	}

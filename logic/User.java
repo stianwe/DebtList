@@ -170,8 +170,19 @@ public class User extends XMLSerializable {
 		return (List<Debt>) getVariable("confirmedDebts");
 	}
 	
+	/**
+	 * Removes the given pending debt based on it's id
+	 * @param d	The debt to remove
+	 * @return	True if the debt was removed, false if it was not present
+	 */
 	public synchronized boolean removePendingDebt(Debt d) {
-		return getPendingDebts().remove(d);
+		for (int i = 0; i < getNumberOfPendingDebts(); i++) {
+			if(getPendingDebt(i).getId() == d.getId()) {
+				removePendingDebt(i);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public synchronized int getNumberOfWaitingDebts() {
@@ -243,6 +254,22 @@ public class User extends XMLSerializable {
 
 	public synchronized Debt removeConfirmedDebt(int i) {
 		return getConfirmedDebts().remove(i);
+	}
+	
+	/**
+	 * Removes the given debt based on it's id.
+	 * 
+	 * @param d	The debt to remove
+	 * @return	True if the debt was removed, false if it was not present
+	 */
+	public synchronized boolean removeConfirmedDebt(Debt d) {
+		for (int i = 0; i < getNumberOfConfirmedDebts(); i++) {
+			if(getConfirmedDebt(i).getId() == d.getId()) {
+				removeConfirmedDebt(i);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public synchronized Debt removePendingDebt(int i) {

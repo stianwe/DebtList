@@ -46,6 +46,11 @@ public class Main {
 	public static boolean processCommand(String command) {
 		// Commands that are accessible both if the user is logged in or not
 		if(command.equals("exit")) return true;
+		
+		// For debugging
+		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
+		else if(command.equals("arnegopro")) processConnectOLD("connect arnegopro qazqaz localhost 13337 13330");
+		
 		else if(command.startsWith("create user")) processCreateUser(command);
 		else {
 			if(!Session.session.isLoggedIn()) {
