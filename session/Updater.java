@@ -9,9 +9,9 @@ import requests.xml.XMLSerializable;
 
 public class Updater {
 
-	private static UpdateRequester updateRequester;
+	private UpdateRequester updateRequester;
 	
-	public static void startUpdater(long timeBetweenUpdates) {
+	public void startUpdater(long timeBetweenUpdates) {
 		updateRequester = new UpdateRequester(timeBetweenUpdates);
 		new Timer().schedule(updateRequester, timeBetweenUpdates);
 	}
@@ -20,7 +20,7 @@ public class Updater {
 	 * Stops the scheduled updater.
 	 * @return True if this call stops the updater from updating anymore. False if it was already stopped.
 	 */
-	public static boolean stopUpdater() {
+	public boolean stopUpdater() {
 		return updateRequester.cancel();
 	}
 	
@@ -28,7 +28,7 @@ public class Updater {
 	 * A helper class that will poll the server connected to in Session.session for updates regarding the user
 	 * specified in Session.session. 
 	 */
-	static class UpdateRequester extends TimerTask {
+	class UpdateRequester extends TimerTask {
 
 		private long timeBetweenUpdates, lastUpdate = 0;
 		

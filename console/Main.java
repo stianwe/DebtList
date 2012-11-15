@@ -18,9 +18,12 @@ import requests.UpdateListener;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 import session.Session;
+import session.Updater;
 
 public class Main {
 
+	public static Updater updater = new Updater();
+	
 	public static void main(String[] args) {
 		System.out.println("Welcome to DebtList (version 0)!");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -60,6 +63,14 @@ public class Main {
 		
 		else System.out.println("Unknown command.");
 		return false;
+	}
+	
+	/**
+	 * Starts the Updater with the given time between updates
+	 * @param timeBetweenUpdates	The time between update requests
+	 */
+	public static void startUpdater(long timeBetweenUpdates) {
+		updater.startUpdater(timeBetweenUpdates);
 	}
 	
 	public static void processCreateUser(String command) {
