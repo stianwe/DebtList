@@ -225,7 +225,10 @@ public class ServerConnectionHandler extends Thread {
 		if(user == null) {
 			System.out.println("User not found!");
 		}
-		if(user != null && user.getUsername().equals(req.getUserName()) && req.getPassword().equals(req.getPassword()) && !user.isOnline()) {
+		if(user != null && user.getUsername().equals(req.getUserName()) 
+				&& serverConnection.checkPassword(user, req.getPassword()) 
+				&& !user.isOnline()) {
+			
 			// TODO: Add all the user's variables before sending the response back!
 			System.out.println("Log in OK!");
 			user.setIsOnline(true);

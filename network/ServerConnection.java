@@ -14,6 +14,7 @@ import requests.UpdateRequest;
 import requests.FriendRequest;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
+import utils.PasswordHasher;
 
 public class ServerConnection {
 
@@ -107,7 +108,12 @@ public class ServerConnection {
 	
 	synchronized public void addUser(User user, String password) {
 		users.put(user.getUsername(), user);
-		passwords.put(user.getUsername(), password);
+		passwords.put(user.getUsername(), PasswordHasher.hashPassword(password));
+	}
+	
+	synchronized public boolean checkPassword(User user, String password) {
+		return passwords.containsKey(user.getUsername()) 
+				&& passwords.get(user.getUsername()).equals(password);
 	}
 	
 	public static void main(String[] args) {
