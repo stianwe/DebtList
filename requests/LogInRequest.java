@@ -1,5 +1,6 @@
 package requests;
 
+import utils.PasswordHasher;
 import logic.User;
 
 public class LogInRequest extends Request {
@@ -18,7 +19,7 @@ public class LogInRequest extends Request {
 		setVariable("accepted", isAccepted);
 		setVariable("status", status);
 		setVariable("updatePort", updatePort);
-		setVariable("password", password);
+		setVariable("password", PasswordHasher.hashPassword(password));
 	}
 	
 	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status, int updatePort) {
