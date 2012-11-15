@@ -16,7 +16,7 @@ public class User extends XMLSerializable {
 	public User() {}
 	
 	public User(long ID, String username) {
-		this(ID, username, null);
+		this(ID, username, new ArrayList<User>());
 	}
 	
 	public User(String username) {
@@ -46,7 +46,7 @@ public class User extends XMLSerializable {
 	 * @param req	The friend request to add
 	 */
 	public synchronized void addFriendRequest(FriendRequest req) {
-		((List<FriendRequest>) getVariable("friendRequest")).add(req);
+		((List<FriendRequest>) getVariable("friendRequests")).add(req);
 	}
 	
 	/**
@@ -67,12 +67,25 @@ public class User extends XMLSerializable {
 	}
 	
 	/**
-	 * Checks if this user has the given friend request
+	 * Checks if this user has the given friend request (recognized by fromUser and friendUsername).
 	 * @param req	The friend request to check
 	 * @return		True if this user has the given friend request, false if not
 	 */
 	public synchronized boolean hasFriendRequest(FriendRequest req) {
 		return indexOfFriendRequest(req) != -1;
+	}
+	
+	public synchronized boolean hasFriendRequestFrom(String username) {
+		return hasFriendRequest(new FriendRequest(this.getUsername(), new User(username)));
+	}
+	
+	/**
+	 * Checks if this user has a friend request opposite of the one given as argument (recognized by fromUser and friendUsername).
+	 * @param req	The friend request to check the opposite of
+	 * @return		True if this user has the opposite friend request, false if not
+	 */
+	public synchronized boolean hasOppositeFriendRequest(FriendRequest req) {
+		return hasFriendRequest(new FriendRequest(req.getFromUser().getUsername(), new User(req.getFriendUsername())));
 	}
 	
 	/**
@@ -105,7 +118,7 @@ public class User extends XMLSerializable {
 	 * @return	This user's friend requests
 	 */
 	private synchronized List<FriendRequest> getFriendRequests() {
-		return (List<FriendRequest>) getVariable("friendRequest");
+		return (List<FriendRequest>) getVariable("friendRequests");
 	}
 	
 	/**
@@ -113,7 +126,7 @@ public class User extends XMLSerializable {
 	 * @return	The ith friend request
 	 */
 	public synchronized FriendRequest getFriendRequest(int i) {
-		return getFriendRequest(i);
+		return getFriendRequests().get(i);
 	}
 	
 	/**
@@ -157,8 +170,19 @@ public class User extends XMLSerializable {
 		return (List<Debt>) getVariable("confirmedDebts");
 	}
 	
+	/**
+	 * Removes the given pending debt based on it's id
+	 * @param d	The debt to remove
+	 * @return	True if the debt was removed, false if it was not present
+	 */
 	public synchronized boolean removePendingDebt(Debt d) {
-		return getPendingDebts().remove(d);
+		for (int i = 0; i < getNumberOfPendingDebts(); i++) {
+			if(getPendingDebt(i).getId() == d.getId()) {
+				removePendingDebt(i);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public synchronized int getNumberOfWaitingDebts() {
@@ -230,6 +254,22 @@ public class User extends XMLSerializable {
 
 	public synchronized Debt removeConfirmedDebt(int i) {
 		return getConfirmedDebts().remove(i);
+	}
+	
+	/**
+	 * Removes the given debt based on it's id.
+	 * 
+	 * @param d	The debt to remove
+	 * @return	True if the debt was removed, false if it was not present
+	 */
+	public synchronized boolean removeConfirmedDebt(Debt d) {
+		for (int i = 0; i < getNumberOfConfirmedDebts(); i++) {
+			if(getConfirmedDebt(i).getId() == d.getId()) {
+				removeConfirmedDebt(i);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public synchronized Debt removePendingDebt(int i) {

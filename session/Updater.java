@@ -13,7 +13,14 @@ public class Updater {
 	
 	public void startUpdater(long timeBetweenUpdates) {
 		updateRequester = new UpdateRequester(timeBetweenUpdates);
-		new Timer().schedule(updateRequester, timeBetweenUpdates);
+		new Timer().schedule(updateRequester, timeBetweenUpdates, timeBetweenUpdates);
+	}
+	
+	/**
+	 * @return	The time in millisec to the next scheduled update
+	 */
+	public long getTimeToUpdate() {
+		return updateRequester.lastUpdate + updateRequester.timeBetweenUpdates - System.currentTimeMillis();
 	}
 	
 	/**
@@ -25,12 +32,19 @@ public class Updater {
 	}
 	
 	/**
+	 * Force an update
+	 */
+	public void update() {
+		updateRequester.update();
+	}
+	
+	/**
 	 * A helper class that will poll the server connected to in Session.session for updates regarding the user
 	 * specified in Session.session. 
 	 */
 	class UpdateRequester extends TimerTask {
 
-		private long timeBetweenUpdates, lastUpdate = 0;
+		protected long timeBetweenUpdates, lastUpdate = 0;
 		
 		/**
 		 * Initializes a new UpdateRequester
@@ -38,16 +52,17 @@ public class Updater {
 		 */
 		public UpdateRequester(long timeBetweenUpdates) {
 			this.timeBetweenUpdates = timeBetweenUpdates;
+			lastUpdate = System.currentTimeMillis();
 		}
 		
 		@Override
 		public void run() {
 			// Only run updates after the given time interval (mainly so that we will not poll for updates
 			// while the user is sending/receiving something).
-			if(System.currentTimeMillis() - lastUpdate >= timeBetweenUpdates) {
+//			if(System.currentTimeMillis() - lastUpdate >= timeBetweenUpdates) {
 				update();
 				lastUpdate = System.currentTimeMillis();
-			}
+//			}
 		}
 
 		/**
@@ -55,12 +70,14 @@ public class Updater {
 		 * specified in Session.session. 
 		 */
 		public void update() {
+			System.out.println("Updating..");
 			Session.session.send(new UpdateRequest().toXML());
 			try {
 				UpdateRequest response = (UpdateRequest) XMLSerializable.toObject(Session.session.receive());
 				for (int i = 0; i < response.size(); i++) {
 					Session.session.processUpdate(response.get(i));
 				}
+				System.out.println("Done updating.");
 			} catch (IOException e) {
 				System.out.println("Automatic update failed.");
 				// TODO: What else?

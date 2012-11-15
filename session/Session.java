@@ -1,5 +1,7 @@
 package session;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import gui.LogInPanel;
 
@@ -151,6 +153,32 @@ public class Session {
 		System.out.println("Update received: " + o);
 		if(o instanceof Debt) {
 			Debt d = (Debt) o;
+			if(d.getStatus() == DebtStatus.MERGE) {
+				System.out.println("Received a merged debt!");
+				// Remove all debts confirmed between these two users with the same currency, that are not completed by any users
+				List<Debt> debtsToRemove = new ArrayList<Debt>();
+				for (int i = 0; i < getUser().getNumberOfConfirmedDebts(); i++) {
+					Debt c = getUser().getConfirmedDebt(i); 
+					if(c.getStatus() == DebtStatus.CONFIRMED) {
+						if((c.getFrom().equals(d.getFrom()) && c.getTo().equals(d.getTo())) || (c.getFrom().equals(d.getTo()) && c.getTo().equals(d.getFrom()))) {
+							debtsToRemove.add(c);
+						}
+					}
+				}
+				for (Debt i : debtsToRemove) {
+					getUser().removeConfirmedDebt(i);
+				}
+				// Also remove the pending debt that was accepted
+				getUser().removePendingDebt(d);
+				// Add the new merged debt if it's amount is not zero
+				if(Math.abs(d.getAmount()) != 0) {
+					d.setStatus(DebtStatus.CONFIRMED);
+				} else {
+					d.setStatus(DebtStatus.COMPLETED);
+				}
+				getUser().addConfirmedDebt(d);
+				return;
+			}
 			for (int i = 0; i < (user.getNumberOfConfirmedDebts() > user.getNumberOfPendingDebts() ? user.getNumberOfConfirmedDebts(): user.getNumberOfPendingDebts()); i++) {
 				if(user.getNumberOfConfirmedDebts() > i && user.getConfirmedDebt(i).getId() == d.getId()) {
 					user.removeConfirmedDebt(i);
@@ -182,6 +210,8 @@ public class Session {
 				getUser().addFriendRequest(req);
 				break;
 			}
+		} else {
+			System.out.println("ERROR: Received something unknown!");
 		}
 	}
 }

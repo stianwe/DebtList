@@ -37,6 +37,8 @@ public class Main {
 				continue;
 			}
 		} while(!processCommand(command));
+		// TODO: Kill update listener if existing..
+		System.out.println("Bye!");
 	}
 	
 	/**
@@ -45,24 +47,52 @@ public class Main {
 	 * @return			True if the command was "exit", false if not
 	 */
 	public static boolean processCommand(String command) {
+		// Commands that are accessible both if the user is logged in or not
 		if(command.equals("exit")) return true;
-		else if(command.startsWith("connect")) {
-			if(command.split(" ").length == 3) processConnect(command);
-			else processConnectOLD(command);
-		}
-		else if(command.equals("ls debts")) processLsDebts();
-		else if(command.equals("ls friends")) processLsFriends();
-		else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
-		else if(command.startsWith("create debt")) processCreateDebt(command);
-		else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
-		else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
-		else if(command.startsWith("add friend")) processAddFriend(command);
-		else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
-		else if(command.startsWith("create user")) processCreateUser(command);
-		else if(command.startsWith("login")) processLogin(command);
 		
-		else System.out.println("Unknown command.");
+		// For debugging
+		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
+		else if(command.equals("arnegopro")) processConnectOLD("connect arnegopro qazqaz localhost 13337 13330");
+		
+		else if(command.startsWith("create user")) processCreateUser(command);
+		else {
+			if(!Session.session.isLoggedIn()) {
+				// Commands that only are accessible when the user is not logged in
+				if(command.startsWith("connect")) {
+					if(command.split(" ").length == 3) processConnect(command);
+					else processConnectOLD(command);
+				}
+				else if(command.startsWith("login")) processLogin(command);
+				
+				else System.out.println("Unknown command.");
+			} else {
+				// Commands that require the user to be logged in
+				if(command.equals("ls debts")) processLsDebts();
+				else if(command.equals("ls friends")) processLsFriends();
+				else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
+				else if(command.startsWith("create debt")) processCreateDebt(command);
+				else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
+				else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
+				else if(command.startsWith("add friend")) processAddFriend(command);
+				else if(command.startsWith("accept friend") || command.startsWith("decline friend")) processAcceptDeclineFriend(command);
+				else if(command.equals("update")) processUpdate();
+				else if(command.equals("timeto update")) processPrintTimeToUpdate();
+
+				else System.out.println("Unknown command.");
+			}
+		}
 		return false;
+	}
+
+	public static void processPrintTimeToUpdate() {
+		System.out.println("Time to next scheduled update:" + updater.getTimeToUpdate());
+	}
+	
+	/**
+	 * Force an update
+	 */
+	public static void processUpdate() {
+		updater.update();
 	}
 	
 	/**
@@ -113,12 +143,18 @@ public class Main {
 				// Wait for response
 				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
 				if(response.getStatus() == request.getStatus()) System.out.println("Friend request " + (accepted ? "accepted" : "declined"));
-				else System.out.println("An error occurred! Please try again.");
+				else {
+					System.out.println("An error occurred! Please try again.");
+					return;
+				}
 				// If we accepted the request, and the server processed it ok..
 				if(response.getStatus() == FriendRequestStatus.ACCEPTED) {
 					// Add the friend
 					Session.session.getUser().addFriend(response.getFromUser());
+					
 				}
+				// And remove the request since it has been answered
+				Session.session.getUser().removeFriendRequest(request);
 			} catch (IOException e) {
 				// Reset status
 				request.setStatus(FriendRequestStatus.PENDING);
@@ -134,14 +170,10 @@ public class Main {
 	 * Process the command "ls friends" by listing all friends in the console.
 	 */
 	public static void processLsFriends() {
-		if(!Session.session.isLoggedIn()) {
-			System.out.println("You need to log in first.");
-			return;
-		}
 		// Check if we have any friends
 		if(Session.session.getUser().getNumberOfFriends() == 0) {
 			System.out.println("You have no friends.\nTo add a new friend use the 'add friend <username>' command.");
-		} else if(Session.session.getUser().getNumberOfFriendRequests() != 0) {
+		} else {
 			// Print friends
 			System.out.println("Your friends:");
 			for (int i = 0; i < Session.session.getUser().getNumberOfFriends(); i++) {
@@ -164,9 +196,22 @@ public class Main {
 	 */
 	public static void processAddFriend(String command) {
 		try {
+			String friendUsername = command.split(" ")[2];
+			// Check that the user is not sending a request to himself
+			if(friendUsername.equals(Session.session.getUser().getUsername())) {
+				System.out.println("You cannot send a friend request to yourself! What are you?!");
+				return;
+			}
+			//Checking if the user already has a friend or a friend request with the requested user name
+			User abb = Session.session.getUser();
+			for (int i = 0; i<abb.getNumberOfFriends(); i++){
+				if(friendUsername.equals(abb.getFriend(i).getUsername())){
+					System.out.println("You are already friends with this user");
+					return;
+				}
+			}
 			// Send the friend request
-			Session.session.send(new FriendRequest(command.split(" ")[2], Session.session.getUser()).toXML());
-			// TODO Will we get a reply? Yes
+			Session.session.send(new FriendRequest(friendUsername, Session.session.getUser()).toXML());
 			try {
 				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.receive());
 				switch(response.getStatus()) {
@@ -175,6 +220,14 @@ public class Main {
 					break;
 				case UNHANDLED:
 					System.err.println("Something wrong happened while sending your friend request. You should probably try again.");
+					break;
+				case ALREADY_EXISTS:
+					// Check if this user already has a request from the requested friend
+					String otherUsername = friendUsername;
+					if(Session.session.getUser().hasFriendRequestFrom(otherUsername))
+						System.out.println("You already have a friend request from that user.");
+					else
+						System.out.println("You have already sent a friend request to that user.");
 					break;
 				default:
 					System.out.println("Friend request sent.");
@@ -411,6 +464,7 @@ public class Main {
 			switch(Session.session.logIn(username, password)) {
 			case ACCEPTED:
 				System.out.println("Log in ok.");
+				startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
 				break;
 			case ALREADY_LOGGED_ON:
 				System.out.println("Logged in on another device.");
@@ -458,6 +512,8 @@ public class Main {
 				LogInRequestStatus status = Session.session.logIn(username, password);
 				if(status == LogInRequestStatus.ACCEPTED) {
 					System.out.println("Logged in successfully.");
+					// Start Updater
+					startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
 				}
 				else {
 					System.out.println("Log in failed.");
@@ -466,7 +522,7 @@ public class Main {
 				System.out.println("Connection failed.");
 			}
 		} catch(Exception e) {
-			printSyntaxErrorMessage("connect <username> <password> <host> <port>");
+			printSyntaxErrorMessage("connect <username> <password> <host> <port> <update port>");
 		}
 	}
 }

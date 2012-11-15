@@ -26,4 +26,8 @@ public class UpdateRequest extends Request {
 	public synchronized int size() {
 		return getObjects().size();
 	}
+	
+	public synchronized void clear() {
+		getObjects().clear();
+	}
 }

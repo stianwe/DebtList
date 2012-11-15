@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import console.Main;
 
@@ -31,6 +33,7 @@ public class ServerConnectionHandler extends Thread {
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
+		update = new UpdateRequest();
 		this.serverConnection = serverConnection;
 		serverConnection.addConnectionHandler(this);
 		try {
@@ -48,14 +51,6 @@ public class ServerConnectionHandler extends Thread {
 	 */
 	public void sendUpdate(XMLSerializable o) {
 		update.add(o);
-	}
-	
-	/**
-	 * Sets this ServerConnectionHandler's user to the specified user
-	 * @param u	The user
-	 */
-	public void setUser(User u) {
-		this.user = u;
 	}
 	
 	/**
@@ -84,15 +79,20 @@ public class ServerConnectionHandler extends Thread {
 					processLoginRequest((LogInRequest) o);
 				} else if(o instanceof CreateUserRequest) {
 					processCreateUserRequest((CreateUserRequest) o);
-				} else if(o instanceof Debt) {
-					processDebt((Debt) o);
-				} else if(o instanceof FriendRequest) {
-					processFriendRequest((FriendRequest) o);
-				} else if(o instanceof UpdateRequest) {
-					processUpdate();
 				} else {
-					System.out.println("Received something unknown!");
-					// TODO
+					// Check that the connected user is logged in before processing any of these requests
+					// TODO: Send error message to user?
+					if(this.user == null || !this.user.isOnline()) continue;
+					if(o instanceof Debt) {
+						processDebt((Debt) o);
+					} else if(o instanceof FriendRequest) {
+						processFriendRequest((FriendRequest) o);
+					} else if(o instanceof UpdateRequest) {
+						processUpdate();
+					} else {
+						System.out.println("Received something unknown!");
+						// TODO
+					}
 				}
 			} catch(Exception e) {
 				// TODO
@@ -105,7 +105,10 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	public void processUpdate() {
+		// Send the update
 		send(update.toXML());
+		// Clear the update
+		update.clear();
 	}
 	
 	/**
@@ -120,16 +123,28 @@ public class ServerConnectionHandler extends Thread {
 	 * @param request	The FriendRequest
 	 */
 	public void processFriendRequest(FriendRequest request) {
+		// TODO: Don't let a user send friend requests to the same user twice.
 		// Validate
 		boolean valid = true;
 		// TODO: This should be unnecessary (should be able to use this.getUser())
 		User thisUser = serverConnection.getUser(this.getUser().getUsername());
-		// Check that this is the requesting user's handler
-		if(!request.getFromUser().equals(this.getUser())) valid = false;
+		// Check that this is the requesting user's handler if this is a new request
+		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
+		// Check that this is the target user's handler if this is a response
+		else if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername()))
+			valid = false;
+		else if(request.getStatus() == FriendRequestStatus.PENDING || request.getStatus() == FriendRequestStatus.USER_NOT_FOUND)
+			valid = false;
 		// Check that the FriendRequest's target exists
 		if(serverConnection.getUser(request.getFriendUsername()) == null) {
 			valid = false;
 			request.setStatus(FriendRequestStatus.USER_NOT_FOUND);
+		}
+		//CHECKING IF THE FRIEND REQUEST IS AN ALREADY ACCEPTED FRIEND
+		for(int i=0; i<thisUser.getNumberOfFriends(); i++){
+			if(request.getFriendUsername().equals(thisUser.getFriend(i).getUsername())){
+				valid=false;
+			}
 		}
 		// Check that the sending user is allowed to set the given status
 		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
@@ -141,18 +156,31 @@ public class ServerConnectionHandler extends Thread {
 		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !thisUser.hasFriendRequest(request)) {
 			valid = false;
 		}
+		User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername()));
+		// If this is a new friend request, check that these two users don't already have any requests for each other, or that the user is sending a request to himself
+		if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
+			if(thisUser.hasFriendRequest(request) || otherUser.hasFriendRequest(request) ||
+					// Check the oposite way too
+					thisUser.hasOppositeFriendRequest(request) || otherUser.hasOppositeFriendRequest(request)) {
+				valid = false;
+				request.setStatus(FriendRequestStatus.ALREADY_EXISTS);
+			}
+			if(request.getFriendUsername().equals(thisUser.getUsername()))
+				valid = false;
+		}
 		if(valid) {
-			User otherUser = (request.getFromUser().equals(this.getUser()) ? serverConnection.getUser(request.getFriendUsername()) : request.getFromUser()); 
 			System.out.println("FriendRequest was valid.");
 			// If this is a new friend request..
 			if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
+				System.out.println("This was a new friend request.");
 				// Set the correct status
 				request.setStatus(FriendRequestStatus.PENDING);
 				// Add it to the target friend
 				serverConnection.getUser(request.getFriendUsername()).addFriendRequest(request);
-				// And let the requesting user know
-				send(request.toXML());
+				System.out.println("Added friend request to: " + serverConnection.getUser(request.getFriendUsername()).getUsername());
+				System.out.println("Friend request0: " + serverConnection.getUser(request.getFriendUsername()).getFriendRequest(0));
 			} else {
+				System.out.println("This was a reply to a friend request.");
 				// If this is a accepted/declined friend request, update the requesting user's friends (if accepted, if not accepted we do nothig except to remove the request)
 				if(request.getStatus() == FriendRequestStatus.ACCEPTED) {
 					// Add friends
@@ -160,14 +188,16 @@ public class ServerConnectionHandler extends Thread {
 					thisUser.addFriend(otherUser);
 				} 
 				// Remove friend request
-				otherUser.removeFriendRequest(request);
+				thisUser.removeFriendRequest(request);
 			}
 			// Notify other user
 			serverConnection.notifyUser(otherUser.getUsername(), request);
 		} else {
 			System.out.println("FriendRequest was not valid.");
-			send(request.toXML());
+			// Send some garbage that will trigger an error
+			// TODO Set a crap status?? But don't overwrite already set error status!
 		}
+		send(request.toXML());
 	}
 	
 	/**
@@ -284,8 +314,6 @@ public class ServerConnectionHandler extends Thread {
 			return;
 		}
 		our.setStatus(d.getStatus());
-		// Let the requesting user know about the accept/decline
-		serverConnection.notifyUser(d.getRequestedBy().getUsername(), our);
 		// Remove the debt from the pending list (since it is now confirmed or declined)
 		User other = serverConnection.getUser((our.getFrom().equals(getUser()) ? our.getTo() : our.getFrom()).getUsername());
 		System.out.println("Other user is: " + other.getUsername());
@@ -293,13 +321,18 @@ public class ServerConnectionHandler extends Thread {
 		if(other.removePendingDebt(our)) System.out.println("Other's debt was removed!");
 		else System.out.println("Other's debt was NOT(!!!!!!!!!!!) removed!");
 		if(our.getStatus() == DebtStatus.CONFIRMED) {
-			// If the debt is now confirmed, we must move it to the correct lists
-			getUser().addConfirmedDebt(our);
-			// For both users
-			other.addConfirmedDebt(our);
+			d = mergeDebts(our);
+			
+			// No longer needed, since mergeDebts does this for us
+//			// If the debt is now confirmed, we must move it to the correct lists
+//			getUser().addConfirmedDebt(our);
+//			// For both users
+//			other.addConfirmedDebt(our);
 		} else {
 			// If the debt was deleted we simply let it be removed..
 		}
+		// Let the requesting user know about the accept/decline
+		serverConnection.notifyUser(d.getRequestedBy().getUsername(), d);
 		send(d.toXML());
 		// TODO Anything else?
 	}
@@ -340,6 +373,68 @@ public class ServerConnectionHandler extends Thread {
 			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
 		}
 		send(d.toXML());
+	}
+	
+	/**
+	 * 
+	 * @param d
+	 * @return	The debt to send to the clients (no matter if any merging was done)
+	 */
+	public Debt mergeDebts(Debt d) {
+		User thisUser = serverConnection.getUser(this.getUser().getUsername());
+		User otherUser = serverConnection.getUser((d.getTo().equals(thisUser) ? d.getFrom() : d.getTo()).getUsername());
+		List<Debt> debtsToMerge = new ArrayList<Debt>();
+		// Check if these two users already have debts between them
+		// Pending debts
+		for (int i = 0; i < thisUser.getNumberOfConfirmedDebts(); i++) {
+			Debt tDebt = thisUser.getConfirmedDebt(i);
+			if(tDebt.getTo().equals(otherUser) || tDebt.getFrom().equals(otherUser)) {
+				// Check if this debt uses the same currency
+				if(tDebt.getWhat().equalsIgnoreCase(d.getWhat())) {
+					// And check that it is not completed by any of the usersarg0
+					if(tDebt.getStatus() == DebtStatus.CONFIRMED) {
+						debtsToMerge.add(tDebt);
+					}
+				}
+			}
+		}
+		if(!debtsToMerge.isEmpty()) {
+			d.setComment('"' + d.getComment() + '"');
+		}
+		for (Debt debtToMerge : debtsToMerge) {
+			// Remove debts from users
+			thisUser.removeConfirmedDebt(debtToMerge);
+			otherUser.removeConfirmedDebt(debtToMerge);
+			// Merge amount
+			if(d.getTo().equals(debtToMerge.getTo())) {
+				d.setAmount(d.getAmount() + debtToMerge.getAmount());
+			} else {
+				d.setAmount(d.getAmount() - debtToMerge.getAmount());
+			}
+			// Merge comments
+			d.setComment(d.getComment() + " " + '"' + debtToMerge.getComment() + '"');
+		}
+		// Check if amount is negative
+		if(d.getAmount() < 0) {
+			// Swap to and from users
+			User temp = d.getFrom();
+			d.setFrom(d.getTo());
+			d.setTo(temp);
+			d.setAmount(d.getAmount() * -1);
+		}
+		// Check that amount is greater than zero
+		if(Math.abs(d.getAmount()) > 0) {
+			// Add the debt to the users
+			thisUser.addConfirmedDebt(d);
+			otherUser.addConfirmedDebt(d);
+		}
+		if(!debtsToMerge.isEmpty()) {
+			System.out.println("This was a merge!");
+			return new Debt(d.getId(), d.getAmount(), d.getWhat(), d.getFrom(), d.getTo(), d.getComment(), d.getRequestedBy(), DebtStatus.MERGE);
+		} else {
+			System.out.println("This was NOT a merge!");
+			return d;
+		}
 	}
 	
 	public String receive() {
