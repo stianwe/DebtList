@@ -106,7 +106,7 @@ abstract public class XMLSerializable implements XMLConstants {
 			registeredIds = new HashSet<String>();
 		registeredIds.add(getGlobalId());
 		
-		toXML(getVariableMap(), registeredIds, inner, pre);
+		toXML(getVariableMap(), registeredIds, inner, pre, false);
 		
 		return String.format("%s<object class=\"%s\" id=\"%s\">%s</object>",
 				pre, getClass().getName(), getGlobalId(), inner);
@@ -122,6 +122,20 @@ abstract public class XMLSerializable implements XMLConstants {
 	 */
 	private void toXML(Map<String, Object> map, Set<String> registeredIds,
 			StringBuilder inner, StringBuilder pre) {
+		toXML(map, registeredIds, inner, pre, true);
+	}
+	
+	/**
+	 * Serialize the given Map to XML
+	 * 
+	 * @param map			map to be serialized
+	 * @param registeredIds IDs of already handled objects 
+	 * @param inner			builder used to build this object
+	 * @param pre			builder used to build XML of references objects
+	 * @param decorate		if false the outer <map> tags will not be added
+	 */
+	private void toXML(Map<String, Object> map, Set<String> registeredIds,
+			StringBuilder inner, StringBuilder pre, boolean decorate) {
 		inner.append("<map>");
 		for(String s : map.keySet()) {
 			inner.append(String.format("<element key=\"%s\">", s));
@@ -224,18 +238,16 @@ abstract public class XMLSerializable implements XMLConstants {
 		o1.setVariable("test", "123");
 		
 		System.out.println(o.toXML());
+		//XMLDeserializer.toObject(o.toXML());
 	}
 	
 	/*
 	 * <xml>
 	 * 	<object class="requests.xml.XMLSerializable$2" id="requests.xml.XMLSerializable$2-7">
-	 * 		<map>
 	 * 			<element key="other"><object-reference>requests.xml.XMLSerializable$1-137</object-reference></element>
 	 * 			<element key="test"><string><![CDATA[123]]></string></element>
-	 * 		</map>
 	 * 	</object>
 	 * 	<object class="requests.xml.XMLSerializable$1" id="requests.xml.XMLSerializable$1-137">
-	 * 		<map>
 	 * 			<element key="b"><boolean>true</boolean></element>
 	 * 			<element key="s"><string><![CDATA[This is a string]]></string></element>
 	 * 			<element key="obj"><object-reference>requests.xml.XMLSerializable$2-7</object-reference></element>
@@ -261,7 +273,6 @@ abstract public class XMLSerializable implements XMLConstants {
 	 * 			</element>
 	 * 			<element key="null"><null /></element>
 	 * 			<element key="i"><int>135486</int></element>
-	 * 		</map>
 	 * 	</object>
 	 * </xml>
 	 */
@@ -329,7 +340,7 @@ abstract public class XMLSerializable implements XMLConstants {
  * replacing the placeholders at document end. 
  * @TODO Support for Map types?
  */
-class XMLObjectHandler extends DefaultHandler implements XMLConstants  {
+class XMLObjectHandlerOld extends DefaultHandler implements XMLConstants  {
 	
 	private Map<String, XMLSerializable> reg;
 	private XMLSerializable object;
