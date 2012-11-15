@@ -35,15 +35,10 @@ public class XMLSerializableTest extends TestCase {
 		u2.addConfirmedDebt(d3);
 		// Empty user
 		simpleUser = new User(3, "EmptyUser");
-<<<<<<< HEAD
 		simpleLIR = new LogInRequest(simpleUser, "asd", false, LogInRequestStatus.UNHANDLED);
 		lIR = new LogInRequest(u1, "asd", false, LogInRequestStatus.UNHANDLED);
-=======
-		simpleLIR = new LogInRequest(simpleUser, "asd", false, LogInRequestStatus.UNHANDLED, 13338);
-		lIR = new LogInRequest(u1, "asd", false, LogInRequestStatus.UNHANDLED, 13339);
 		userWithFriendRequest = new User(3, "userWithFriendRequest");
 		userWithFriendRequest.addFriendRequest(new FriendRequest("userWithFriendRequest", u1));
->>>>>>> 4253b2b48793a24520ffd4c13825f0fb5db1bbd7
 	}
 	
 	public static junit.framework.Test suite() {
