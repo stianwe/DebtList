@@ -5,7 +5,6 @@ import requests.xml.XMLSerializable;
 
 public class Debt extends XMLSerializable {
 	
-//	private boolean isDone, isConfirmed, isDeleted;
 	/**
 	 * Empty constructor used when restoring objects from XML
 	 */
