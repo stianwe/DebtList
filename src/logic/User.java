@@ -42,6 +42,14 @@ public class User extends XMLSerializable {
 	}
 	
 	/**
+	 * Sets the user's id
+	 * @param id	The identification
+	 */
+	public void setId(long id) {
+		setVariable("id", id);
+	}
+	
+	/**
 	 * Adds the given friend request to this user
 	 * @param req	The friend request to add
 	 */

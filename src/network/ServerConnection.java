@@ -21,7 +21,7 @@ public class ServerConnection {
 	private Map<String, User> users;
 	private Map<String, String> passwords;
 	private List<ServerConnectionHandler> handlers;
-	private long nextDebtId;
+	private long nextDebtId, nextUserId, nextFriendRequestId;
 	
 	public ServerConnection() {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
@@ -46,6 +46,20 @@ public class ServerConnection {
 	 */
 	public synchronized long getNextDebtId() {
 		return nextDebtId++;
+	}
+	
+	/**
+	 * @return	The next available user id
+	 */
+	public synchronized long getNextUserId() {
+		return nextUserId++;
+	}
+	
+	/**
+	 * @return	The next available friend request id
+	 */
+	public synchronized long getNextFriendRequestId() {
+		return nextFriendRequestId++;
 	}
 
 	/**
@@ -119,6 +133,8 @@ public class ServerConnection {
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection();
 		server.nextDebtId = 0;
+		server.nextFriendRequestId = 0;
+		server.nextUserId = 0;
 		User arne = new User(1, "arnegopro");
 		User stian = new User(2, "stian");
 		User test = new User(3, "test");

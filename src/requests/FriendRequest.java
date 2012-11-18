@@ -38,18 +38,26 @@ public class FriendRequest extends Request {
 	public FriendRequest() {}
 	
 	/**
-	 * Creates a new FriendRequest with the given values, and UNHANDLED as status.
+	 * Creates a new FriendRequest with the given values, -1 as id, and UNHANDLED as status.
 	 * @param friendUsername	The target friend's username
 	 * @param from				The requesting user
 	 */
 	public FriendRequest(String friendUsername, User from) {
-		this(friendUsername, from, FriendRequestStatus.UNHANDLED);
+		this(friendUsername, from, FriendRequestStatus.UNHANDLED, -1);
 	}
 	
-	public FriendRequest(String friendUsername, User from, FriendRequestStatus status) {
+	/**
+	 * 
+	 * @param friendUsername
+	 * @param from
+	 * @param status
+	 * @param id
+	 */
+	public FriendRequest(String friendUsername, User from, FriendRequestStatus status, long id) {
 		setFriendUsername(friendUsername);
 		setFromUser(from);
 		setStatus(status);
+		setId(id);
 	}
 
 	public void setStatus(FriendRequestStatus status) {
@@ -74,5 +82,14 @@ public class FriendRequest extends Request {
 	
 	public FriendRequestStatus getStatus() {
 		return (FriendRequestStatus) getVariable("status");
+	}
+	
+	public void setId(long id) {
+		setVariable("id", id);
+	}
+	
+	@Override
+	public long getId() {
+		return (long) getVariable("id");
 	}
 }

@@ -114,14 +114,14 @@ public class DatabaseUnit {
 		while(rs.next()) {
 			FriendRequestStatus status = Enum.valueOf(FriendRequestStatus.class, rs.getString(FIELD_FRIEND_REQUEST_STATUS));
 			switch(status) {
-			case PENDING:
-				// Add the friend request to the target friend
-				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriendRequest(new FriendRequest(rs.getString(FIELD_FRIEND_REQUEST_TO_USER), users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)), status));
-				break;
 			case ACCEPTED:
 				// Add the users as friends
 				users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)).addFriend(users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)));
 				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriend(users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)));
+				// Fall through to add the friend request
+			case PENDING:
+				// Add the friend request to the target friend
+				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriendRequest(new FriendRequest(rs.getString(FIELD_FRIEND_REQUEST_TO_USER), users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)), status, rs.getLong(FIELD_FRIEND_REQUEST_ID)));
 				break;
 			default:
 				System.out.println("Skipped FriendRequest with weird status while loading friends.");
@@ -174,7 +174,10 @@ public class DatabaseUnit {
 	}
 	
 	/**
+	 * INCOMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 * 
 	 * Saves ALL the given users (make sure you only send users that has been updated, or that are to be created)
+	 * Note: Friends will only be saved if at least the user with the friend request is passed as argument TODO: Is this stupid?
 	 * @param users			A list containing all the users to save
 	 * @param passwords		A map on the following form: <user name, password>
 	 * @throws SQLException
@@ -182,7 +185,8 @@ public class DatabaseUnit {
 	public void save(List<User> users, Map<String, String> passwords) throws SQLException {
 		for (User u : users) {
 			// Check if this is a new user
-			if(st.executeQuery("SELECT " + FIELD_USER_ID + " FROM " + TABLE_USER + " WHERE " + FIELD_USER_ID + "=" + u.getId()).next()) {
+//			if(st.executeQuery("SELECT " + FIELD_USER_ID + " FROM " + TABLE_USER + " WHERE " + FIELD_USER_ID + "=" + u.getId()).next()) {
+			if(SQLHelper.exists(st, TABLE_USER, FIELD_USER_ID, u.getId() + "")) {
 				// User already exists
 				// TODO: What can be updated? Password?
 			} else {
@@ -190,10 +194,19 @@ public class DatabaseUnit {
 				st.executeUpdate("INSERT INTO " + TABLE_USER + "(" + FIELD_USER_USERNAME + ", " + FIELD_USER_PASSWORD + 
 						") VALUES (" + u.getUsername() + ", " + passwords.get(u.getUsername()) + ")");
 			}
-			// Save the friends
-			for (int i = 0; i < u.getNumberOfFriends(); i++) {
-				
+			// Save the friends (from the requests, since all friends must have sent a request some time)
+			for (int i = 0; i < u.getNumberOfFriendRequests(); i++) {
+				FriendRequest req = u.getFriendRequest(i);
+				// Check if the request already exists
+				if(SQLHelper.exists(st, TABLE_FRIEND_REQUEST, FIELD_FRIEND_REQUEST_ID, req.getId() + "")) {
+					// Update the value that CAN change (no matter if it actually has changed)
+					SQLHelper.update(st, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_STATUS}, new String[]{req.getStatus().toString()}, FIELD_FRIEND_REQUEST_ID, req.getId() + "");
+				} else {
+					// If not, create it
+					// TODO inser....
+				}
 			}
+			// TODO ...
 		}
 	}
 }

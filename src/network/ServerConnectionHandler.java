@@ -173,6 +173,8 @@ public class ServerConnectionHandler extends Thread {
 			// If this is a new friend request..
 			if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
 				System.out.println("This was a new friend request.");
+				// Give it an id
+				request.setId(serverConnection.getNextFriendRequestId());
 				// Set the correct status
 				request.setStatus(FriendRequestStatus.PENDING);
 				// Add it to the target friend
@@ -205,13 +207,18 @@ public class ServerConnectionHandler extends Thread {
 	 * @param req	The CreateUserRequest
 	 */
 	public void processCreateUserRequest(CreateUserRequest req) {
+		// Check that the user don't already exist
 		if(serverConnection.getUser(req.getUsername()) == null) {
 			// TODO: Add check on username
+			// Get an id for the user
+			req.getRequestedUser().setId(serverConnection.getNextUserId());
+			// Notify the server of the new user
 			serverConnection.addUser(req.getRequestedUser(), req.getPassword());
+			// Set the request as aproved
 			req.setIsAproved(true);
 		}
-		String temp = req.toXML();
-		send(temp);
+		// Reply with an answer
+		send(req.toXML());
 	}
 	
 	/**
