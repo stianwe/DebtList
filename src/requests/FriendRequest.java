@@ -90,6 +90,6 @@ public class FriendRequest extends Request {
 	
 	@Override
 	public long getId() {
-		return (long) getVariable("id");
+		return (Long) getVariable("id");
 	}
 }

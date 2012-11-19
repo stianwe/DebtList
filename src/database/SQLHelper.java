@@ -3,6 +3,8 @@ package database;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import logic.Debt;
+
 /**
  * A simple helper class to generate (and execute) SQL queries
  */
@@ -56,5 +58,50 @@ public class SQLHelper {
 			sb.append(" WHERE " + rowIdFieldName + "=" + rowIdFieldValue);
 		}
 		st.executeUpdate(sb.toString());
+	}
+	
+	/**
+	 * Executes a SQL insert with the given values
+	 * @param st			The statement to execute the insert on
+	 * @param tableName		The name of the target table
+	 * @param fieldNames	The field names that shall be inserted
+	 * @param fieldValues	The field values that shall be inserted
+	 * @throws SQLException
+	 */
+	public static void insert(Statement st, String tableName, String[] fieldNames, String[] fieldValues) throws SQLException {
+		if(fieldNames.length != fieldValues.length)
+			throw new IndexOutOfBoundsException("fieldNames and fieldValues must be of the same length.");
+		StringBuilder query = new StringBuilder("INSERT INTO " + tableName + " (");
+		StringBuilder values = new StringBuilder();
+		for (int i = 0; i < fieldValues.length; i++) {
+			query.append(fieldNames[i] + (i < fieldValues.length - 1 ? ", " : ") VALUES ("));
+			values.append(fieldValues[i] + (i < fieldValues.length - 1 ? ", " : ")"));
+		}
+		query.append(values);
+		st.executeUpdate(query.toString());
+	}
+	
+	/**
+	 * Will check if the debt given as argument exists in the database, and will
+	 * 	o update the debt if it already exists (as of now the only updateable field is the status)
+	 * 	o insert the debt if it is not present in the database
+	 * @param st	The statement to execute the update/insertion on
+	 * @param d		The debt to update/insert
+	 * @return		True if the debt was updated, false if it was inserted (created)
+	 * @throws SQLException 
+	 */
+	public static boolean updateDebt(Statement st, Debt d) throws SQLException {
+		// Check if the debt already exists
+		if(SQLHelper.exists(st, DatabaseUnit.TABLE_DEBT, DatabaseUnit.FIELD_DEBT_ID, d.getId() + "")) {
+			// Update the values that can change
+			// TODO: Anything else that can change than the status??
+			SQLHelper.update(st, DatabaseUnit.TABLE_DEBT, new String[]{DatabaseUnit.FIELD_DEBT_STATUS}, new String[]{d.getStatus() + ""}, DatabaseUnit.FIELD_DEBT_ID, d.getId() + "");
+			return true;
+		} else {
+			// If not, create it
+			SQLHelper.insert(st, DatabaseUnit.TABLE_DEBT, new String[]{DatabaseUnit.FIELD_DEBT_ID, DatabaseUnit.FIELD_DEBT_AMOUNT, DatabaseUnit.FIELD_DEBT_WHAT, DatabaseUnit.FIELD_DEBT_TO_USER, DatabaseUnit.FIELD_DEBT_FROM_USER, DatabaseUnit.FIELD_DEBT_REQUESTED_BY_USER, DatabaseUnit.FIELD_DEBT_COMMENT, DatabaseUnit.FIELD_DEBT_STATUS}, 
+					new String[]{d.getId()+"", d.getAmount()+"", d.getWhat(), d.getTo().getUsername(), d.getFrom().getUsername(), d.getRequestedBy().getUsername(), d.getComment(), d.getStatus().toString()});
+			return false;
+		}
 	}
 }

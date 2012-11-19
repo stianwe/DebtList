@@ -5,8 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import requests.FriendRequest;
@@ -135,7 +135,7 @@ public class DatabaseUnit {
 	 * @param users	The users in a list
 	 * @return		The users in a map, indexed with the users' user name
 	 */
-	public static Map<String, User> listToMap(List<User> users) {
+	public static Map<String, User> listToMap(Collection<User> users) {
 		Map<String, User> map = new HashMap<String, User>();
 		for (User u : users) {
 			map.put(u.getUsername(), u);
@@ -174,25 +174,21 @@ public class DatabaseUnit {
 	}
 	
 	/**
-	 * INCOMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	 * 
 	 * Saves ALL the given users (make sure you only send users that has been updated, or that are to be created)
 	 * Note: Friends will only be saved if at least the user with the friend request is passed as argument TODO: Is this stupid?
 	 * @param users			A list containing all the users to save
 	 * @param passwords		A map on the following form: <user name, password>
 	 * @throws SQLException
 	 */
-	public void save(List<User> users, Map<String, String> passwords) throws SQLException {
+	public void save(Collection<User> users, Map<String, String> passwords) throws SQLException {
 		for (User u : users) {
 			// Check if this is a new user
-//			if(st.executeQuery("SELECT " + FIELD_USER_ID + " FROM " + TABLE_USER + " WHERE " + FIELD_USER_ID + "=" + u.getId()).next()) {
 			if(SQLHelper.exists(st, TABLE_USER, FIELD_USER_ID, u.getId() + "")) {
 				// User already exists
 				// TODO: What can be updated? Password?
 			} else {
 				// New user
-				st.executeUpdate("INSERT INTO " + TABLE_USER + "(" + FIELD_USER_USERNAME + ", " + FIELD_USER_PASSWORD + 
-						") VALUES (" + u.getUsername() + ", " + passwords.get(u.getUsername()) + ")");
+				SQLHelper.insert(st, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD}, new String[]{u.getUsername(), passwords.get(u.getUsername())});
 			}
 			// Save the friends (from the requests, since all friends must have sent a request some time)
 			for (int i = 0; i < u.getNumberOfFriendRequests(); i++) {
@@ -203,10 +199,19 @@ public class DatabaseUnit {
 					SQLHelper.update(st, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_STATUS}, new String[]{req.getStatus().toString()}, FIELD_FRIEND_REQUEST_ID, req.getId() + "");
 				} else {
 					// If not, create it
-					// TODO insert....
+					SQLHelper.insert(st, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_ID, FIELD_FRIEND_REQUEST_TO_USER, FIELD_FRIEND_REQUEST_FROM_USER, FIELD_FRIEND_REQUEST_ID}, 
+							new String[]{req.getId() + "", req.getFriendUsername(), req.getFromUser().getUsername(), req.getStatus().toString()});
 				}
 			}
-			// TODO ...
+			// Save the debts
+			// Pending
+			for (int i = 0; i < u.getNumberOfPendingDebts(); i++) {
+				SQLHelper.updateDebt(st, u.getPendingDebt(i));
+			}
+			// Confirmed
+			for (int i = 0; i < u.getNumberOfConfirmedDebts(); i++) {
+				SQLHelper.updateDebt(st, u.getConfirmedDebt(i));
+			}
 		}
 	}
 }

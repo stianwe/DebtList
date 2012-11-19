@@ -2,15 +2,19 @@ package network;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import database.DatabaseUnit;
 
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
-import requests.UpdateRequest;
 import requests.FriendRequest;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
@@ -18,6 +22,7 @@ import utils.PasswordHasher;
 
 public class ServerConnection {
 
+	private DatabaseUnit dbUnit;
 	private Map<String, User> users;
 	private Map<String, String> passwords;
 	private List<ServerConnectionHandler> handlers;
@@ -25,11 +30,50 @@ public class ServerConnection {
 	
 	public ServerConnection() {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
+		dbUnit = new DatabaseUnit();
+		dbUnit.connect();
 		users = new HashMap<String, User>();
 		passwords = new HashMap<String, String>();
+		nextDebtId = 0; nextUserId = 0; nextFriendRequestId = 0;
+		try {
+			for(Map.Entry<User, String> entry :	dbUnit.loadUsers().entrySet()) {
+				users.put(entry.getKey().getUsername(), entry.getKey());
+				passwords.put(entry.getKey().getUsername(), entry.getValue());
+			}
+			dbUnit.loadFriends(users);
+			dbUnit.loadDebts(users);
+			new Timer().schedule(new TimerTask() {
+				
+				@Override
+				public void run() {
+					try {
+						saveAll();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						System.out.println("Failed writing to database!");
+						e.printStackTrace();
+					}
+				}
+			}, Constants.TIME_BETWEEN_WRITES_TO_DATABASE, Constants.TIME_BETWEEN_WRITES_TO_DATABASE);
+		} catch (SQLException e) {
+			System.out.println("FAILED TO LOAD!");
+			e.printStackTrace();
+		}
 	}
 	
-	public void addPassword(String username, String password) {
+	public synchronized void saveAll() throws SQLException {
+		dbUnit.save(users.values(), passwords);
+	}
+	
+	public synchronized void saveUser(User u) throws SQLException {
+		List<User> user = new ArrayList<User>();
+		user.add(u);
+		Map<String, String> pw = new HashMap<String, String>();
+		pw.put(u.getUsername(), passwords.get(u.getUsername()));
+		dbUnit.save(user, passwords);
+	}
+	
+	public synchronized void addPassword(String username, String password) {
 		passwords.put(username, password);
 	}
 	
@@ -132,13 +176,11 @@ public class ServerConnection {
 	
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection();
-		server.nextDebtId = 0;
-		server.nextFriendRequestId = 0;
-		server.nextUserId = 0;
 		User arne = new User(1, "arnegopro");
 		User stian = new User(2, "stian");
 		User test = new User(3, "test");
-		stian.addFriendRequest(new FriendRequest(stian.getUsername(), test, FriendRequestStatus.PENDING));
+		stian.addFriendRequest(new FriendRequest(stian.getUsername(), test, FriendRequestStatus.PENDING, 0));
+		// TODO: All friends must also have a corresponding friend request to work with the database!!!!
 		stian.addFriend(arne);
 		arne.addFriend(stian);
 		server.addUser(arne, "qazqaz");
