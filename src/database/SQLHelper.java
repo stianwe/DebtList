@@ -19,7 +19,8 @@ public class SQLHelper {
 	 * @return					The generated SQL query
 	 */
 	public static String existsQuery(String tableName, String fieldNameToCheck, String fieldValueToCheck) {
-		return "SELECT EXISTS(SELECT 1 FROM " + tableName + " WHERE " + fieldNameToCheck + "=" + fieldValueToCheck + ")";
+		return "SELECT * FROM " + tableName + " WHERE " + fieldNameToCheck + "=" + fieldValueToCheck;
+//		return "SELECT EXISTS(SELECT 1 FROM " + tableName + " WHERE " + fieldNameToCheck + "=" + fieldValueToCheck;
 	}
 	
 	/**
@@ -51,7 +52,7 @@ public class SQLHelper {
 			throw new IndexOutOfBoundsException("The lengths of the fieldNamesToUpdate and fieldValuesToUpdate must be equal.");
 		StringBuilder sb = new StringBuilder("UPDATE " + tableName + " SET ");
 		for (int i = 0; i < fieldValuesToUpdate.length; i++) {
-			sb.append(fieldNamesToUpdate[i] + "=" + fieldValuesToUpdate[i] + (i < fieldValuesToUpdate.length - 1 ? ", " : ""));
+			sb.append(fieldNamesToUpdate[i] + "=" + '"' + fieldValuesToUpdate[i] + '"' + (i < fieldValuesToUpdate.length - 1 ? ", " : ""));
 		}
 		// Add WHERE clause if specified
 		if(rowIdFieldName != null && rowIdFieldValue != null) {
@@ -75,9 +76,10 @@ public class SQLHelper {
 		StringBuilder values = new StringBuilder();
 		for (int i = 0; i < fieldValues.length; i++) {
 			query.append(fieldNames[i] + (i < fieldValues.length - 1 ? ", " : ") VALUES ("));
-			values.append(fieldValues[i] + (i < fieldValues.length - 1 ? ", " : ")"));
+			values.append('"' + fieldValues[i] + '"' + (i < fieldValues.length - 1 ? ", " : ")"));
 		}
 		query.append(values);
+		System.out.println(query.toString());
 		st.executeUpdate(query.toString());
 	}
 	

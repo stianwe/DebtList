@@ -1,6 +1,8 @@
 package network;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -59,6 +61,25 @@ public class ServerConnection {
 			System.out.println("FAILED TO LOAD!");
 			e.printStackTrace();
 		}
+		
+		// Start command listener
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+				String command = "";
+				try {
+					while(!(command = reader.readLine()).equals("exit")) {
+						if(command.equals("save")) saveAll();
+					}
+				} catch (IOException | SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
+
 	}
 	
 	public synchronized void saveAll() throws SQLException {
@@ -198,8 +219,7 @@ public class ServerConnection {
 //		server.nextDebtId = 2;
 //		server.nextFriendRequestId =  2;
 //		server.nextUserId = 3;
-		// END TEST DATA
-		
+		// END TEST DATA		
 		// Print loaded users on startup
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {

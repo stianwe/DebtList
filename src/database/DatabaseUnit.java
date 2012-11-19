@@ -18,11 +18,11 @@ import logic.User;
 
 public class DatabaseUnit {
 
-	public static final String DB_HOST_NAME = "mysql://localhost";
+	public static final String DB_HOST_NAME = "mysql://192.168.1.10";
 	public static final int DB_PORT = 3306;
-	public static final String DB_NAME = "debtlist";
-	public static final String DB_USERNAME = "debtlist";
-	public static final String DB_PASSWORD = null;
+	public static final String DB_NAME = "DebtList";
+	public static final String DB_USERNAME = "arne";
+	public static final String DB_PASSWORD = "qazqaz";
 	
 	// Database tables
 	public static final String TABLE_USER = "user";
@@ -181,13 +181,17 @@ public class DatabaseUnit {
 	 * @throws SQLException
 	 */
 	public void save(Collection<User> users, Map<String, String> passwords) throws SQLException {
+		System.out.println("Saving..");
 		for (User u : users) {
+			System.out.println("Writing " + u.getUsername() + " to database..");
 			// Check if this is a new user
 			if(SQLHelper.exists(st, TABLE_USER, FIELD_USER_ID, u.getId() + "")) {
+				System.out.println("User already exists. Doing nothing..");
 				// User already exists
 				// TODO: What can be updated? Password?
 			} else {
 				// New user
+				System.out.println("Inserting user into database.");
 				SQLHelper.insert(st, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD}, new String[]{u.getUsername(), passwords.get(u.getUsername())});
 			}
 			// Save the friends (from the requests, since all friends must have sent a request some time)
@@ -213,5 +217,6 @@ public class DatabaseUnit {
 				SQLHelper.updateDebt(st, u.getConfirmedDebt(i));
 			}
 		}
+		System.out.println("Done saving.");
 	}
 }
