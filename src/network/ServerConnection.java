@@ -176,29 +176,37 @@ public class ServerConnection {
 	
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection();
-		User arne = new User(1, "arnegopro");
-		User stian = new User(2, "stian");
-		User test = new User(3, "test");
-		stian.addFriendRequest(new FriendRequest(stian.getUsername(), test, FriendRequestStatus.PENDING, 0));
-		// TODO: All friends must also have a corresponding friend request to work with the database!!!!
-		stian.addFriend(arne);
-		arne.addFriend(stian);
-		server.addUser(arne, "qazqaz");
-		server.addUser(stian, "asd");
-		server.addUser(test, "test");
+		
+		// START TEST DATA
+//		User arne = new User(1, "arnegopro");
+//		User stian = new User(2, "stian");
+//		User test = new User(0, "test");
+//		// All friends must also have a corresponding friend request to work with the database!
+//		stian.addFriendRequest(new FriendRequest(stian.getUsername(), test, FriendRequestStatus.PENDING, 0));
+//		stian.addFriendRequest(new FriendRequest(stian.getUsername(), arne, FriendRequestStatus.ACCEPTED, 1));
+//		stian.addFriend(arne);
+//		arne.addFriend(stian);
+//		server.addUser(arne, "qazqaz");
+//		server.addUser(stian, "asd");
+//		server.addUser(test, "test");
+//		Debt d1 = new Debt(0, 15, "kr", stian, arne, "Tralalala", stian, DebtStatus.CONFIRMED);
+//		stian.addConfirmedDebt(d1);
+//		arne.addConfirmedDebt(d1);
+//		Debt d2 = new Debt(1, 7, "kr", arne, stian, "Tralalla2", arne, DebtStatus.REQUESTED);
+//		stian.addPendingDebt(d2);
+//		arne.addPendingDebt(d2);
+//		server.nextDebtId = 2;
+//		server.nextFriendRequestId =  2;
+//		server.nextUserId = 3;
+		// END TEST DATA
+		
+		// Print loaded users on startup
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
 			System.out.println(s);
 		}
 		
-		Debt d1 = new Debt(0, 15, "kr", stian, arne, "Tralalala", stian, DebtStatus.CONFIRMED);
-		stian.addConfirmedDebt(d1);
-		arne.addConfirmedDebt(d1);
-		Debt d2 = new Debt(1, 7, "kr", arne, stian, "Tralalla2", arne, DebtStatus.REQUESTED);
-		stian.addPendingDebt(d2);
-		arne.addPendingDebt(d2);
-		server.nextDebtId = 2;
-		
+		// Accept connections on port 13337
 		server.accept(13337);
 	}
 }
