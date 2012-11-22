@@ -8,6 +8,7 @@ public enum DebtStatus {
 	COMPLETED_BY_TO, 
 	COMPLETED_BY_FROM, 
 	COMPLETED, 
-	MERGE;
+	MERGE,
+	DELETED;
 	
 }

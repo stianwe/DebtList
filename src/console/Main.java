@@ -184,7 +184,9 @@ public class Main {
 		if(Session.session.getUser().getNumberOfFriendRequests() != 0) {
 			System.out.println("\nYour pending friend requests:");
 			for (int i = 0; i < Session.session.getUser().getNumberOfFriendRequests(); i++) {
-				System.out.println(Session.session.getUser().getFriendRequest(i).getFromUser().getUsername());
+				// Only print pending friend requests
+				if(Session.session.getUser().getFriendRequest(i).getStatus() == FriendRequestStatus.PENDING)
+					System.out.println(Session.session.getUser().getFriendRequest(i).getFromUser().getUsername());
 			}
 		}
 	}

@@ -280,6 +280,20 @@ public class User extends XMLSerializable {
 		return false;
 	}
 	
+	/**
+	 * Returns the confirmed debt with the id given as argument, or null if no match was found
+	 * @param id	The id to look for
+	 * @return		The debt with the corresponding id, or null if none was found
+	 */
+	public synchronized Debt getConfirmedDebtById(long id) {
+		for (int i = 0; i < getNumberOfConfirmedDebts(); i++) {
+			if(getConfirmedDebt(i).getId() == id) {
+				return getConfirmedDebt(i);
+			}
+		}
+		return null;
+	}
+	
 	public synchronized Debt removePendingDebt(int i) {
 		return getPendingDebts().remove(i);
 	}

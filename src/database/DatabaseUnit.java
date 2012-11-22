@@ -18,10 +18,10 @@ import logic.User;
 
 public class DatabaseUnit {
 
-	public static final String DB_HOST_NAME = "mysql://192.168.1.10";
+	public static final String DB_HOST_NAME = "mysql://localhost";
 	public static final int DB_PORT = 3306;
 	public static final String DB_NAME = "DebtList";
-	public static final String DB_USERNAME = "arne";
+	public static final String DB_USERNAME = "root";
 	public static final String DB_PASSWORD = "qazqaz";
 	
 	// Database tables
@@ -87,6 +87,20 @@ public class DatabaseUnit {
 		try {
 			con.close();
 		} catch (SQLException e) {}
+	}
+	
+	/**
+	 * Returns the next available id from the specified table
+	 * @param tableName	The table to fetch the id from (use constants)
+	 * @param fieldName	The id field (probably just "id", but use constants)
+	 * @return			The next available id
+	 * @throws SQLException
+	 */
+	public long getNextId(String tableName, String fieldName) throws SQLException {
+		ResultSet rs = st.executeQuery("SELECT MAX(" + fieldName + ") FROM " + tableName);
+		if(!rs.next())
+			return 1;
+		return rs.getLong(1) + 1;
 	}
 	
 	/**
@@ -167,6 +181,9 @@ public class DatabaseUnit {
 				d.getFrom().addConfirmedDebt(d);
 				d.getTo().addConfirmedDebt(d);
 				break;
+			case DELETED:
+				// Don't load this debt
+				break;
 			default:
 				System.out.println("Failed loading debt: " + d);
 			}
@@ -185,36 +202,37 @@ public class DatabaseUnit {
 		for (User u : users) {
 			System.out.println("Writing " + u.getUsername() + " to database..");
 			// Check if this is a new user
-			if(SQLHelper.exists(st, TABLE_USER, FIELD_USER_ID, u.getId() + "")) {
-				System.out.println("User already exists. Doing nothing..");
+			if(SQLHelper.exists(con, TABLE_USER, FIELD_USER_ID, u.getId() + "")) {
+				System.out.println("User already exists.");
 				// User already exists
 				// TODO: What can be updated? Password?
 			} else {
 				// New user
 				System.out.println("Inserting user into database.");
-				SQLHelper.insert(st, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD}, new String[]{u.getUsername(), passwords.get(u.getUsername())});
+				SQLHelper.insert(con, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD}, new String[]{u.getUsername(), passwords.get(u.getUsername())});
 			}
 			// Save the friends (from the requests, since all friends must have sent a request some time)
+			System.out.println("Number of friend requests: " + u.getNumberOfFriendRequests());
 			for (int i = 0; i < u.getNumberOfFriendRequests(); i++) {
 				FriendRequest req = u.getFriendRequest(i);
 				// Check if the request already exists
-				if(SQLHelper.exists(st, TABLE_FRIEND_REQUEST, FIELD_FRIEND_REQUEST_ID, req.getId() + "")) {
+				if(SQLHelper.exists(con, TABLE_FRIEND_REQUEST, FIELD_FRIEND_REQUEST_ID, req.getId() + "")) {
 					// Update the value that CAN change (no matter if it actually has changed)
-					SQLHelper.update(st, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_STATUS}, new String[]{req.getStatus().toString()}, FIELD_FRIEND_REQUEST_ID, req.getId() + "");
+					SQLHelper.update(con, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_STATUS}, new String[]{req.getStatus().toString()}, FIELD_FRIEND_REQUEST_ID, req.getId() + "");
 				} else {
 					// If not, create it
-					SQLHelper.insert(st, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_ID, FIELD_FRIEND_REQUEST_TO_USER, FIELD_FRIEND_REQUEST_FROM_USER, FIELD_FRIEND_REQUEST_ID}, 
+					SQLHelper.insert(con, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_ID, FIELD_FRIEND_REQUEST_TO_USER, FIELD_FRIEND_REQUEST_FROM_USER, FIELD_FRIEND_REQUEST_STATUS}, 
 							new String[]{req.getId() + "", req.getFriendUsername(), req.getFromUser().getUsername(), req.getStatus().toString()});
 				}
 			}
 			// Save the debts
 			// Pending
 			for (int i = 0; i < u.getNumberOfPendingDebts(); i++) {
-				SQLHelper.updateDebt(st, u.getPendingDebt(i));
+				SQLHelper.updateDebt(con, u.getPendingDebt(i));
 			}
 			// Confirmed
 			for (int i = 0; i < u.getNumberOfConfirmedDebts(); i++) {
-				SQLHelper.updateDebt(st, u.getConfirmedDebt(i));
+				SQLHelper.updateDebt(con, u.getConfirmedDebt(i));
 			}
 		}
 		System.out.println("Done saving.");

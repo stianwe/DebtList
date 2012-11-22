@@ -14,11 +14,7 @@ import java.util.TimerTask;
 
 import database.DatabaseUnit;
 
-import logic.Debt;
-import logic.DebtStatus;
 import logic.User;
-import requests.FriendRequest;
-import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 import utils.PasswordHasher;
 
@@ -36,7 +32,7 @@ public class ServerConnection {
 		dbUnit.connect();
 		users = new HashMap<String, User>();
 		passwords = new HashMap<String, String>();
-		nextDebtId = 0; nextUserId = 0; nextFriendRequestId = 0;
+		nextDebtId = 1; nextUserId = 1; nextFriendRequestId = 1;
 		try {
 			for(Map.Entry<User, String> entry :	dbUnit.loadUsers().entrySet()) {
 				users.put(entry.getKey().getUsername(), entry.getKey());
@@ -44,6 +40,9 @@ public class ServerConnection {
 			}
 			dbUnit.loadFriends(users);
 			dbUnit.loadDebts(users);
+			nextDebtId = dbUnit.getNextId(DatabaseUnit.TABLE_DEBT, DatabaseUnit.FIELD_DEBT_ID);
+			nextUserId = dbUnit.getNextId(DatabaseUnit.TABLE_USER, DatabaseUnit.FIELD_USER_ID);
+			nextFriendRequestId = dbUnit.getNextId(DatabaseUnit.TABLE_FRIEND_REQUEST, DatabaseUnit.FIELD_FRIEND_REQUEST_ID);
 			new Timer().schedule(new TimerTask() {
 				
 				@Override
@@ -57,6 +56,19 @@ public class ServerConnection {
 					}
 				}
 			}, Constants.TIME_BETWEEN_WRITES_TO_DATABASE, Constants.TIME_BETWEEN_WRITES_TO_DATABASE);
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					try {
+						System.out.println("Writing updates to database..");
+						saveAll();
+						System.out.println("Wrote updates to database.");
+					} catch (SQLException e) {
+						System.out.println("Failed writing to database.");
+						e.printStackTrace();
+					}
+				}
+			});
 		} catch (SQLException e) {
 			System.out.println("FAILED TO LOAD!");
 			e.printStackTrace();
@@ -73,7 +85,7 @@ public class ServerConnection {
 					while(!(command = reader.readLine()).equals("exit")) {
 						if(command.equals("save")) saveAll();
 					}
-				} catch (IOException | SQLException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

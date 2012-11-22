@@ -101,6 +101,11 @@ public class ServerConnectionHandler extends Thread {
 			}
 		}
 		System.out.println("Killing thread.");
+		// Check if user was online
+		if(this.getUser() != null) {
+			// The set it offline
+			this.getUser().setIsOnline(false);
+		}
 		running = false;
 	}
 	
@@ -179,8 +184,6 @@ public class ServerConnectionHandler extends Thread {
 				request.setStatus(FriendRequestStatus.PENDING);
 				// Add it to the target friend
 				serverConnection.getUser(request.getFriendUsername()).addFriendRequest(request);
-				System.out.println("Added friend request to: " + serverConnection.getUser(request.getFriendUsername()).getUsername());
-				System.out.println("Friend request0: " + serverConnection.getUser(request.getFriendUsername()).getFriendRequest(0));
 			} else {
 				System.out.println("This was a reply to a friend request.");
 				// If this is a accepted/declined friend request, update the requesting user's friends (if accepted, if not accepted we do nothig except to remove the request)
@@ -189,8 +192,10 @@ public class ServerConnectionHandler extends Thread {
 					otherUser.addFriend(thisUser);
 					thisUser.addFriend(otherUser);
 				} 
-				// Remove friend request
-				thisUser.removeFriendRequest(request);
+				// Remove friend request.. NO!
+//				thisUser.removeFriendRequest(request);
+				// Copy status
+				thisUser.getFriendRequestFrom(otherUser.getUsername()).setStatus(request.getStatus());
 			}
 			// Notify other user
 			serverConnection.notifyUser(otherUser.getUsername(), request);
@@ -412,9 +417,11 @@ public class ServerConnectionHandler extends Thread {
 			d.setComment('"' + d.getComment() + '"');
 		}
 		for (Debt debtToMerge : debtsToMerge) {
-			// Remove debts from users
-			thisUser.removeConfirmedDebt(debtToMerge);
-			otherUser.removeConfirmedDebt(debtToMerge);
+			// Remove debts from users .. NO! Set them as deleted
+			thisUser.getConfirmedDebtById(debtToMerge.getId()).setStatus(DebtStatus.DELETED);
+			otherUser.getConfirmedDebtById(debtToMerge.getId()).setStatus(DebtStatus.DELETED);
+//			thisUser.removeConfirmedDebt(debtToMerge);
+//			otherUser.removeConfirmedDebt(debtToMerge);
 			// Merge amount
 			if(d.getTo().equals(debtToMerge.getTo())) {
 				d.setAmount(d.getAmount() + debtToMerge.getAmount());
