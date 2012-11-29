@@ -75,12 +75,10 @@ public class ClientConnection {
 	 */
 	public String receive() throws IOException {
 		String temp;
-		System.out.println("Waiting for answer (1)..");
 		while((temp = reader.readLine()) == null) {
 			// TODO: Add timeout!
-			System.out.println("Waiting for answer (2)..");
 		}
-		System.out.println("Receive: " + temp);
+//		System.out.println("Receive: " + temp);
 		return temp;
 	}
 }

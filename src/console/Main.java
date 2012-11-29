@@ -26,6 +26,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		System.out.println("Welcome to DebtList (version 0)!");
+		System.out.println("Connect to server by typing " + '"' + "connect" + '"' + " followed by " + '"' + "login" + '"' + " to log in, or " + '"' + "create user <user name> <password>" + '"' + " to create a new user.");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String command = null;
 		do {
@@ -51,17 +52,18 @@ public class Main {
 		if(command.equals("exit")) return true;
 		
 		// For debugging
-		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
-		else if(command.equals("arnegopro")) processConnectOLD("connect arnegopro qazqaz localhost 13337 13330");
-		
-		else if(command.startsWith("create user")) processCreateUser(command);
+//		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
+//		else if(command.equals("arnegopro")) processConnectOLD("connect arnegopro qazqaz localhost 13337 13330");
 		else {
+			if(command.startsWith("create user") && Session.session.isConnected()) processCreateUser(command);
 			if(!Session.session.isLoggedIn()) {
 				// Commands that only are accessible when the user is not logged in
-				if(command.startsWith("connect")) {
+				if(command.equals("connect")) processStandardConnect();
+				else if(command.startsWith("connect")) {
 					if(command.split(" ").length == 3) processConnect(command);
 					else processConnectOLD(command);
 				}
+				else if(command.equals("login")) safeLogin();
 				else if(command.startsWith("login")) processLogin(command);
 				
 				else System.out.println("Unknown command.");
@@ -84,6 +86,24 @@ public class Main {
 		return false;
 	}
 
+	/**
+	 * Starts a secure login procedure allowing requesting user name and password from the user in a secure form.
+	 * Will crash used when not compiled (i.e. in an IDE)
+	 */
+	public static void safeLogin() {
+		System.out.print("User name: ");
+		try {
+			String username = new BufferedReader(new InputStreamReader(System.in)).readLine();
+			System.out.print("Password: ");
+			String password = new String(System.console().readPassword());
+			processLogin("login " + username + " " + password);
+		} catch (IOException e) {
+			System.out.println("Input error! Please try again.");
+		} catch (NullPointerException e) {
+			System.out.println("Failed reading the password securely. Did you run this program from an IDE? Please try the normal version.");
+		}
+	}
+	
 	public static void processPrintTimeToUpdate() {
 		System.out.println("Time to next scheduled update:" + updater.getTimeToUpdate());
 	}
@@ -482,7 +502,21 @@ public class Main {
 			printSyntaxErrorMessage("login <username> <password>");
 		}
 	}
+
+	/**
+	 * Process the given command as a connect command by connecting to the standard server.
+	 * (Uses the processConnect-method to process the request.
+	 * Syntax: "connect"
+	 */
+	public static void processStandardConnect() {
+		processConnect("connect " + Constants.SERVER_ADDRESS + " " + Constants.STANDARD_SERVER_PORT);
+	}
 	
+	/**
+	 * Process the given command as a connect command by connecting to the specified server.
+	 * Syntax: "connect <host> <port>"
+	 * @param command
+	 */
 	public static void processConnect(String command) {
 		try {
 			String host = command.split(" ")[1];
