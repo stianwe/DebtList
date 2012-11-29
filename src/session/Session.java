@@ -3,7 +3,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import gui.LogInPanel;
+//import gui.LogInPanel;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -39,7 +39,7 @@ public class Session {
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		currentPanel = new LogInPanel(); 
+//		currentPanel = new LogInPanel(); 
 		frame.add(currentPanel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);

@@ -13,7 +13,7 @@ import javax.swing.JTextField;
 
 import session.Session;
 
-public class LogInPanel extends JPanel {
+public class LogInPanelz extends JPanel {
 
 	private GridBagConstraints c;
 	private JTextField usernameField, passwordField;
