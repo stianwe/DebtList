@@ -92,7 +92,7 @@ public class SQLHelper {
 		System.out.println(query.toString());
 		PreparedStatement prep = con.prepareStatement(query.toString());
 		for(int i = 0; i < fieldValues.length; i++) {
-			prep.setString(i, fieldValues[i]);
+			prep.setString(i + 1, fieldValues[i]);
 		}
 		prep.executeUpdate();
 	}
