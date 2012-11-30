@@ -26,7 +26,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		System.out.println("Welcome to DebtList (version 0)!");
-		System.out.println("Connect to server by typing " + '"' + "connect" + '"' + " followed by " + '"' + "login" + '"' + " to log in, or " + '"' + "create user <user name> <password>" + '"' + " to create a new user.");
+		System.out.println("Connect to server by typing " + '"' + "connect" + '"' + " followed by " + '"' + "login" + '"' + " to log in, or " + '"' + "create user" + '"' + " to create a new user.");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String command = null;
 		do {
@@ -55,8 +55,9 @@ public class Main {
 //		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
 //		else if(command.equals("arnegopro")) processConnectOLD("connect arnegopro qazqaz localhost 13337 13330");
 		else {
-			if(command.startsWith("create user") && Session.session.isConnected()) processCreateUser(command);
-			if(!Session.session.isLoggedIn()) {
+			if(command.equals("create user") && Session.session.isConnected()) safeCreateUser();
+			else if(command.startsWith("create user") && Session.session.isConnected()) processCreateUser(command);
+			else if(!Session.session.isLoggedIn()) {
 				// Commands that only are accessible when the user is not logged in
 				if(command.equals("connect")) processStandardConnect();
 				else if(command.startsWith("connect")) {
@@ -86,6 +87,30 @@ public class Main {
 		return false;
 	}
 
+	/**
+	 * Starts a secure procedure for creating a new user.
+	 * Will crash when not compiled (i.e. from an IDE)
+	 */
+	public static void safeCreateUser() {
+		System.out.print("User name: ");
+		try {
+			String username = new BufferedReader(new InputStreamReader(System.in)).readLine();
+			System.out.print("Password: ");
+			String pw1 = new String(System.console().readPassword());
+			System.out.print("Re-enter password: ");
+			String pw2 = new String(System.console().readPassword());
+			if(!pw1.equals(pw2)) {
+				System.out.println("Your passwords does not match!");
+			} else {
+				processCreateUser("create user " + username + " " + pw1);
+			}
+		} catch (IOException e) {
+			System.out.println("Input error! Please try again!");
+		} catch (NullPointerException e) {
+			System.out.println("Failed reading the password securely. Did you run this program from an IDE? Please try the normal version.");
+		}
+	}
+	
 	/**
 	 * Starts a secure login procedure allowing requesting user name and password from the user in a secure form.
 	 * Will crash used when not compiled (i.e. in an IDE)
