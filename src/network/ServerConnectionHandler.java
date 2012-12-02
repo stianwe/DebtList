@@ -42,6 +42,7 @@ public class ServerConnectionHandler extends Thread {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			serverConnection.writeToLog("Failed while initializing handler: " + e.toString());
 		}
 	}
 	
@@ -91,6 +92,7 @@ public class ServerConnectionHandler extends Thread {
 						processUpdate();
 					} else {
 						System.out.println("Received something unknown!");
+						serverConnection.writeToLog("Received something unknown: " + xml);
 						// TODO
 					}
 				}
@@ -98,6 +100,7 @@ public class ServerConnectionHandler extends Thread {
 				// TODO
 				System.out.println("Exception: " + e);
 				e.printStackTrace();
+				serverConnection.writeToLog("Failed to parse/process XML: " + e.toString());
 			}
 		}
 		System.out.println("Killing thread.");
@@ -201,6 +204,7 @@ public class ServerConnectionHandler extends Thread {
 			serverConnection.notifyUser(otherUser.getUsername(), request);
 		} else {
 			System.out.println("FriendRequest was not valid.");
+			serverConnection.writeToLog("Received invalid friend request from: " + thisUser.getUsername() + ": " + request.toXML());
 			// Send some garbage that will trigger an error
 			// TODO Set a crap status?? But don't overwrite already set error status!
 		}
@@ -326,6 +330,7 @@ public class ServerConnectionHandler extends Thread {
 			// Something wrong has happened! This debt was not ours, or not pending.
 			// TODO Do nothing?
 			System.out.println("SOMETHING WRONG HAPPENED WHILE PROCESSING CONFIRMED OR DECLINED DEBT!");
+			serverConnection.writeToLog("Something wrong happened while processing confirmed or declined debt for " + getUser().getUsername());
 			return;
 		}
 		our.setStatus(d.getStatus());
@@ -386,6 +391,8 @@ public class ServerConnectionHandler extends Thread {
 //			System.out.println(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())) == serverConnection.getHandler(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).getUsername()).getUser());
 			// Notify other user
 			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
+		} else {
+			serverConnection.writeToLog("Received invalid debt from " + getUser().getUsername());
 		}
 		send(d.toXML());
 	}

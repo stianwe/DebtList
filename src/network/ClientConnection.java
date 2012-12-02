@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import console.Main;
+
 public class ClientConnection {
 
 	private Socket connection;
@@ -75,10 +77,12 @@ public class ClientConnection {
 	 */
 	public String receive() throws IOException {
 		String temp;
+		Main.print("Waiting (0)..");
 		while((temp = reader.readLine()) == null) {
+			Main.print("Waiting (1)..");
 			// TODO: Add timeout!
 		}
-//		System.out.println("Receive: " + temp);
+		Main.print("Receive: " + temp);
 		return temp;
 	}
 }

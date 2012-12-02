@@ -53,31 +53,25 @@ public class DatabaseUnit {
 	
 	/**
 	 * Connects to the database specified with this class' constants
-	 * @return	True if the connection was successfully established, false if not.
+	 * @throws Exception 
 	 */
-	public boolean connect() {
-		try {
-			//Register the JDBC driver for MySQL.
-			Class.forName("com.mysql.jdbc.Driver");
+	public void connect() throws Exception {
+		//Register the JDBC driver for MySQL.
+		Class.forName("com.mysql.jdbc.Driver");
 
-			//Define URL of database server for
-			String url =
+		//Define URL of database server for
+		String url =
 				"jdbc:" + DB_HOST_NAME + ":" + DB_PORT + "/" + DB_NAME;
 
-			//Get a connection to the database for a
-			con = DriverManager.getConnection(url, DB_USERNAME, DB_PASSWORD);
+		//Get a connection to the database for a
+		con = DriverManager.getConnection(url, DB_USERNAME, DB_PASSWORD);
 
-			//Display URL and connection information
-			System.out.println("URL: " + url);
-			System.out.println("Connection: " + con);
+		//Display URL and connection information
+		System.out.println("URL: " + url);
+		System.out.println("Connection: " + con);
 
-			//Get a Statement object
-			st = con.createStatement();
-			return true;
-		}catch( Exception e ) {
-			e.printStackTrace();
-		}
-		return false;
+		//Get a Statement object
+		st = con.createStatement();
 	}
 	
 	/**

@@ -23,8 +23,11 @@ import session.Updater;
 public class Main {
 
 	public static Updater updater = new Updater();
+	public static boolean debug = false;
 	
 	public static void main(String[] args) {
+		debug = true;
+		
 		System.out.println("Welcome to DebtList (version 0)!");
 		System.out.println("Connect to server by typing " + '"' + "connect" + '"' + " followed by " + '"' + "login" + '"' + " to log in, or " + '"' + "create user" + '"' + " to create a new user.");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -40,6 +43,14 @@ public class Main {
 		} while(!processCommand(command));
 		// TODO: Kill update listener if existing..
 		System.out.println("Bye!");
+	}
+	
+	/**
+	 * Prints the given argument if the console is in debug mode
+	 * @param s	The String to print
+	 */
+	public static void print(String s) {
+		if(debug) System.out.println(s);
 	}
 	
 	/**
