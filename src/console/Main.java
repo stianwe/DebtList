@@ -26,7 +26,7 @@ public class Main {
 	public static boolean debug = false;
 	
 	public static void main(String[] args) {
-		debug = true;
+		debug = false;
 		
 		System.out.println("Welcome to DebtList (version 0)!");
 		System.out.println("Connect to server by typing " + '"' + "connect" + '"' + " followed by " + '"' + "login" + '"' + " to log in, or " + '"' + "create user" + '"' + " to create a new user.");
@@ -61,6 +61,8 @@ public class Main {
 	public static boolean processCommand(String command) {
 		// Commands that are accessible both if the user is logged in or not
 		if(command.equals("exit")) return true;
+		else if(command.equals("debug start")) debug = true;
+		else if(command.equals("debug stop")) debug = false;
 		
 		// For debugging
 //		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
