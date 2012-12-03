@@ -64,7 +64,7 @@ public class SQLHelper {
 		System.out.println("Running query: " + sb.toString());
 		PreparedStatement prep = con.prepareStatement(sb.toString());
 		for(int i = 0; i < fieldValuesToUpdate.length; i++) {
-			prep.setString(i, fieldValuesToUpdate[i]);
+			prep.setString(i + 1, fieldValuesToUpdate[i]);
 		}
 		prep.executeUpdate();
 		//st.executeUpdate(sb.toString());
