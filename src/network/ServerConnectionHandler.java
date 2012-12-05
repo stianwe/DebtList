@@ -30,6 +30,7 @@ public class ServerConnectionHandler extends Thread {
 	private User user;
 	private boolean running;
 	private UpdateRequest update;
+	private long timeOfLastCommand = 0;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
@@ -44,6 +45,20 @@ public class ServerConnectionHandler extends Thread {
 			e.printStackTrace();
 			serverConnection.writeToLog("Failed while initializing handler: " + e.toString());
 		}
+	}
+	
+	/**
+	 * Updates the time of last command to the current time
+	 */
+	public void updateTimeOfLastCommand() {
+		timeOfLastCommand = System.currentTimeMillis();
+	}
+	
+	/**
+	 * @return Time of the last command (in millisec)
+	 */
+	public long getTimeOfLastCommand() {
+		return timeOfLastCommand;
 	}
 	
 	/**
@@ -63,7 +78,7 @@ public class ServerConnectionHandler extends Thread {
 	
 	/**
 	 * This method will try to receive messages from the connected client, and will pass the messages to the appropriate process method.
-	 * Will run until stoped.
+	 * Will run until stopped.
 	 */
 	@Override
 	public void run() {
@@ -71,6 +86,9 @@ public class ServerConnectionHandler extends Thread {
 		System.out.println("ServerConnectionHandler running!");
 		String xml;
 		while(running && (xml = receive()) != null) {
+			// Register the time of the command
+			// FIXME: This should be uncommented!
+//			updateTimeOfLastCommand();
 			System.out.println("Received XML: " + xml);
 			// Receive LogInRequest
 			try {
@@ -106,7 +124,7 @@ public class ServerConnectionHandler extends Thread {
 		System.out.println("Killing thread.");
 		// Check if user was online
 		if(this.getUser() != null) {
-			// The set it offline
+			// Then set it offline
 			this.getUser().setIsOnline(false);
 		}
 		running = false;
@@ -478,7 +496,11 @@ public class ServerConnectionHandler extends Thread {
 		writer.println(msg);
 	}
 	
+	/**
+	 * Attempts to close the connection, log off the user and stop the thread.
+	 */
 	public void close() {
+		running = false;
 		try {
 			connection.close();
 		} catch (Exception e) {}
@@ -488,5 +510,8 @@ public class ServerConnectionHandler extends Thread {
 		try {
 			writer.close();
 		} catch (Exception e) {}
+		if(this.user != null) {
+			this.user.setIsOnline(false);
+		}
 	}
 }

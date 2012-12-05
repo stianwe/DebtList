@@ -30,6 +30,8 @@ public class ServerConnection {
 	private Map<String, String> passwords;
 	private List<ServerConnectionHandler> handlers;
 	private long nextDebtId, nextUserId, nextFriendRequestId;
+	private Timer timer;
+	private ServerSocket serverSocket = null;
 
 	public ServerConnection(boolean readFromDatabase) {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
@@ -49,7 +51,8 @@ public class ServerConnection {
 				nextDebtId = dbUnit.getNextId(DatabaseUnit.TABLE_DEBT, DatabaseUnit.FIELD_DEBT_ID);
 				nextUserId = dbUnit.getNextId(DatabaseUnit.TABLE_USER, DatabaseUnit.FIELD_USER_ID);
 				nextFriendRequestId = dbUnit.getNextId(DatabaseUnit.TABLE_FRIEND_REQUEST, DatabaseUnit.FIELD_FRIEND_REQUEST_ID);
-				new Timer().schedule(new TimerTask() {
+				// Write to database and disconnect inactive users
+				(timer = new Timer()).schedule(new TimerTask() {
 
 					@Override
 					public void run() {
@@ -60,6 +63,13 @@ public class ServerConnection {
 							System.out.println("Failed writing to database!");
 							e.printStackTrace();
 							writeToLog("Exception while writing to database:\n" + e.toString());
+						}
+						// Also check if we should disconnect any inactive users
+						for (ServerConnectionHandler h : handlers) {
+							if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
+								System.out.println("Attempting to close connection");
+								h.close();
+							}
 						}
 					}
 				}, Constants.TIME_BETWEEN_WRITES_TO_DATABASE, Constants.TIME_BETWEEN_WRITES_TO_DATABASE);
@@ -94,7 +104,20 @@ public class ServerConnection {
 				try {
 					while(!(command = reader.readLine()).equals("exit")) {
 						if(command.equals("save")) saveAll();
+						// Close all connections
+						else if(command.equals("disconnect")) {
+							disconnectUsers();
+						}
 					}
+					System.out.println("Disconnecting users..");
+					disconnectUsers();
+					System.out.println("Stopping timer..");
+					timer.cancel();
+					System.out.println("Closing server socket..");
+					serverSocket.close();
+					System.out.println("Writing updates to database..");
+					saveAll();
+					System.out.println("Bye!");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -103,6 +126,13 @@ public class ServerConnection {
 			}
 		}).start();
 
+	}
+	
+	public synchronized void disconnectUsers() {
+		System.out.println("Attempting to close all connections");
+		for (ServerConnectionHandler h : handlers) {
+			h.close();
+		}
 	}
 	
 	public synchronized void writeToLog(String s) {
@@ -201,20 +231,20 @@ public class ServerConnection {
 	 * @param port						The port to listen to
 	 */
 	public void accept(int port) {
-		ServerSocket ss = null;
 		try {
-			ss = new ServerSocket(port);
+			serverSocket = new ServerSocket(port);
 			while(true) {
 				System.out.println("Listening for incomming connections..");
-				new ServerConnectionHandler(ss.accept(), this).start();
+				new ServerConnectionHandler(serverSocket.accept(), this).start();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-			writeToLog("Failed to accept incomming connection: " + e.toString());
+//			e.printStackTrace();
+//			writeToLog("Failed to accept incomming connection: " + e.toString());
+			System.out.println("Server socket closed.");
 		} finally {
 			try {
-				ss.close();
+				serverSocket.close();
 			} catch (Exception e) {}
 		}
 	}

@@ -18,7 +18,7 @@ import logic.User;
 
 public class DatabaseUnit {
 
-	public static final String DB_HOST_NAME = "mysql://localhost";
+	public static final String DB_HOST_NAME = "mysql://invert.ed.ntnu.no";
 	public static final int DB_PORT = 3306;
 	public static final String DB_NAME = "DebtList";
 	public static final String DB_USERNAME = "SENSURED";
@@ -193,6 +193,7 @@ public class DatabaseUnit {
 	 */
 	public void save(Collection<User> users, Map<String, String> passwords) throws SQLException {
 		System.out.println("Saving..");
+		// Save all users first, because the users must already exist before inserting any friend requests or debts they are referenced in
 		for (User u : users) {
 			System.out.println("Writing " + u.getUsername() + " to database..");
 			// Check if this is a new user
@@ -205,6 +206,8 @@ public class DatabaseUnit {
 				System.out.println("Inserting user into database.");
 				SQLHelper.insert(con, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD}, new String[]{u.getUsername(), passwords.get(u.getUsername())});
 			}
+		}
+		for (User u : users) {
 			// Save the friends (from the requests, since all friends must have sent a request some time)
 			System.out.println("Number of friend requests: " + u.getNumberOfFriendRequests());
 			for (int i = 0; i < u.getNumberOfFriendRequests(); i++) {
