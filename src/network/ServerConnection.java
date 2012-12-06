@@ -107,6 +107,10 @@ public class ServerConnection {
 						// Close all connections
 						else if(command.equals("disconnect")) {
 							disconnectUsers();
+						} else if(command.equals("ls connections")) {
+							listConnections();
+						} else {
+							System.out.println("Unknown command.");
 						}
 					}
 					System.out.println("Disconnecting users..");
@@ -126,6 +130,15 @@ public class ServerConnection {
 			}
 		}).start();
 
+	}
+	
+	/**
+	 * Lists the current online users in System.out
+	 */
+	public synchronized void listConnections() {
+		for (ServerConnectionHandler h : handlers) {
+			System.out.println(h.getUser().getUsername());
+		}
 	}
 	
 	public synchronized void disconnectUsers() {
