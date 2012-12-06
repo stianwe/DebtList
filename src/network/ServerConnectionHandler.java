@@ -251,6 +251,13 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	/**
+	 * @return	The IP address of the connected user
+	 */
+	public String getUserIp() {
+		return connection.getInetAddress().getHostAddress();
+	}
+	
+	/**
 	 * Process the given LogInRequest by setting this ServerConnectionHandler's user if login is correct.
 	 * Will also on correct login start a UpdateSender for this connection at the port specified in the LogInRequest
 	 * @param req	The LogInRequest

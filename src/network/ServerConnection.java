@@ -137,7 +137,11 @@ public class ServerConnection {
 	 */
 	public synchronized void listConnections() {
 		for (ServerConnectionHandler h : handlers) {
-			System.out.println(h.getUser().getUsername());
+			if(h.getUser() == null) {
+				System.out.println("Anonymous user with IP address: " + h.getUserIp());
+			} else {
+				System.out.println(h.getUser().getUsername() + ": " + h.getUserIp());
+			}
 		}
 	}
 	
