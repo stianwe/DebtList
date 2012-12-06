@@ -10,10 +10,11 @@ import requests.xml.XMLSerializable;
 public class Updater {
 
 	private UpdateRequester updateRequester;
+	private Timer timer;
 	
 	public void startUpdater(long timeBetweenUpdates) {
 		updateRequester = new UpdateRequester(timeBetweenUpdates);
-		new Timer().schedule(updateRequester, timeBetweenUpdates, timeBetweenUpdates);
+		(timer = new Timer()).schedule(updateRequester, timeBetweenUpdates, timeBetweenUpdates);
 	}
 	
 	/**
@@ -28,7 +29,11 @@ public class Updater {
 	 * @return True if this call stops the updater from updating anymore. False if it was already stopped.
 	 */
 	public boolean stopUpdater() {
-		return updateRequester.cancel();
+//		if(updateRequester == null) return false;
+//		return updateRequester.cancel();
+		if(timer == null) return false;
+		timer.cancel();
+		return true;
 	}
 	
 	/**

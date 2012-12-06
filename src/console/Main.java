@@ -41,7 +41,12 @@ public class Main {
 				continue;
 			}
 		} while(!processCommand(command));
-		// TODO: Kill update listener if existing..
+		// Kill the update poller
+		print("Killing updater..");
+		if(updater.stopUpdater()) print("Successfully stopped the updater.");
+		else print("Failed to stop the updater!");
+		if(updater.stopUpdater()) print("Successfully stopped the updater.");
+		else print("Failed to stop the updater!");
 		System.out.println("Bye!");
 	}
 	
@@ -63,10 +68,6 @@ public class Main {
 		if(command.equals("exit")) return true;
 		else if(command.equals("debug start")) debug = true;
 		else if(command.equals("debug stop")) debug = false;
-		
-		// For debugging
-//		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
-//		else if(command.equals("arnegopro")) processConnectOLD("connect arnegopro qazqaz localhost 13337 13330");
 		else {
 			// Commands that only are accessible when the user is NOT logged in
 			if(!Session.session.isLoggedIn()) {
@@ -85,7 +86,7 @@ public class Main {
 				// Commands that require the user to be logged in
 				if(command.equals("ls debts")) processLsDebts();
 				else if(command.equals("ls friends")) processLsFriends();
-				else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
+//				else if(command.startsWith("create updateListener")) processCreateUpdateListener(command);
 				else if(command.startsWith("create debt")) processCreateDebt(command);
 				else if(command.startsWith("accept debt") || command.startsWith("decline debt")) processAcceptDeclineCompleteDebt(command);
 				else if(command.startsWith("complete debt")) processAcceptDeclineCompleteDebt(command);
@@ -418,13 +419,13 @@ public class Main {
 	 * @deprecated Is now automatically done with the connect command
 	 * @param command	The command to process
 	 */
-	public static void processCreateUpdateListener(String command) {
-		try {
-			new Thread(new UpdateListener(Integer.parseInt(command.split(" ")[2]))).start();
-		} catch (Exception e) {
-			printSyntaxErrorMessage("start updateListener <port>");
-		}
-	}
+//	public static void processCreateUpdateListener(String command) {
+//		try {
+//			new Thread(new UpdateListener(Integer.parseInt(command.split(" ")[2]))).start();
+//		} catch (Exception e) {
+//			printSyntaxErrorMessage("start updateListener <port>");
+//		}
+//	}
 	
 	/**
 	 * Prints the specified number of tabs (white space) in System.out
@@ -528,6 +529,7 @@ public class Main {
 			switch(Session.session.logIn(username, password)) {
 			case ACCEPTED:
 				System.out.println("Log in ok.");
+				print("Starting updater.");
 				startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
 				break;
 			case ALREADY_LOGGED_ON:
