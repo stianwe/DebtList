@@ -72,7 +72,7 @@ public class Main {
 			if(!Session.session.isLoggedIn()) {
 				if(command.equals("create user") && Session.session.isConnected()) safeCreateUser();
 				else if(command.startsWith("create user") && Session.session.isConnected()) processCreateUser(command);
-				if(command.equals("connect")) processStandardConnect();
+				else if(command.equals("connect")) processStandardConnect();
 				else if(command.startsWith("connect")) {
 					if(command.split(" ").length == 3) processConnect(command);
 					else processConnectOLD(command);
@@ -600,7 +600,7 @@ public class Main {
 				System.out.println("Connection failed.");
 			}
 		} catch(Exception e) {
-			printSyntaxErrorMessage("connect <username> <password> <host> <port> <update port>");
+			printSyntaxErrorMessage("connect <username> <password> <host> <port>");
 		}
 	}
 }
