@@ -68,10 +68,10 @@ public class Main {
 //		else if(command.equals("stian")) processConnectOLD("connect stian asd localhost 13337 13331");
 //		else if(command.equals("arnegopro")) processConnectOLD("connect arnegopro qazqaz localhost 13337 13330");
 		else {
-			if(command.equals("create user") && Session.session.isConnected()) safeCreateUser();
-			else if(command.startsWith("create user") && Session.session.isConnected()) processCreateUser(command);
-			else if(!Session.session.isLoggedIn()) {
-				// Commands that only are accessible when the user is not logged in
+			// Commands that only are accessible when the user is NOT logged in
+			if(!Session.session.isLoggedIn()) {
+				if(command.equals("create user") && Session.session.isConnected()) safeCreateUser();
+				else if(command.startsWith("create user") && Session.session.isConnected()) processCreateUser(command);
 				if(command.equals("connect")) processStandardConnect();
 				else if(command.startsWith("connect")) {
 					if(command.split(" ").length == 3) processConnect(command);
