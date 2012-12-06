@@ -235,13 +235,15 @@ public class ServerConnectionHandler extends Thread {
 	 */
 	public void processCreateUserRequest(CreateUserRequest req) {
 		// Check that the user don't already exist
-		if(serverConnection.getUser(req.getUsername()) == null) {
+		if(serverConnection.getUser(req.getUsername()) == null &&
+			// And that the user name does not exceed 30 characters
+				req.getUsername().length() <= 30) {
 			// TODO: Add check on username
 			// Get an id for the user
 			req.getRequestedUser().setId(serverConnection.getNextUserId());
 			// Notify the server of the new user
 			serverConnection.addUser(req.getRequestedUser(), req.getPassword());
-			// Set the request as aproved
+			// Set the request as approved
 			req.setIsAproved(true);
 		}
 		// Reply with an answer

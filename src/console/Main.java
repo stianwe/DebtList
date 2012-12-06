@@ -165,6 +165,10 @@ public class Main {
 		try {
 			// Find username and password
 			String username = command.split(" ")[2], password = command.split(" ")[3];
+			if (username.length() > 30) {
+				System.out.println("User name cannot exceed 30 characters. Please try again.");
+				return;
+			}
 			Session.session.send(new CreateUserRequest(username, password).toXML());
 			try {
 				if(((CreateUserRequest) XMLSerializable.toObject(Session.session.receive())).isApproved()) System.out.println("User created.");
