@@ -21,8 +21,8 @@ public class DatabaseUnit {
 	public static final String DB_HOST_NAME = "mysql://invert.ed.ntnu.no";
 	public static final int DB_PORT = 3306;
 	public static final String DB_NAME = "DebtList";
-	public static final String DB_USERNAME = "root";
-	public static final String DB_PASSWORD = "qazqaz";
+	public static final String DB_USERNAME = "SENSURED";
+	public static final String DB_PASSWORD = "SENSURED";
 	
 	// Database tables
 	public static final String TABLE_USER = "user";
