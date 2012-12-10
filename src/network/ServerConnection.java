@@ -32,6 +32,7 @@ public class ServerConnection {
 	private long nextDebtId, nextUserId, nextFriendRequestId;
 	private Timer timer;
 	private ServerSocket serverSocket = null;
+	private boolean shouldSave = true;
 
 	public ServerConnection(boolean readFromDatabase) {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
@@ -56,14 +57,16 @@ public class ServerConnection {
 
 					@Override
 					public void run() {
-						try {
-							saveAll();
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							System.out.println("Failed writing to database!");
-							e.printStackTrace();
-							writeToLog("Exception while writing to database:\n" + e.toString());
-						}
+						if(shouldSave) {
+							try {
+								saveAll();
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								System.out.println("Failed writing to database!");
+								e.printStackTrace();
+								writeToLog("Exception while writing to database:\n" + e.toString());
+							}
+						} else System.out.println("Not writing to database. Saving is disabled.");
 						// Also check if we should disconnect any inactive users
 						for (ServerConnectionHandler h : handlers) {
 							if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
@@ -109,6 +112,10 @@ public class ServerConnection {
 							disconnectUsers();
 						} else if(command.equals("ls connections")) {
 							listConnections();
+						} else if(command.equals("disable saving")) {
+							shouldSave = false;
+						} else if(command.equals("enable saving")) {
+							shouldSave = true;
 						} else {
 							System.out.println("Unknown command.");
 						}
@@ -143,6 +150,7 @@ public class ServerConnection {
 				System.out.println(h.getUser().getUsername() + ": " + h.getUserIp());
 			}
 		}
+		if(handlers.isEmpty()) System.out.println("None");
 	}
 	
 	public synchronized void disconnectUsers() {

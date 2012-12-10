@@ -128,6 +128,8 @@ public class ServerConnectionHandler extends Thread {
 			this.getUser().setIsOnline(false);
 		}
 		running = false;
+		// Remove ourself from the handler list
+		serverConnection.removeConnectionHandler(this);
 	}
 	
 	public void processUpdate() {

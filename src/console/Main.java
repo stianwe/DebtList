@@ -45,8 +45,6 @@ public class Main {
 		print("Killing updater..");
 		if(updater.stopUpdater()) print("Successfully stopped the updater.");
 		else print("Failed to stop the updater!");
-		if(updater.stopUpdater()) print("Successfully stopped the updater.");
-		else print("Failed to stop the updater!");
 		System.out.println("Bye!");
 	}
 	
