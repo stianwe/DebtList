@@ -6,13 +6,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.sessionX.AndroidSession;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class LoginActivity extends Activity {
 
-//	public static String EXTRA_USERNAME = "DebtListAndroid.android.debtlistandroid.USERNAME", EXTRA_PASSWORD = "DebtListAndroid.android.debtlistandroid.PASSWORD";
+	private View loginErrorTextView = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,9 @@ public class LoginActivity extends Activity {
 		// Start the session
 		new AndroidSession().init();
 		Session.session.connect("invert.ed.ntnu.no", 13337);
+		
+		loginErrorTextView = findViewById(R.id.loginerrortext);
+		
 	}
 
 	@Override
@@ -49,6 +54,13 @@ public class LoginActivity extends Activity {
 				case UNHANDLED:
 					break;
 				case WRONG_INFORMATION:
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							loginErrorTextView.setVisibility(View.VISIBLE);
+						}
+					});
+					Log.d("ARNE", "WRONG INFO");
 					break;
 				default:
 					break;

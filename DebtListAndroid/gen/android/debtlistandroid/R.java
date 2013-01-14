@@ -14,11 +14,17 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int bottomtext=0x7f070001;
-        public static final int edit_password=0x7f070003;
-        public static final int edit_username=0x7f070002;
-        public static final int menu_settings=0x7f070004;
-        public static final int toptext=0x7f070000;
+        public static final int bottomtext=0x7f070002;
+        public static final int button_accept=0x7f070005;
+        public static final int button_complete=0x7f070004;
+        public static final int button_decline=0x7f070006;
+        public static final int commenttext=0x7f070003;
+        public static final int edit_password=0x7f070008;
+        public static final int edit_username=0x7f070007;
+        public static final int loginerrortext=0x7f070009;
+        public static final int menu_settings=0x7f07000a;
+        public static final int separator=0x7f070000;
+        public static final int toptext=0x7f070001;
     }
     public static final class layout {
         public static final int activity_debt_view=0x7f030000;
@@ -30,11 +36,15 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f040000;
+        public static final int button_accept=0x7f040006;
+        public static final int button_complete=0x7f040005;
+        public static final int button_decline=0x7f040007;
         public static final int button_login=0x7f040004;
         public static final int edit_password=0x7f040003;
         public static final int edit_username=0x7f040002;
+        public static final int login_error_message=0x7f040009;
         public static final int menu_settings=0x7f040001;
-        public static final int title_activity_debt_view=0x7f040005;
+        public static final int title_activity_debt_view=0x7f040008;
     }
     public static final class style {
         /** 

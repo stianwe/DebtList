@@ -8,6 +8,7 @@ import session.Session;
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.ListActivity;
@@ -21,6 +22,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class DebtViewActivity extends ListActivity {
@@ -37,7 +39,15 @@ public class DebtViewActivity extends ListActivity {
 		Session.session.getUser().addConfirmedDebt(new Debt(4, 12.0, "pokes", Session.session.getUser(), new User("Arne"), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
 		Session.session.getUser().addConfirmedDebt(new Debt(5, 3, "Banana", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
 		Session.session.getUser().addConfirmedDebt(new Debt(6, 20, "kr", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
-		adapter = new DebtAdapter(this, Session.session.getUser().getConfirmedDebts());
+		Session.session.getUser().addPendingDebt(new Debt(7, 3, "kr", new User("Arne"), Session.session.getUser(), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
+		Session.session.getUser().addPendingDebt(new Debt(8, 3, "kr", Session.session.getUser(), new User("Arne"), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
+		List<List<Debt>> debts = new ArrayList<List<Debt>>();
+		debts.add(Session.session.getUser().getConfirmedDebts());
+		debts.add(Session.session.getUser().getPendingDebts());
+		List<String> separators = new ArrayList<String>();
+		separators.add("Confirmed debts");
+		separators.add("Pending debts");
+		adapter = new DebtAdapter(this, debts, separators, constructNullList(debts.get(0).size() + debts.get(1).size()));
 		setListAdapter(adapter);
 	}
 
@@ -49,32 +59,103 @@ public class DebtViewActivity extends ListActivity {
 //	}
 
 	
+	private static List<Debt> constructNullList(int size) {
+		List<Debt> list = new ArrayList<Debt>();
+		for (int i = 0; i < size; i++) {
+			list.add(null);
+		}
+		return list;
+	}
+	
 	class DebtAdapter extends ArrayAdapter<Debt> {
 
-		private List<Debt> debts;
+		private List<List<Debt>> debtLists;
 		private Context context;
+		private List<String> separatorTexts;
+		private View lastExpandedView = null;
 		
-		public DebtAdapter(Context context, List<Debt> debts) {
-			super(context, R.layout.activity_debt_view, debts);
+		public DebtAdapter(Context context, List<List<Debt>> debtLists, List<String> separatorTexts, List<Debt> nullList) {
+			super(context, R.layout.activity_debt_view, nullList);
 			this.context = context;
-			// Encapsulate the list properly
-			this.debts = new ArrayList<Debt>();
-			for (Debt d : debts) {
-				this.debts.add(d);
-			}
+			this.separatorTexts = separatorTexts;
+			this.debtLists = debtLists;
 		}
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Debt d = debts.get(position);
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View view = inflater.inflate(R.layout.activity_debt_view, null);
+			final View view = inflater.inflate(R.layout.activity_debt_view, null);
+			TextView sep = (TextView) view.findViewById(R.id.separator);
+			// Find the corresponding debt
+			Debt d = null;
+			int count = 0; // The number of debts 'before' the current list
+			int listIndex = -1;
+			for (int i = 0; i < debtLists.size(); i++) {
+				List<Debt> ds = debtLists.get(i);
+				if(position >= ds.size() + count) {
+					count += ds.size();
+				} else {
+					d = ds.get(position - count);
+					listIndex = i;
+					break;
+				}
+			}
+			if (position == count) {
+				// Add separator if on top of list
+				sep.setVisibility(View.VISIBLE);
+				sep.setText(separatorTexts.get(listIndex));
+				sep.setBackgroundColor(Color.BLACK);
+				sep.setTextColor(Color.WHITE);
+			} else {
+				// Else remove the space
+				sep.setHeight(0);
+			}
+			// Fix debt text
 			TextView topTextView = (TextView) view.findViewById(R.id.toptext);
 			TextView bottomTextView = (TextView) view.findViewById(R.id.bottomtext);
 			topTextView.setText(d.getAmount() + " " + d.getWhat());
 			bottomTextView.setText((d.getFrom().equals(Session.session.getUser()) ? d.getTo() : d.getFrom()).getUsername());
+			TextView comment = (TextView) view.findViewById(R.id.commenttext);
+			comment.setText(d.getComment());
+			// Collapse this view
+			collapse(view);
+			// Set the background color
 			view.setBackgroundColor((d.getFrom().equals(Session.session.getUser()) ? Color.rgb(204, 0, 0) : Color.rgb(0, 204, 102)));
+			final View v = view;
+			final boolean isConfirmed = listIndex == 0;
+			view.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(lastExpandedView == view) {
+						collapse(lastExpandedView);
+						lastExpandedView = null;
+						return;
+					}
+					if(lastExpandedView != null) {
+						collapse(lastExpandedView);
+					}
+					expand(v, isConfirmed);
+					lastExpandedView = v;
+				}
+			});
 			return view;
+		}
+		
+		public void expand(View view, boolean isConfirmed) {
+			((TextView) view.findViewById(R.id.commenttext)).setVisibility(View.VISIBLE);
+			if(isConfirmed) {
+				((Button) view.findViewById(R.id.button_complete)).setVisibility(View.VISIBLE);
+			} else {
+				((Button) view.findViewById(R.id.button_accept)).setVisibility(View.VISIBLE);
+				((Button) view.findViewById(R.id.button_decline)).setVisibility(View.VISIBLE);
+			}
+		}
+		
+		public void collapse(View view) {
+			((TextView) view.findViewById(R.id.commenttext)).setVisibility(View.GONE);
+			((Button) view.findViewById(R.id.button_accept)).setVisibility(View.GONE);
+			((Button) view.findViewById(R.id.button_complete)).setVisibility(View.GONE);
+			((Button) view.findViewById(R.id.button_decline)).setVisibility(View.GONE);
 		}
 		
 	}

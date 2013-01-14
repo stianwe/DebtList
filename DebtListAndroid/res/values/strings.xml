@@ -6,6 +6,10 @@
     <string name="edit_username">User name</string>
     <string name="edit_password">Password</string>
     <string name="button_login">Log in</string>
-    <string name="title_activity_debt_view">Debts</string>
+    <string name="button_complete">Complete</string>
+    <string name="button_accept">Accept</string>
+    <string name="button_decline">Decline</string>
+    <string name="title_activity_debt_view">DebtList</string>
+    <string name="login_error_message">Incorrect login info</string>
 
 </resources>
