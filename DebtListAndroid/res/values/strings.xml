@@ -6,5 +6,6 @@
     <string name="edit_username">User name</string>
     <string name="edit_password">Password</string>
     <string name="button_login">Log in</string>
+    <string name="title_activity_debt_view">Debts</string>
 
 </resources>
