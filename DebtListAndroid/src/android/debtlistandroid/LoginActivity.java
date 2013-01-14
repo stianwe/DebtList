@@ -3,6 +3,7 @@ package android.debtlistandroid;
 import session.Session;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.sessionX.AndroidSession;
 import android.view.Menu;
@@ -34,10 +35,14 @@ public class LoginActivity extends Activity {
 	}
 
 	public void login(View v) {
+		final Activity dis = this;
 		new Thread() {
 			public void run() {
 				switch(Session.session.logIn(((EditText) findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString())) {
 				case ACCEPTED:
+					// Start the DebtViewActivity
+					Intent intent = new Intent(dis, DebtViewActivity.class);
+					startActivity(intent);
 					break;
 				case ALREADY_LOGGED_ON:
 					break;
