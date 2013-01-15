@@ -3,6 +3,8 @@ package android.debtlistandroid;
 import java.util.ArrayList;
 import java.util.List;
 
+import console.Main;
+
 import session.Session;
 
 import logic.Debt;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 public class DebtViewActivity extends ListActivity {
 
 	private DebtAdapter adapter;
+	private Debt selectedDebt = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +61,26 @@ public class DebtViewActivity extends ListActivity {
 //		return true;
 //	}
 
+	public void complete_debt(View v) {
+		Log.d("ARNE", "COMPLETE DEBT: " + selectedDebt.toString());
+		Main.processAcceptDeclineCompleteDebt("complete debt " + selectedDebt.getId());
+	}
 	
+	public void accept_debt(View v) {
+		Log.d("ARNE", "ACCEPT DEBT: " + selectedDebt.toString());
+		Main.processAcceptDeclineCompleteDebt("accept debt " + selectedDebt.getId());
+	}
+	
+	public void decline_debt(View v) {
+		Log.d("ARNE", "DECLINE DEBT: " + selectedDebt.toString());
+		Main.processAcceptDeclineCompleteDebt("decline debt " + selectedDebt.getId());
+	}
+	
+	/**
+	 * Constructs and returns a list filled with nulls.
+	 * @param size	The size of the list (number of nulls to put in it)
+	 * @return		The list containing the nulls
+	 */
 	private static List<Debt> constructNullList(int size) {
 		List<Debt> list = new ArrayList<Debt>();
 		for (int i = 0; i < size; i++) {
@@ -121,8 +143,9 @@ public class DebtViewActivity extends ListActivity {
 			collapse(view);
 			// Set the background color
 			view.setBackgroundColor((d.getFrom().equals(Session.session.getUser()) ? Color.rgb(204, 0, 0) : Color.rgb(0, 204, 102)));
-			final View v = view;
+			// Expand on click
 			final boolean isConfirmed = listIndex == 0;
+			final Debt debt = d;
 			view.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -136,6 +159,7 @@ public class DebtViewActivity extends ListActivity {
 					}
 					expand(v, isConfirmed);
 					lastExpandedView = v;
+					selectedDebt = debt;
 				}
 			});
 			return view;
