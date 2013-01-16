@@ -265,7 +265,7 @@ public class ServerConnection {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 //			e.printStackTrace();
-//			writeToLog("Failed to accept incomming connection: " + e.toString());
+			writeToLog("Failed to accept incomming connection on port "+ port + ": " + e.toString());
 			System.out.println("Server socket closed.");
 		} finally {
 			try {
@@ -325,6 +325,6 @@ public class ServerConnection {
 		}
 
 		// Accept connections on port 13337
-		server.accept(13337);
+		server.accept(Constants.STANDARD_SERVER_PORT);
 	}
 }
