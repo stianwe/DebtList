@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import network.Constants;
+
 import requests.CreateUserRequest;
 import requests.xml.XMLSerializable;
 import session.Session;
@@ -63,7 +65,7 @@ public class CreateUserPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				if(!usernameField.getText().equals("") && !passwordField1.getText().equals("") && passwordField1.getText().equals(passwordField2.getText())) {
-					Session.session.connect("localhost", 13337);
+					Session.session.connect(Constants.SERVER_ADDRESS, Constants.STANDARD_SERVER_PORT);
 					Session.session.send(new CreateUserRequest(usernameField.getText(), passwordField1.getText()).toXML());
 					try {
 						CreateUserRequest cur = (CreateUserRequest) XMLSerializable.toObject(Session.session.receive());
