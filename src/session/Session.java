@@ -1,4 +1,6 @@
 package session;
+import gui.LogInPanel;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +41,7 @@ public class Session {
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-//		currentPanel = new LogInPanel(); 
+		currentPanel = new LogInPanel(); 
 		frame.add(currentPanel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);

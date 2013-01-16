@@ -66,6 +66,7 @@ public class Main {
 		if(command.equals("exit")) return true;
 		else if(command.equals("debug start")) debug = true;
 		else if(command.equals("debug stop")) debug = false;
+		else if(command.equals("start gui")) Session.session.startGUI();
 		else {
 			// Commands that only are accessible when the user is NOT logged in
 			if(!Session.session.isLoggedIn()) {

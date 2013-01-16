@@ -11,9 +11,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import network.Constants;
+
 import session.Session;
 
-public class LogInPanelz extends JPanel {
+public class LogInPanel extends JPanel {
 
 	private GridBagConstraints c;
 	private JTextField usernameField, passwordField;
@@ -58,17 +60,12 @@ public class LogInPanelz extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			// TODO Auto-generated method stub
-			// ARNE
-			// con.connect("192.168.1.7", 13337);
-			// LOCAL
 			if(event.getSource() != registerButton) {
-				Session.session.connect("localhost", 13337);
-				int updatePort = 13338;
+				Session.session.connect(Constants.SERVER_ADDRESS, Constants.STANDARD_SERVER_PORT);
 //				Session.session.send(new LogInRequest(usernameField.getText(), passwordField.getText()).toXml());
 //				LogInRequest resp = (LogInRequest)XMLParsable.toObject(Session.session.receive());
 //				switch(resp.getStatus()) {
-				switch(Session.session.logIn(usernameField.getText(), passwordField.getText(), updatePort)) {
+				switch(Session.session.logIn(usernameField.getText(), passwordField.getText())) {
 				case UNHANDLED:
 					System.out.println("LogInRequest was not handled by the server! Something is probably wrong with the connection!");
 					break;
