@@ -103,10 +103,13 @@ public class ServerConnectionHandler extends Thread {
 					// TODO: Send error message to user?
 					if(this.user == null || !this.user.isOnline()) continue;
 					if(o instanceof Debt) {
+						System.out.println("Received debt..");
 						processDebt((Debt) o);
 					} else if(o instanceof FriendRequest) {
+						System.out.println("Received friend request..");
 						processFriendRequest((FriendRequest) o);
 					} else if(o instanceof UpdateRequest) {
+						System.out.println("Received update request..");
 						processUpdate();
 					} else {
 						System.out.println("Received something unknown!");
@@ -304,17 +307,21 @@ public class ServerConnectionHandler extends Thread {
 	public void processDebt(Debt d) {
 		switch(d.getStatus()) {
 		case REQUESTED:
+			System.out.println("REQUESTED");
 			processRequestedDebt(d);
 			break;
 		case CONFIRMED:
 		case DECLINED:
+			System.out.println("CONFIRMED/DECLINED");
 			processConfirmedDeclinedDebt(d);
 			break;
 		case COMPLETED_BY_FROM:
 		case COMPLETED_BY_TO:
+			System.out.println("COMPLETE BY FROM/TO");
 			processCompletedDebt(d);
 			break;
 		case COMPLETED:
+			System.out.println("COMPLETED BY BOTH!!");
 			// TODO: Do we need to process this? No!
 			break;
 		}
