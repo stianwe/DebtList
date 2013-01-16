@@ -250,7 +250,7 @@ public class ServerConnection {
 	 */
 	public synchronized ServerConnectionHandler getHandler(String username) {
 		for (ServerConnectionHandler h : handlers) {
-			if(h.getUser().getUsername().equals(username)) return h;
+			if(h.getUser() != null && h.getUser().getUsername().equals(username)) return h;
 		}
 		return null;
 	}
