@@ -68,10 +68,13 @@ public class ServerConnection {
 							}
 						} else System.out.println("Not writing to database. Saving is disabled.");
 						// Also check if we should disconnect any inactive users
-						for (ServerConnectionHandler h : handlers) {
-							if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
-								System.out.println("Attempting to close connection");
-								h.close();
+						// Lock the list
+						synchronized (this) {
+							for (ServerConnectionHandler h : handlers) {
+								if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
+									System.out.println("Attempting to close connection");
+									h.close();
+								}
 							}
 						}
 					}
