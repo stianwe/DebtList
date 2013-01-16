@@ -39,12 +39,13 @@ public class DebtViewActivity extends ListActivity {
 		
 		// Set up list view
 		// Add some example debts
-		Session.session.getUser().addConfirmedDebt(new Debt(4, 12.0, "pokes", Session.session.getUser(), new User("Arne"), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
-		Session.session.getUser().addConfirmedDebt(new Debt(5, 3, "Banana", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
-		Session.session.getUser().addConfirmedDebt(new Debt(6, 20, "kr", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
-		Session.session.getUser().addPendingDebt(new Debt(7, 3, "kr", new User("Arne"), Session.session.getUser(), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
-		Session.session.getUser().addPendingDebt(new Debt(8, 3, "kr", Session.session.getUser(), new User("Arne"), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
+//		Session.session.getUser().addConfirmedDebt(new Debt(4, 12.0, "pokes", Session.session.getUser(), new User("Arne"), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
+//		Session.session.getUser().addConfirmedDebt(new Debt(5, 3, "Banana", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
+//		Session.session.getUser().addConfirmedDebt(new Debt(6, 20, "kr", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
+//		Session.session.getUser().addPendingDebt(new Debt(7, 3, "kr", new User("Arne"), Session.session.getUser(), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
+//		Session.session.getUser().addPendingDebt(new Debt(8, 3, "kr", Session.session.getUser(), new User("Arne"), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
 		List<List<Debt>> debts = new ArrayList<List<Debt>>();
+		// Check if we have any debts at all
 		debts.add(Session.session.getUser().getConfirmedDebts());
 		debts.add(Session.session.getUser().getPendingDebts());
 		List<String> separators = new ArrayList<String>();
@@ -63,17 +64,19 @@ public class DebtViewActivity extends ListActivity {
 
 	public void complete_debt(View v) {
 		Log.d("ARNE", "COMPLETE DEBT: " + selectedDebt.toString());
-		Main.processAcceptDeclineCompleteDebt("complete debt " + selectedDebt.getId());
+		Main.processCommand("complete debt " + selectedDebt.getId());
 	}
 	
 	public void accept_debt(View v) {
 		Log.d("ARNE", "ACCEPT DEBT: " + selectedDebt.toString());
-		Main.processAcceptDeclineCompleteDebt("accept debt " + selectedDebt.getId());
+		String command = "accept debt " + selectedDebt.getId();
+		Main.processCommand(command);
+		Log.d("Arne", "Command: " + command);
 	}
 	
 	public void decline_debt(View v) {
 		Log.d("ARNE", "DECLINE DEBT: " + selectedDebt.toString());
-		Main.processAcceptDeclineCompleteDebt("decline debt " + selectedDebt.getId());
+		Main.processCommand("decline debt " + selectedDebt.getId());
 	}
 	
 	/**

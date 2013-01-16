@@ -347,6 +347,7 @@ public class Main {
 			}
 		} catch (Exception e) {
 			printSyntaxErrorMessage("<accept/decline/complete> debt <ID>");
+			System.out.println("Error: " + e);
 		}
 	}
 	

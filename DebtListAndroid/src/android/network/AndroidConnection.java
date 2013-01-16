@@ -17,11 +17,34 @@ public class AndroidConnection {
 		this.port = port;
 	}
 	
+	/**
+	 * Runs the given runnable on a new separate thread
+	 * @param run	The code to run
+	 */
+	public static void runOnSeparateThread(Runnable run) {
+		new Thread(run).start();
+	}
+	
 	private ClientConnection connect() throws IOException {
 		ClientConnection con = new ClientConnection();
 		con.connect(host, port);
 		if(!con.isConnected()) throw new IOException("Could not connect to " + host + ":" + port);
 		return con;
+	}
+	
+	private class ThreadX extends Thread {
+		public String toBeReturned;
+		public IOException ex = null;
+		private boolean shouldSleep;
+		
+		public synchronized void setShouldSleep(boolean shouldSleep) {
+			this.shouldSleep = shouldSleep;
+		}
+		
+		public synchronized boolean shouldSleep() {
+			return shouldSleep;
+		}
+		
 	}
 	
 	/**
@@ -34,20 +57,83 @@ public class AndroidConnection {
 	 * @throws IOException	If the connection could not be established
 	 */
 	public String send(String msg, boolean shouldReceive) throws IOException {
-		ClientConnection con = connect();
-		con.send(msg);
-		String rec = null;
-		if(shouldReceive) {
-			rec = con.receive();
+		final String message = msg;
+		final boolean sr = shouldReceive;
+		ThreadX x = new ThreadX() {
+			@Override
+			public void run() {
+				try {
+					System.out.println("Connecting..");
+					ClientConnection con = connect();
+					if(message != null) {
+						System.out.println("Sending message: " + message);
+						con.send(message);
+					} else {
+						System.out.println("Won't send, only receive!");
+					}
+					if(sr) {
+						System.out.println("Waiting for response..");
+						toBeReturned = con.receive();
+						synchronized (this) {
+							setShouldSleep(false);
+							System.out.println("Trying to wake up sleeping thread..");
+							notifyAll();
+						}
+						System.out.println("Response received: " + toBeReturned);
+					} else {
+						System.out.println("Should not receive response!");
+					}
+					con.close();
+				} catch (IOException e) {
+					ex = e;
+				}
+			}
+		};
+		x.shouldSleep = shouldReceive;
+		x.start();
+		if(x.shouldSleep()) {
+			try {
+				System.out.println("Going to sleep..");
+				synchronized (x) {
+					x.wait();
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				System.out.println("Woke up!" + e);
+			}
+		} else {
+			System.out.println("Won't sleep!");
 		}
-		con.close();
-		return rec;
+		if(x.ex != null) {
+			System.out.println("Exception: " + x.ex);
+			throw x.ex;
+		} else {
+			System.out.println("No exception!");
+		}
+		System.out.println("Stopped waiting!");
+		System.out.println("Returning: " + x.toBeReturned);
+		return x.toBeReturned;
 	}
 	
 	public String receive() throws IOException{
-		ClientConnection con = connect();
-		String rec = con.receive();
-		con.close();
-		return rec;
+		return send(null, true);
+//		throw new RuntimeException("AndroidConnection.receive is not yet supported!");
+//		ThreadX x = new ThreadX() {
+//			@Override
+//			public void run() {
+//				try {
+//					ClientConnection con = connect();
+//					toBeReturned = con.receive();
+//					con.close();
+//				} catch(IOException e) {
+//					ex = e;
+//				}
+//			}
+//		};
+//		x.start();
+//		if(x.ex != null) {
+//			throw x.ex;
+//		}
+//		return x.toBeReturned;
 	}
 }

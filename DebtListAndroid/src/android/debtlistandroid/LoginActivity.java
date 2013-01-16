@@ -1,5 +1,6 @@
 package android.debtlistandroid;
 
+import network.Constants;
 import session.Session;
 
 import android.app.Activity;
@@ -26,10 +27,9 @@ public class LoginActivity extends Activity {
 		
 		// Start the session
 		new AndroidSession().init();
-		Session.session.connect("invert.ed.ntnu.no", 13337);
+		Session.session.connect(Constants.SERVER_ADDRESS, Constants.STANDARD_SERVER_PORT);
 		
 		loginErrorTextView = findViewById(R.id.loginerrortext);
-		
 	}
 
 	@Override
@@ -60,7 +60,6 @@ public class LoginActivity extends Activity {
 							loginErrorTextView.setVisibility(View.VISIBLE);
 						}
 					});
-					Log.d("ARNE", "WRONG INFO");
 					break;
 				default:
 					break;
