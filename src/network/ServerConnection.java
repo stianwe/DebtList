@@ -248,7 +248,7 @@ public class ServerConnection {
 	 * @param username	The user's user name
 	 * @return			The user's ServerConnectionHandler
 	 */
-	public ServerConnectionHandler getHandler(String username) {
+	public synchronized ServerConnectionHandler getHandler(String username) {
 		for (ServerConnectionHandler h : handlers) {
 			if(h.getUser().getUsername().equals(username)) return h;
 		}
