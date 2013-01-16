@@ -70,12 +70,15 @@ public class ServerConnection {
 						// Also check if we should disconnect any inactive users
 						// Lock the list
 						synchronized (this) {
+							List<ServerConnectionHandler> toBeRemoved = new ArrayList<ServerConnectionHandler>();
 							for (ServerConnectionHandler h : handlers) {
 								if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
 									System.out.println("Attempting to close connection");
 									h.close();
+									toBeRemoved.add(h);
 								}
 							}
+							handlers.removeAll(toBeRemoved);
 						}
 					}
 				}, Constants.TIME_BETWEEN_WRITES_TO_DATABASE, Constants.TIME_BETWEEN_WRITES_TO_DATABASE);
