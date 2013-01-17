@@ -86,12 +86,46 @@ public class ServerConnectionHandler extends Thread {
 		while(running && (xml = receive()) != null) {
 			// Register the time of the command
 			// FIXME: This should be uncommented!
-//			updateTimeOfLastCommand();
+			updateTimeOfLastCommand();
 			System.out.println("Received XML: " + xml);
-			// Receive LogInRequest
 			try {
-				Object o = XMLSerializable.toObject(xml);
+				XMLSerializable o = XMLSerializable.toObject(xml);
 				System.out.println("Done parsing object!");
+				// Check if any token is attached
+				String token;
+				if((token = o.getSessionToken()) != null) {
+					System.out.println("Token detected! " + token);
+					// Check if this is our connection
+					ServerConnectionHandler handler = serverConnection.getTokenManager().getHandler(token);
+					if(handler == this) {
+						// Keep going and process the object
+					} else {
+						// If not, check if it has a handler
+						if(serverConnection.getTokenManager().getHandler(token) != null) {
+							// Give it the connection and received object
+							// FIXME!!!!
+							
+							// And terminate
+							die();
+							return;
+						} else {
+							// If it has no handler, we take it
+							// Make sure it gets all necessary updates
+							// FIXME!!!!!
+							
+							// Set the user
+							String username = serverConnection.getTokenManager().getUsername(token);
+							if(username == null) {
+								serverConnection.writeToLog("Something wrong happened while taking over a session! Username was null!");
+								die();
+								return;
+							}
+							user = serverConnection.getUser(username);
+							// And process the received object as normal
+						}
+					}
+				} // If not, we just handle it as normal
+				// Receive LogInRequest
 				if(o instanceof LogInRequest) {
 					processLoginRequest((LogInRequest) o);
 				} else if(o instanceof CreateUserRequest) {
@@ -119,6 +153,10 @@ public class ServerConnectionHandler extends Thread {
 				serverConnection.writeToLog("Failed to parse/process XML: " + e.toString());
 			}
 		}
+		die();
+	}
+	
+	private void die() {
 		System.out.println("Killing thread.");
 		// Check if user was online
 		if(this.getUser() != null) {

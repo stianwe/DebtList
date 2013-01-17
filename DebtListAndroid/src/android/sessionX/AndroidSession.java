@@ -9,6 +9,7 @@ import session.Session;
 public class AndroidSession extends Session {
 
 	private AndroidConnection connection;
+	private String sessionToken = null;
 	
 	public AndroidSession() {
 		init();
@@ -46,5 +47,13 @@ public class AndroidSession extends Session {
 	@Override
 	public String receive() throws IOException {
 		return connection.receive();
+	}
+	
+	public void setSessionToken(String token) {
+		this.sessionToken = token;
+	}
+	
+	public String getSessionToken() {
+		return sessionToken;
 	}
 }

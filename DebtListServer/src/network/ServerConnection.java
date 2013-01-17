@@ -18,6 +18,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import database.DatabaseUnit;
+import database.SessionTokenManager;
 
 import logic.User;
 import requests.xml.XMLSerializable;
@@ -33,11 +34,13 @@ public class ServerConnection {
 	private Timer timer;
 	private ServerSocket serverSocket = null;
 	private boolean shouldSave = true;
+	private SessionTokenManager tokenManager;
 
 	public ServerConnection(boolean readFromDatabase) {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
 		users = new HashMap<String, User>();
 		passwords = new HashMap<String, String>();
+		tokenManager = new SessionTokenManager();
 		nextDebtId = 1; nextUserId = 1; nextFriendRequestId = 1;
 		if(readFromDatabase) {
 			dbUnit = new DatabaseUnit();
@@ -160,6 +163,10 @@ public class ServerConnection {
 		}
 	}
 	
+	public synchronized SessionTokenManager getTokenManager() {
+		return tokenManager;
+	}
+	
 	public synchronized void writeToLog(String s) {
 		PrintWriter out = null;
 		try {
@@ -257,7 +264,7 @@ public class ServerConnection {
 	 */
 	public void accept(int port) {
 		try {
-			serverSocket = new ServerSocket(port);
+			serverSocket = createServerSocket(port);
 			while(true) {
 				System.out.println("Listening for incomming connections..");
 				new ServerConnectionHandler(serverSocket.accept(), this).start();
@@ -274,6 +281,10 @@ public class ServerConnection {
 		}
 	}
 
+	public ServerSocket createServerSocket(int port) throws IOException {
+		return new ServerSocket(port);
+	}
+	
 	/**
 	 * Returns the user with the given username, or null if no user is found.
 	 * @param username	The username
@@ -295,29 +306,9 @@ public class ServerConnection {
 
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection(true);
+		// Use the secure version
+//		ServerConnection server = new SecureServerConnection(true);
 
-		// START TEST DATA
-		//		User arne = new User(1, "arnegopro");
-		//		User stian = new User(2, "stian");
-		//		User test = new User(0, "test");
-		//		// All friends must also have a corresponding friend request to work with the database!
-		//		stian.addFriendRequest(new FriendRequest(stian.getUsername(), test, FriendRequestStatus.PENDING, 0));
-		//		stian.addFriendRequest(new FriendRequest(stian.getUsername(), arne, FriendRequestStatus.ACCEPTED, 1));
-		//		stian.addFriend(arne);
-		//		arne.addFriend(stian);
-		//		server.addUser(arne, "qazqaz");
-		//		server.addUser(stian, "asd");
-		//		server.addUser(test, "test");
-		//		Debt d1 = new Debt(0, 15, "kr", stian, arne, "Tralalala", stian, DebtStatus.CONFIRMED);
-		//		stian.addConfirmedDebt(d1);
-		//		arne.addConfirmedDebt(d1);
-		//		Debt d2 = new Debt(1, 7, "kr", arne, stian, "Tralalla2", arne, DebtStatus.REQUESTED);
-		//		stian.addPendingDebt(d2);
-		//		arne.addPendingDebt(d2);
-		//		server.nextDebtId = 2;
-		//		server.nextFriendRequestId =  2;
-		//		server.nextUserId = 3;
-		// END TEST DATA		
 		// Print loaded users on startup
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {

@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ *	An insecure client connection using the ordinary Java Socket
+ */
 public class ClientConnection {
 
 	private Socket connection;
@@ -21,7 +24,7 @@ public class ClientConnection {
 	public void connect(String host, int port) {
 		isConnected = false;
 		try {
-			connection = new Socket(host, port);
+			connection = createSocket(host, port);
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			writer = new PrintWriter(connection.getOutputStream(), true);
 			isConnected = true;
@@ -32,6 +35,10 @@ public class ClientConnection {
 				connection.close();
 			} catch (Exception ex) {}
 		}
+	}
+	
+	public Socket createSocket(String host, int port) throws IOException {
+		return new Socket(host, port);
 	}
 	
 	/**

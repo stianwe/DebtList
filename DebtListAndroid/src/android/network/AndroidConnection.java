@@ -2,6 +2,13 @@ package android.network;
 
 import java.io.IOException;
 
+import javax.net.ssl.SSLSocket;
+
+import android.sessionX.AndroidSession;
+
+import requests.xml.XMLSerializable;
+import session.Session;
+
 import network.ClientConnection;
 
 /**
@@ -62,12 +69,20 @@ public class AndroidConnection {
 		ThreadX x = new ThreadX() {
 			@Override
 			public void run() {
+				String xml = message;
 				try {
 					System.out.println("Connecting..");
 					ClientConnection con = connect();
-					if(message != null) {
-						System.out.println("Sending message: " + message);
-						con.send(message);
+					if(xml != null) {
+						// Attach the session token if present
+						if(Session.session instanceof AndroidSession && ((AndroidSession) Session.session).getSessionToken() != null) {
+							System.out.println("Attatching session token.");
+							XMLSerializable obj = XMLSerializable.toObject(xml);
+							obj.setSessionToken(((AndroidSession) Session.session).getSessionToken());
+							xml = obj.toXML();
+						}
+						System.out.println("Sending message: " + xml);
+						con.send(xml);
 					} else {
 						System.out.println("Won't send, only receive!");
 					}

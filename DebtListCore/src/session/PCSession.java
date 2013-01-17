@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import network.ClientConnection;
+import network.SecureClientConnection;
 
 /**
  * An implementation of Session which stays connected until closed

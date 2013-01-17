@@ -84,6 +84,24 @@ abstract public class XMLSerializable implements XMLConstants {
 	}
 	
 	/**
+	 * Set the session token for this object
+	 * 
+	 * @param token
+	 */
+	public void setSessionToken(String token) {
+		setVariable("session_token", token);
+	}
+	
+	/**
+	 * Returns the session token for this object
+	 * 
+	 * @return
+	 */
+	public String getSessionToken() {
+		return (String) getVariable("session_token");
+	}
+	
+	/**
 	 * Serialize the variables in the variable map to XML
 	 * 
 	 * @return
