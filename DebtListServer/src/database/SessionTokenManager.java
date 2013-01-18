@@ -8,7 +8,7 @@ import utils.PasswordHasher;
 import network.ServerConnectionHandler;
 
 /**
- *	A class that generates and keeps track of handlers, and their associated ServerConnectionHandlers 
+ *	A class that generates and keeps track of tokens, and their associated ServerConnectionHandlers 
  */
 public class SessionTokenManager {
 
@@ -17,6 +17,7 @@ public class SessionTokenManager {
 	
 	public SessionTokenManager() {
 		handlers = new HashMap<String, ServerConnectionHandler>();
+		usernames = new HashMap<String, String>();
 	}
 	
 	/**
@@ -26,9 +27,18 @@ public class SessionTokenManager {
 	 */
 	public String generateToken(ServerConnectionHandler handler) {
 		String token = PasswordHasher.hashPassword((System.currentTimeMillis() + (long) (Math.random() * 10000000)) + "");
+		registerToken(token, handler);
+		return token;
+	}
+	
+	/**
+	 * Registers the given token-handler pair
+	 * @param token
+	 * @param handler
+	 */
+	public void registerToken(String token, ServerConnectionHandler handler) {
 		handlers.put(token, handler);
 		usernames.put(token, handler.getUser().getUsername());
-		return token;
 	}
 	
 	/**
@@ -59,4 +69,6 @@ public class SessionTokenManager {
 	public ServerConnectionHandler remove(String token) {
 		return handlers.remove(token);
 	}
+	
+	
 }

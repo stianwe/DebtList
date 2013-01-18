@@ -10,6 +10,7 @@ import requests.xml.XMLSerializable;
 import session.Session;
 
 import network.ClientConnection;
+import network.Constants;
 
 /**
  * An implementation of Connection that closes after sending/receiving data
@@ -75,12 +76,16 @@ public class AndroidConnection {
 					ClientConnection con = connect();
 					if(xml != null) {
 						// Attach the session token if present
+						XMLSerializable obj = XMLSerializable.toObject(xml);
 						if(Session.session instanceof AndroidSession && ((AndroidSession) Session.session).getSessionToken() != null) {
 							System.out.println("Attatching session token.");
-							XMLSerializable obj = XMLSerializable.toObject(xml);
 							obj.setSessionToken(((AndroidSession) Session.session).getSessionToken());
-							xml = obj.toXML();
+						} else {
+							// If not.. Request one!
+							System.out.println("Requesting session token");
+							obj.setSessionToken(Constants.SESSION_TOKEN_REQUEST);
 						}
+						xml = obj.toXML();
 						System.out.println("Sending message: " + xml);
 						con.send(xml);
 					} else {
@@ -89,6 +94,21 @@ public class AndroidConnection {
 					if(sr) {
 						System.out.println("Waiting for response..");
 						toBeReturned = con.receive();
+						// Update our session token
+						String token = XMLSerializable.toObject(toBeReturned).getSessionToken();
+						if(token == null) {
+							System.out.println("Something wrong happened! No session token was received from the server.");
+						} else if(! (Session.session instanceof AndroidSession)) {
+							System.out.println("Something is wrong! You should definitely be using an AndroidSession..");
+						} else {
+							AndroidSession s = (AndroidSession) Session.session;
+							if(s.getSessionToken() == null) {
+								System.out.println("Received token: " + token);
+							} else {
+								System.out.println("Received new token without no reason.. Sure.. (Might happen if we sent a CreateUserRequest)");
+							}
+							s.setSessionToken(token);
+						}
 						synchronized (this) {
 							setShouldSleep(false);
 							System.out.println("Trying to wake up sleeping thread..");

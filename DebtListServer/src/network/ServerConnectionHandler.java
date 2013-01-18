@@ -98,18 +98,23 @@ public class ServerConnectionHandler extends Thread {
 				}
 				// Receive LogInRequest
 				if(o instanceof LogInRequest) {
+					System.out.println("Received login request!");
 					processLoginRequest((LogInRequest) o);
 				} else if(o instanceof CreateUserRequest) {
+					System.out.println("Received create user request!");
 					processCreateUserRequest((CreateUserRequest) o);
 				} else {
 					// Check that the connected user is logged in before processing any of these requests
 					// TODO: Send error message to user?
 					if(this.user == null || !this.user.isOnline()) continue;
 					if(o instanceof Debt) {
+						System.out.println("Received debt!");
 						processDebt((Debt) o);
 					} else if(o instanceof FriendRequest) {
+						System.out.println("Received friend request!");
 						processFriendRequest((FriendRequest) o);
 					} else if(o instanceof UpdateRequest) {
+						System.out.println("Received update request!");
 						processUpdate();
 					} else {
 						System.out.println("Received something unknown!");
@@ -133,25 +138,40 @@ public class ServerConnectionHandler extends Thread {
 	 * @return		Should continue
 	 */
 	private boolean processToken(String token) {
+		if(token.equals(Constants.SESSION_TOKEN_REQUEST))
+			return true;
 		if(token != null) {
 			System.out.println("Token detected! " + token);
 			// Check if this is our connection
 			ServerConnectionHandler handler = serverConnection.getTokenManager().getHandler(token);
 			if(handler == this) {
 				// Keep going and process the object
+				System.out.println("Token matched to handler!");
 			} else {
 				// If not, check if it has a handler
-				if(serverConnection.getTokenManager().getHandler(token) != null) {
-					// Give it the connection and received object
-					// FIXME!!!!
-					
-					// And terminate
-					return false;
+				if(handler != null) {
+					System.out.println("Hijacking user!");
+					// We hijack this user
+					// FIXME!!!! UNTESTED!
+					this.update = handler.getUpdate();
+					this.user = handler.getUser();
+					serverConnection.getTokenManager().remove(token);
+					serverConnection.getTokenManager().registerToken(token, this);
+					handler.die();
 				} else {
 					// If it has no handler, we take it
 					// Make sure it gets all necessary updates by just throwing in all relevant objects
 					// FIXME!!!!! UNTESTED!
+					System.out.println("User needs a new handler.");
 					// Add all debts
+					// Set the user
+					String username = serverConnection.getTokenManager().getUsername(token);
+					if(username == null) {
+						serverConnection.writeToLog("Something wrong happened while taking over a session! Username was null!");
+						return false;
+					}
+					user = serverConnection.getUser(username);
+					// And process the received object as normal
 					for (int i = 0; i < getUser().getNumberOfConfirmedDebts(); i++) {
 						update.add(getUser().getConfirmedDebt(i));
 					}
@@ -162,18 +182,14 @@ public class ServerConnectionHandler extends Thread {
 					for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
 						update.add(getUser().getFriendRequest(i));
 					}
-					// Set the user
-					String username = serverConnection.getTokenManager().getUsername(token);
-					if(username == null) {
-						serverConnection.writeToLog("Something wrong happened while taking over a session! Username was null!");
-						return false;
-					}
-					user = serverConnection.getUser(username);
-					// And process the received object as normal
 				}
 			}
 		} // If not, we just handle it as normal
 		return true;
+	}
+	
+	public UpdateRequest getUpdate() {
+		return update;
 	}
 	
 	private void die() {
@@ -334,11 +350,18 @@ public class ServerConnectionHandler extends Thread {
 			this.user = user;
 			req.setAccepted(true);
 			req.setStatus(LogInRequestStatus.ACCEPTED);
-			if(req.isAccepted()) {
-				System.out.println("Log in is set to accepted!");
-			}
 			// Load the user variables
 			req.setUser((User) user);
+			if(req.isAccepted()) {
+				System.out.println("Log in is set to accepted!");
+				// Assign session token if requested
+				if(req.getSessionToken() != null && req.getSessionToken().equals(Constants.SESSION_TOKEN_REQUEST)) {
+					System.out.println("Token request received.");
+					String token = serverConnection.getTokenManager().generateToken(this);
+					System.out.println("Token granted to " + user.getUsername() + ": " + token);
+					req.setSessionToken(token);
+				}
+			}
 		} else if(user != null && user.isOnline()){
 			req.setStatus(LogInRequestStatus.ALREADY_LOGGED_ON);
 			System.out.println("User already online.");
