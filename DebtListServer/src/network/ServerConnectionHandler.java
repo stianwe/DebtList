@@ -91,40 +91,11 @@ public class ServerConnectionHandler extends Thread {
 			try {
 				XMLSerializable o = XMLSerializable.toObject(xml);
 				System.out.println("Done parsing object!");
-				// Check if any token is attached
-				String token;
-				if((token = o.getSessionToken()) != null) {
-					System.out.println("Token detected! " + token);
-					// Check if this is our connection
-					ServerConnectionHandler handler = serverConnection.getTokenManager().getHandler(token);
-					if(handler == this) {
-						// Keep going and process the object
-					} else {
-						// If not, check if it has a handler
-						if(serverConnection.getTokenManager().getHandler(token) != null) {
-							// Give it the connection and received object
-							// FIXME!!!!
-							
-							// And terminate
-							die();
-							return;
-						} else {
-							// If it has no handler, we take it
-							// Make sure it gets all necessary updates
-							// FIXME!!!!!
-							
-							// Set the user
-							String username = serverConnection.getTokenManager().getUsername(token);
-							if(username == null) {
-								serverConnection.writeToLog("Something wrong happened while taking over a session! Username was null!");
-								die();
-								return;
-							}
-							user = serverConnection.getUser(username);
-							// And process the received object as normal
-						}
-					}
-				} // If not, we just handle it as normal
+				// Process token if any is attached
+				if(!processToken(o.getSessionToken())) { 
+					die();
+					return;
+				}
 				// Receive LogInRequest
 				if(o instanceof LogInRequest) {
 					processLoginRequest((LogInRequest) o);
@@ -154,6 +125,55 @@ public class ServerConnectionHandler extends Thread {
 			}
 		}
 		die();
+	}
+	
+	/**
+	 * 
+	 * @param token
+	 * @return		Should continue
+	 */
+	private boolean processToken(String token) {
+		if(token != null) {
+			System.out.println("Token detected! " + token);
+			// Check if this is our connection
+			ServerConnectionHandler handler = serverConnection.getTokenManager().getHandler(token);
+			if(handler == this) {
+				// Keep going and process the object
+			} else {
+				// If not, check if it has a handler
+				if(serverConnection.getTokenManager().getHandler(token) != null) {
+					// Give it the connection and received object
+					// FIXME!!!!
+					
+					// And terminate
+					return false;
+				} else {
+					// If it has no handler, we take it
+					// Make sure it gets all necessary updates by just throwing in all relevant objects
+					// FIXME!!!!! UNTESTED!
+					// Add all debts
+					for (int i = 0; i < getUser().getNumberOfConfirmedDebts(); i++) {
+						update.add(getUser().getConfirmedDebt(i));
+					}
+					for (int i = 0; i < getUser().getNumberOfPendingDebts(); i++) {
+						update.add(getUser().getPendingDebt(i));
+					}
+					// Add all friend requests
+					for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
+						update.add(getUser().getFriendRequest(i));
+					}
+					// Set the user
+					String username = serverConnection.getTokenManager().getUsername(token);
+					if(username == null) {
+						serverConnection.writeToLog("Something wrong happened while taking over a session! Username was null!");
+						return false;
+					}
+					user = serverConnection.getUser(username);
+					// And process the received object as normal
+				}
+			}
+		} // If not, we just handle it as normal
+		return true;
 	}
 	
 	private void die() {
@@ -309,8 +329,6 @@ public class ServerConnectionHandler extends Thread {
 		if(user != null && user.getUsername().equals(req.getUserName()) 
 				&& serverConnection.checkPassword(user, req.getPassword()) 
 				&& !user.isOnline()) {
-			
-			// TODO: Add all the user's variables before sending the response back!
 			System.out.println("Log in OK!");
 			user.setIsOnline(true);
 			this.user = user;

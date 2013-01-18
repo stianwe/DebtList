@@ -143,7 +143,7 @@ public abstract class Session {
 					return;
 				}
 			}
-			// Should probably add the debt in one of the lists if the method reaches this far?
+			// Should probably add the debt in one of the lists if the method reaches this far(?)
 			if(d.isConfirmed()) user.addConfirmedDebt(d);
 			else user.addPendingDebt(d);
 		} else if(o instanceof FriendRequest) {
@@ -153,11 +153,19 @@ public abstract class Session {
 				// TODO: Notify user (or?)
 				break;
 			case ACCEPTED:
-				// Someone accepted our friend request, add him/her as friend
+				// Someone accepted our friend request, add him/her as friend (if not already)
+				for (int i = 0; i < getUser().getNumberOfFriends(); i++) {
+					if(getUser().getFriend(i).getUsername().equals(req.getFriendUsername()))
+						return;
+				}
 				getUser().addFriend(new User(req.getFriendUsername()));
 				break;
 			case PENDING:
-				// We received a new friend request, add it
+				// We received a new friend request, add it (if not already existing
+				for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
+					if(getUser().getFriendRequest(i).getId() == req.getId())
+						return;
+				}
 				getUser().addFriendRequest(req);
 				break;
 			}
