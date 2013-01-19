@@ -93,7 +93,8 @@ public class ServerConnectionHandler extends Thread {
 				System.out.println("Done parsing object!");
 				// Process token if any is attached
 				if(!processToken(o.getSessionToken())) { 
-					die();
+					die(false);
+					System.out.println("Should not happen..");
 					return;
 				}
 				// Receive LogInRequest
@@ -106,7 +107,10 @@ public class ServerConnectionHandler extends Thread {
 				} else {
 					// Check that the connected user is logged in before processing any of these requests
 					// TODO: Send error message to user?
-					if(this.user == null || !this.user.isOnline()) continue;
+					if(this.user == null || !this.user.isOnline()) {
+						System.out.println("User not logged in. Not processing message!");
+						continue;
+					}
 					if(o instanceof Debt) {
 						System.out.println("Received debt!");
 						processDebt((Debt) o);
@@ -129,7 +133,7 @@ public class ServerConnectionHandler extends Thread {
 				serverConnection.writeToLog("Failed to parse/process XML: " + e.toString());
 			}
 		}
-		die();
+		die(true);
 	}
 	
 	/**
@@ -138,30 +142,34 @@ public class ServerConnectionHandler extends Thread {
 	 * @return		Should continue
 	 */
 	private boolean processToken(String token) {
-		if(token.equals(Constants.SESSION_TOKEN_REQUEST))
-			return true;
 		if(token != null) {
+			if(token.equals(Constants.SESSION_TOKEN_REQUEST))
+				return true;
 			System.out.println("Token detected! " + token);
 			// Check if this is our connection
 			ServerConnectionHandler handler = serverConnection.getTokenManager().getHandler(token);
 			if(handler == this) {
 				// Keep going and process the object
-				System.out.println("Token matched to handler!");
+				System.out.println("Token matched to handler! This should probably never happen..");
 			} else {
 				// If not, check if it has a handler
 				if(handler != null) {
-					System.out.println("Hijacking user!");
 					// We hijack this user
 					// FIXME!!!! UNTESTED!
 					this.update = handler.getUpdate();
 					this.user = handler.getUser();
+					this.user.setIsOnline(true);
+					System.out.println("Hijacking user: " + (this.user != null ? this.user.getUsername() : "null")+ "!");
 					serverConnection.getTokenManager().remove(token);
 					serverConnection.getTokenManager().registerToken(token, this);
-					handler.die();
+					System.out.println("Killing old handler.");
+					handler.die(false);
+					return true;
 				} else {
 					// If it has no handler, we take it
 					// Make sure it gets all necessary updates by just throwing in all relevant objects
 					// FIXME!!!!! UNTESTED!
+					// FIXME!! Should we really just take it, if it has no handler?
 					System.out.println("User needs a new handler.");
 					// Add all debts
 					// Set the user
@@ -182,6 +190,7 @@ public class ServerConnectionHandler extends Thread {
 					for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
 						update.add(getUser().getFriendRequest(i));
 					}
+					return true;
 				}
 			}
 		} // If not, we just handle it as normal
@@ -192,12 +201,14 @@ public class ServerConnectionHandler extends Thread {
 		return update;
 	}
 	
-	private void die() {
+	private void die(boolean logOffUser) {
 		System.out.println("Killing thread.");
 		// Check if user was online
-		if(this.getUser() != null) {
-			// Then set it offline
-			this.getUser().setIsOnline(false);
+		if(logOffUser) { 
+			if(this.getUser() != null) {
+				// Then set it offline
+				this.getUser().setIsOnline(false);
+			}
 		}
 		running = false;
 		// Remove ourself from the handler list
@@ -581,6 +592,7 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	public void send(String msg) {
+		System.out.println("Sedning: " + msg);
 		writer.println(msg);
 	}
 	

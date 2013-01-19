@@ -65,6 +65,14 @@ public class AndroidConnection {
 	 * @throws IOException	If the connection could not be established
 	 */
 	public String send(String msg, boolean shouldReceive) throws IOException {
+		if(msg != null && shouldReceive)
+			System.out.println("Sending and receiveing!");
+		else if(msg != null && !shouldReceive)
+			System.out.println("Sending without receiving!");
+		else if(msg == null && shouldReceive)
+			System.out.println("Not sending, but receiving!");
+		else
+			System.out.println("Not sending and not receiving. Should not happen!");
 		final String message = msg;
 		final boolean sr = shouldReceive;
 		ThreadX x = new ThreadX() {
@@ -94,6 +102,7 @@ public class AndroidConnection {
 					if(sr) {
 						System.out.println("Waiting for response..");
 						toBeReturned = con.receive();
+						System.out.println("Received: " + toBeReturned);
 						// Update our session token
 						String token = XMLSerializable.toObject(toBeReturned).getSessionToken();
 						if(token == null) {

@@ -339,12 +339,17 @@ public class Main {
 				d.setStatus((d.getFrom().equals(PCSession.session.getUser()) ? DebtStatus.COMPLETED_BY_FROM : DebtStatus.COMPLETED_BY_TO));
 			}
 			
-			PCSession.session.send(d.toXML());
 			try{
-				PCSession.session.processUpdate(XMLSerializable.toObject(PCSession.session.receive()));
+				PCSession.session.processUpdate(XMLSerializable.toObject(PCSession.session.sendAndReceive(d.toXML())));
 			} catch (IOException e) {
 				printConnectionErrorMessage();
 			}
+//			PCSession.session.send(d.toXML());
+//			try{
+//				PCSession.session.processUpdate(XMLSerializable.toObject(PCSession.session.receive()));
+//			} catch (IOException e) {
+//				printConnectionErrorMessage();
+//			}
 		} catch (Exception e) {
 			printSyntaxErrorMessage("<accept/decline/complete> debt <ID>");
 			System.out.println("Error: " + e);
