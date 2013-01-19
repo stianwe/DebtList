@@ -72,7 +72,7 @@ public class Debt extends XMLSerializable {
 	
 	public boolean isConfirmed() {
 //		return isConfirmed;
-		return getVariable("status") == DebtStatus.CONFIRMED;
+		return getStatus() != DebtStatus.DECLINED && getStatus() != DebtStatus.REQUESTED;
 	}
 	
 //	public void setIsConfirmed(boolean isConfirmed) {

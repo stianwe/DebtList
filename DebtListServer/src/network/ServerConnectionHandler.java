@@ -29,6 +29,7 @@ public class ServerConnectionHandler extends Thread {
 	private boolean running;
 	private UpdateRequest update;
 	private long timeOfLastCommand = 0;
+	private String token;
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
@@ -159,6 +160,7 @@ public class ServerConnectionHandler extends Thread {
 					this.update = handler.getUpdate();
 					this.user = handler.getUser();
 					this.user.setIsOnline(true);
+					this.token = token;
 					System.out.println("Hijacking user: " + (this.user != null ? this.user.getUsername() : "null")+ "!");
 					serverConnection.getTokenManager().remove(token);
 					serverConnection.getTokenManager().registerToken(token, this);
@@ -371,6 +373,7 @@ public class ServerConnectionHandler extends Thread {
 					String token = serverConnection.getTokenManager().generateToken(this);
 					System.out.println("Token granted to " + user.getUsername() + ": " + token);
 					req.setSessionToken(token);
+					this.token = token;
 				}
 			}
 		} else if(user != null && user.isOnline()){
@@ -592,7 +595,23 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	public void send(String msg) {
-		System.out.println("Sedning: " + msg);
+		// Attach session token if present
+		if(this.token != null) {
+			XMLSerializable o = null;
+			try {
+				o = XMLSerializable.toObject(msg);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				serverConnection.writeToLog("Error while attaching session token: " + e.toString());
+			}
+			System.out.println("Attaching token: " + this.token);
+			o.setSessionToken(this.token);
+			msg = o.toXML();
+		} else {
+			System.out.println("Did not attach any token because this session has none.");
+		}
+		System.out.println("Sending: " + msg);
 		writer.println(msg);
 	}
 	
