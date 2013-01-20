@@ -28,10 +28,17 @@
         </activity>
         <activity
             android:name="android.debtlistandroid.DebtViewActivity"
-            android:uiOptions="splitActionBarWhenNarrow"
-            android:label="@string/title_activity_debt_view" >
-            
-            
+            android:label="@string/title_activity_debt_view"
+            android:uiOptions="splitActionBarWhenNarrow" >
+        </activity>
+        <activity
+            android:name="android.debtlistandroid.CreateDebtActivity"
+            android:label="@string/title_activity_create_debt"
+            android:parentActivityName="android.debtlistandroid.DebtViewActivity"
+            android:windowSoftInputMode="stateAlwaysVisible" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="android.debtlistandroid.DebtViewActivity" />
         </activity>
     </application>
 

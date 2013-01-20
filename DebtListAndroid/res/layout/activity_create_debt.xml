@@ -1,0 +1,76 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CreateDebtActivity" >
+
+    <Spinner 
+        android:id="@+id/spinner_create_debt_user"
+        android:layout_width="fill_parent"
+        android:prompt="@string/create_debt_spinner_prompt"
+        android:layout_height="56sp"/>
+    
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+        
+        <RadioButton android:id="@+id/create_debt_radio_from"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_debt_radio_from" />
+        
+        <RadioButton android:id="@+id/create_debt_radio_to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_debt_radio_to" />
+    </RadioGroup>
+    
+    <EditText 
+        android:id="@+id/create_debt_amount"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/create_debt_amount"
+        android:inputType="numberDecimal" />
+    
+    <EditText 
+        android:id="@+id/create_debt_what"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/create_debt_what" />
+    
+    <EditText 
+        android:id="@+id/create_debt_comment"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/create_debt_comment" />
+    
+    
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        tools:context=".CreateDebActivity" >
+        
+        <TextView
+            android:id="@+id/create_debt_error_text"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:visibility="invisible"
+            android:textColor="#ff0000"
+            android:textSize="18sp" >
+        </TextView>
+        
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="create_debt"
+            android:text="@string/create_debt_button" />
+    </LinearLayout>
+
+</LinearLayout>

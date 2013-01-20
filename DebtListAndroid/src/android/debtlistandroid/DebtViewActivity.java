@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.util.Log;
@@ -71,6 +72,7 @@ public class DebtViewActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if(item.getItemId() == R.id.menu_create_debt) {
 			System.out.println("CREATE DEBT!");
+			startActivity(new Intent(this, CreateDebtActivity.class));
 		} else if(item.getItemId() == R.id.menu_friends) {
 			System.out.println("FRIENDS!");
 		} else if(item.getItemId() == R.id.menu_settings) {
@@ -81,10 +83,6 @@ public class DebtViewActivity extends ListActivity {
 		return true;
 	}
 	
-//	public void create_debt(MenuItem mi) {
-//		System.out.println("CREATE DEBT!");
-//	}
-	
 	public void complete_debt(View v) {
 		Log.d("ARNE", "COMPLETE DEBT: " + selectedDebt.toString());
 		Main.processCommand("complete debt " + selectedDebt.getId());
@@ -92,15 +90,8 @@ public class DebtViewActivity extends ListActivity {
 	}
 	
 	public void accept_debt(View v) {
-//		Log.d("ARNE", "ACCEPT DEBT: " + selectedDebt.toString());
 		String command = "accept debt " + selectedDebt.getId();
 		Main.processCommand(command);
-//		Log.d("Arne", "Command: " + command);
-		
-		// Attempt to move debt
-//		Session.session.getUser().removePendingDebt(selectedDebt);
-//		Session.session.getUser().addConfirmedDebt(selectedDebt);
-//		Session.session.getUser().addConfirmedDebt(Session.session.getUser().removePendingDebt(0));
 		recreate();
 	}
 	

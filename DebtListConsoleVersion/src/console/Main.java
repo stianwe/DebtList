@@ -396,9 +396,10 @@ public class Main {
 				System.out.println("You can only create debts with your friends.");
 				return;
 			}
-			PCSession.session.send(new Debt(-1, amount, what, (toFrom.equals("to") ? PCSession.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : PCSession.session.getUser()), comment, PCSession.session.getUser()).toXML());
+//			PCSession.session.send();
 			try {
-				Debt d = (Debt)XMLSerializable.toObject(PCSession.session.receive());
+				Debt d = (Debt) XMLSerializable.toObject(Session.session.sendAndReceive(new Debt(-1, amount, what, (toFrom.equals("to") ? PCSession.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : PCSession.session.getUser()), comment, PCSession.session.getUser()).toXML()));
+//				Debt d = (Debt)XMLSerializable.toObject(PCSession.session.receive());
 				if(d.getId() != -1) {
 					System.out.println("Debt created.");
 					PCSession.session.processUpdate(d);
