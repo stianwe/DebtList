@@ -237,9 +237,10 @@ public class Main {
 		if(PCSession.session.getUser().getNumberOfFriendRequests() != 0) {
 			System.out.println("\nYour pending friend requests:");
 			for (int i = 0; i < PCSession.session.getUser().getNumberOfFriendRequests(); i++) {
-				// Only print pending friend requests
-				if(PCSession.session.getUser().getFriendRequest(i).getStatus() == FriendRequestStatus.PENDING)
-					System.out.println(PCSession.session.getUser().getFriendRequest(i).getFromUser().getUsername());
+				// Only print pending friend requests that are not outgoing
+				FriendRequest r = PCSession.session.getUser().getFriendRequest(i);
+				if(r.getStatus() == FriendRequestStatus.PENDING && r.getFriendUsername().equals(PCSession.session.getUser().getUsername()))
+					System.out.println(r.getFromUser().getUsername());
 			}
 		}
 	}
