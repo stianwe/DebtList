@@ -28,7 +28,10 @@
         </activity>
         <activity
             android:name="android.debtlistandroid.DebtViewActivity"
+            android:uiOptions="splitActionBarWhenNarrow"
             android:label="@string/title_activity_debt_view" >
+            
+            
         </activity>
     </application>
 

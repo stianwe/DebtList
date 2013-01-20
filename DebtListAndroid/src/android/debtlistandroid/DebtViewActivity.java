@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,13 +61,30 @@ public class DebtViewActivity extends ListActivity {
 		setListAdapter(adapter);
 	}
 
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.activity_debt_view, menu);
-//		return true;
-//	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.activity_debt_view, menu);
+		return true;
+	}
 
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if(item.getItemId() == R.id.menu_create_debt) {
+			System.out.println("CREATE DEBT!");
+		} else if(item.getItemId() == R.id.menu_friends) {
+			System.out.println("FRIENDS!");
+		} else if(item.getItemId() == R.id.menu_settings) {
+			System.out.println("SETTINGS!");
+		} else {
+			System.out.println("WTF?!");
+		}
+		return true;
+	}
+	
+//	public void create_debt(MenuItem mi) {
+//		System.out.println("CREATE DEBT!");
+//	}
+	
 	public void complete_debt(View v) {
 		Log.d("ARNE", "COMPLETE DEBT: " + selectedDebt.toString());
 		Main.processCommand("complete debt " + selectedDebt.getId());

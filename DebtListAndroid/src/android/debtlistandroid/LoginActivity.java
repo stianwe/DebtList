@@ -31,13 +31,14 @@ public class LoginActivity extends Activity {
 		
 		loginErrorTextView = findViewById(R.id.loginerrortext);
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_login, menu);
-		return true;
-	}
+	
+// No need for menu on the login screen(?)
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.activity_login, menu);
+//		return true;
+//	}
 
 	public void login(View v) {
 		final Activity dis = this;
