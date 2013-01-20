@@ -2,18 +2,24 @@
 <resources>
 
     <string name="app_name">DebtListAndroid</string>
+    
+    <!-- LoginActivity -->
     <string name="edit_username">User name</string>
     <string name="edit_password">Password</string>
     <string name="button_login">Log in</string>
+    <string name="login_error_message">Incorrect login info</string>
+    
+    <!-- DebtViewActivity -->
     <string name="button_complete">Complete</string>
     <string name="button_accept">Accept</string>
     <string name="button_decline">Decline</string>
     <string name="title_activity_debt_view">DebtList</string>
-    <string name="login_error_message">Incorrect login info</string>
+    
+    <!-- Menu -->
     <string name="menu_create_debt">+</string>
     <string name="menu_friends">Friends</string>
     <string name="menu_settings">Settings</string>
-    
+
     <!-- CreateDebtActivity -->
     <string name="title_activity_create_debt">Create debt</string>
     <string name="create_debt_button">Create debt</string>
@@ -25,5 +31,8 @@
     <string name="create_debt_comment">Comment</string>
     <string name="create_debt_radio_to">To selected user</string>
     <string name="create_debt_radio_from">To me</string>
+    
+    <!-- FriendViewActivity -->
+    <string name="title_activity_friend_view">Friends</string>
 
 </resources>

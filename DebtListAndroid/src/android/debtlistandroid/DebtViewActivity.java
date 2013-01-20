@@ -71,10 +71,9 @@ public class DebtViewActivity extends ListActivity {
 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if(item.getItemId() == R.id.menu_create_debt) {
-			System.out.println("CREATE DEBT!");
 			startActivity(new Intent(this, CreateDebtActivity.class));
 		} else if(item.getItemId() == R.id.menu_friends) {
-			System.out.println("FRIENDS!");
+			startActivity(new Intent(this, FriendViewActivity.class));
 		} else if(item.getItemId() == R.id.menu_settings) {
 			System.out.println("SETTINGS!");
 		} else {

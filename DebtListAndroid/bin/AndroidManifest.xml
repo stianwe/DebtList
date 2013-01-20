@@ -40,6 +40,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="android.debtlistandroid.DebtViewActivity" />
         </activity>
+        <activity
+            android:name="android.debtlistandroid.FriendViewActivity"
+            android:label="@string/title_activity_friend_view"
+            android:parentActivityName="android.debtlistandroid.DebtViewActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="android.debtlistandroid.DebtViewActivity" />
+        </activity>
     </application>
 
 </manifest>
