@@ -36,5 +36,8 @@
     
     <!-- FriendViewActivity -->
     <string name="title_activity_friend_view">Friends</string>
+    <string name="friend_view_incoming_separator">Your friend requests</string>
+    <string name="friend_view_confirmed_separator">Confirmed friends</string>
+    <string name="friend_view_outgoing_separator">Your pending friend requests</string>
 
 </resources>

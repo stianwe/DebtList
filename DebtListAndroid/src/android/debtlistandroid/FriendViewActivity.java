@@ -7,6 +7,8 @@ import java.util.List;
 
 import logic.User;
 
+import requests.FriendRequest;
+import requests.FriendRequest.FriendRequestStatus;
 import session.Session;
 import android.os.Bundle;
 import android.app.Activity;
@@ -34,15 +36,49 @@ public class FriendViewActivity extends Activity {
 		// Show the Up button in the action bar.
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		
-		// Display friends
+		List<String> incoming = new ArrayList<String>();
+		List<String> outgoing = new ArrayList<String>();
+		for (int i = 0; i < Session.session.getUser().getNumberOfFriendRequests(); i++) {
+			FriendRequest r = Session.session.getUser().getFriendRequest(i);
+			if(r.getStatus() == FriendRequestStatus.PENDING) {
+				if(r.getFriendUsername().equals(Session.session.getUser().getUsername())) 
+					incoming.add(r.getFromUser().getUsername());
+				else if(r.getFromUser().getUsername().equals(Session.session.getUser().getUsername()))
+					outgoing.add(r.getFriendUsername());
+			}
+		}
+		// Display incoming friend requests
+		displayFriends(R.id.friend_view_incoming_separator, R.id.friend_view_list_incoming, incoming);
+		
+		// Display confirmed friends
 		List<String> friends = new ArrayList<String>();
 		for (int i = 0; i < Session.session.getUser().getNumberOfFriends(); i++) {
 			friends.add(Session.session.getUser().getFriend(i).getUsername());
 		}
-		Collections.sort(friends);
-		((ListView) findViewById(R.id.friend_view_list)).setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, friends));
+		displayFriends(R.id.friend_view_confirmed_separator, R.id.friend_view_list, friends);
+		
+		// Display outgoing friend requests
+		displayFriends(R.id.friend_view_outgoing_separator, R.id.friend_view_list_outgoing, outgoing);
 	}
 
+	/**
+	 * Displays the given separator and list with the strings given as parameter sorted, if the list is not empty
+	 * 
+	 * @param separatorId	The separator's id
+	 * @param listViewId	The ListView's id
+	 * @param friends		The strings to display in the ListView
+	 */
+	private void displayFriends(int separatorId, int listViewId, List<String> friends) {
+		// Check if the list is empty
+		if(friends.isEmpty()) {
+			// Hide separator
+			((TextView) findViewById(separatorId)).setVisibility(View.GONE);
+		} else {
+			Collections.sort(friends);
+			((ListView) findViewById(listViewId)).setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, friends));
+		}
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

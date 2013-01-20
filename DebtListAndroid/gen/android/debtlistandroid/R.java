@@ -25,13 +25,18 @@ public final class R {
         public static final int create_debt_radio_from=0x7f070001;
         public static final int create_debt_radio_to=0x7f070002;
         public static final int create_debt_what=0x7f070004;
-        public static final int edit_password=0x7f070010;
-        public static final int edit_username=0x7f07000f;
-        public static final int friend_view_list=0x7f07000e;
-        public static final int loginerrortext=0x7f070011;
-        public static final int menu_create_debt=0x7f070013;
-        public static final int menu_friends=0x7f070014;
-        public static final int menu_settings=0x7f070012;
+        public static final int edit_password=0x7f070015;
+        public static final int edit_username=0x7f070014;
+        public static final int friend_view_confirmed_separator=0x7f070010;
+        public static final int friend_view_incoming_separator=0x7f07000e;
+        public static final int friend_view_list=0x7f070011;
+        public static final int friend_view_list_incoming=0x7f07000f;
+        public static final int friend_view_list_outgoing=0x7f070013;
+        public static final int friend_view_outgoing_separator=0x7f070012;
+        public static final int loginerrortext=0x7f070016;
+        public static final int menu_create_debt=0x7f070018;
+        public static final int menu_friends=0x7f070019;
+        public static final int menu_settings=0x7f070017;
         public static final int separator=0x7f070007;
         public static final int spinner_create_debt_user=0x7f070000;
         public static final int toptext=0x7f070008;
@@ -71,6 +76,9 @@ public final class R {
         /**  LoginActivity 
          */
         public static final int edit_username=0x7f040001;
+        public static final int friend_view_confirmed_separator=0x7f04001a;
+        public static final int friend_view_incoming_separator=0x7f040019;
+        public static final int friend_view_outgoing_separator=0x7f04001b;
         public static final int login_error_message=0x7f040004;
         /**  Menu 
          */
