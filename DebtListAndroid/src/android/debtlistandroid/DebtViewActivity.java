@@ -9,20 +9,15 @@ import session.Session;
 
 import logic.Debt;
 import logic.DebtStatus;
-import logic.User;
-import android.opengl.Visibility;
 import android.os.Bundle;
-import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -119,18 +114,29 @@ public class DebtViewActivity extends ListActivity {
 		private Context context;
 		private List<String> separatorTexts;
 		private View lastExpandedView = null;
+		private int numberOfElements;
 		
 		public DebtAdapter(Context context, List<List<Debt>> debtLists, List<String> separatorTexts, List<Debt> nullList) {
-			super(context, R.layout.activity_debt_view, nullList);
+			super(context, R.layout.activity_debt_view, (nullList.size() == 0 ? constructNullList(1) : nullList));
 			this.context = context;
 			this.separatorTexts = separatorTexts;
 			this.debtLists = debtLists;
+			this.numberOfElements = nullList.size();
 		}
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			final View view = inflater.inflate(R.layout.activity_debt_view, null);
+			if(numberOfElements == 0) {
+				// Display message about no debts
+				((TextView) view.findViewById(R.id.toptext)).setText(getResources().getString(R.string.debt_view_no_debts1));
+				TextView bot = (TextView) view.findViewById(R.id.bottomtext);
+				bot.setText(getResources().getString(R.string.debt_view_no_debts2));
+				collapse(view);
+//				bot.setLayoutParams(new LinearLayout.LayoutParams(android.widget.LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+				return view;
+			}
 			TextView sep = (TextView) view.findViewById(R.id.separator);
 			// Find the corresponding debt
 			Debt d = null;
