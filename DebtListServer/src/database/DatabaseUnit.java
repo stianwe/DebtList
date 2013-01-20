@@ -128,8 +128,11 @@ public class DatabaseUnit {
 				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriend(users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)));
 				// Fall through to add the friend request
 			case PENDING:
+				FriendRequest r = new FriendRequest(rs.getString(FIELD_FRIEND_REQUEST_TO_USER), users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)), status, rs.getLong(FIELD_FRIEND_REQUEST_ID));
 				// Add the friend request to the target friend
-				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriendRequest(new FriendRequest(rs.getString(FIELD_FRIEND_REQUEST_TO_USER), users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)), status, rs.getLong(FIELD_FRIEND_REQUEST_ID)));
+				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriendRequest(r);
+				// Also add the request to the requesting user
+				users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)).addFriendRequest(r);
 				break;
 			default:
 				System.out.println("Skipped FriendRequest with weird status while loading friends.");
