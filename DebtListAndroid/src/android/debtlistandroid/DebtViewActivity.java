@@ -78,19 +78,16 @@ public class DebtViewActivity extends ListActivity {
 	}
 	
 	public void complete_debt(View v) {
-		Log.d("ARNE", "COMPLETE DEBT: " + selectedDebt.toString());
 		Main.processCommand("complete debt " + selectedDebt.getId());
 		recreate();
 	}
 	
 	public void accept_debt(View v) {
-		String command = "accept debt " + selectedDebt.getId();
-		Main.processCommand(command);
+		Main.processCommand("accept debt " + selectedDebt.getId());
 		recreate();
 	}
 	
 	public void decline_debt(View v) {
-		Log.d("ARNE", "DECLINE DEBT: " + selectedDebt.toString());
 		Main.processCommand("decline debt " + selectedDebt.getId());
 		recreate();
 	}
@@ -100,7 +97,7 @@ public class DebtViewActivity extends ListActivity {
 	 * @param size	The size of the list (number of nulls to put in it)
 	 * @return		The list containing the nulls
 	 */
-	private static List<Debt> constructNullList(int size) {
+	public static List<Debt> constructNullList(int size) {
 		List<Debt> list = new ArrayList<Debt>();
 		for (int i = 0; i < size; i++) {
 			list.add(null);

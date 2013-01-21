@@ -192,9 +192,10 @@ public class Main {
 			request.setStatus((accepted ? FriendRequestStatus.ACCEPTED : FriendRequestStatus.DECLINED));
 			try {
 				// Send the request to the server
-				PCSession.session.send(request.toXML());
+//				PCSession.session.send(request.toXML());
 				// Wait for response
-				FriendRequest response = (FriendRequest) XMLSerializable.toObject(PCSession.session.receive());
+//				FriendRequest response = (FriendRequest) XMLSerializable.toObject(PCSession.session.receive());
+				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.sendAndReceive(request.toXML()));
 				if(response.getStatus() == request.getStatus()) System.out.println("Friend request " + (accepted ? "accepted" : "declined"));
 				else {
 					System.out.println("An error occurred! Please try again.");

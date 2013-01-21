@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/friend_view_list_linear_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FriendViewActivity" >
+     
+     <TextView
+        android:id="@+id/friend_view_separator"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#000"
+        android:visibility="gone"
+        android:textColor="#ffffff" />
+	
+    <TextView
+        android:id="@+id/friend_view_user_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#3399ff"
+        android:padding="8dp"
+        android:textSize="18sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#3399ff"
+        android:orientation="horizontal"
+        tools:context=".FriendViewActivity" >
+
+        <Button
+            android:id="@+id/friend_view_accept_incoming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:onClick="accept_incoming_friend"
+            android:text="@string/friend_view_accept_incoming" />
+
+        <Button
+            android:id="@+id/friend_view_decline_incoming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:onClick="decline_incoming_friend"
+            android:text="@string/friend_view_decline_incoming" />
+    </LinearLayout>
+</LinearLayout>

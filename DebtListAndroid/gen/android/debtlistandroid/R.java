@@ -25,15 +25,15 @@ public final class R {
         public static final int create_debt_radio_from=0x7f070001;
         public static final int create_debt_radio_to=0x7f070002;
         public static final int create_debt_what=0x7f070004;
-        public static final int edit_password=0x7f070015;
-        public static final int edit_username=0x7f070014;
-        public static final int friend_view_confirmed_separator=0x7f070010;
-        public static final int friend_view_incoming_separator=0x7f07000e;
-        public static final int friend_view_list=0x7f070011;
-        public static final int friend_view_list_incoming=0x7f07000f;
-        public static final int friend_view_list_outgoing=0x7f070013;
-        public static final int friend_view_outgoing_separator=0x7f070012;
-        public static final int loginerrortext=0x7f070016;
+        public static final int edit_password=0x7f070010;
+        public static final int edit_username=0x7f07000f;
+        public static final int friend_view_accept_incoming=0x7f070015;
+        public static final int friend_view_decline_incoming=0x7f070016;
+        public static final int friend_view_list=0x7f07000e;
+        public static final int friend_view_list_linear_layout=0x7f070012;
+        public static final int friend_view_separator=0x7f070013;
+        public static final int friend_view_user_name=0x7f070014;
+        public static final int loginerrortext=0x7f070011;
         public static final int menu_create_debt=0x7f070018;
         public static final int menu_friends=0x7f070019;
         public static final int menu_settings=0x7f070017;
@@ -46,6 +46,7 @@ public final class R {
         public static final int activity_debt_view=0x7f030001;
         public static final int activity_friend_view=0x7f030002;
         public static final int activity_login=0x7f030003;
+        public static final int friend_list_view=0x7f030004;
     }
     public static final class menu {
         public static final int activity_create_debt=0x7f060000;
@@ -76,7 +77,9 @@ public final class R {
         /**  LoginActivity 
          */
         public static final int edit_username=0x7f040001;
+        public static final int friend_view_accept_incoming=0x7f04001c;
         public static final int friend_view_confirmed_separator=0x7f04001a;
+        public static final int friend_view_decline_incoming=0x7f04001d;
         public static final int friend_view_incoming_separator=0x7f040019;
         public static final int friend_view_outgoing_separator=0x7f04001b;
         public static final int login_error_message=0x7f040004;

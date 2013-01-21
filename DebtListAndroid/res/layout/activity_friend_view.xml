@@ -5,46 +5,8 @@
     android:orientation="vertical"
     tools:context=".FriendViewActivity" >
     
-    <TextView 
-        android:id="@+id/friend_view_incoming_separator"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/friend_view_incoming_separator"
-        android:textColor="#ffffff"
-        android:background="#000"/>
-
-    <ListView
-        android:id="@+id/friend_view_list_incoming"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#ff9933"/>
-    
-    <TextView 
-        android:id="@+id/friend_view_confirmed_separator"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/friend_view_confirmed_separator"
-        android:textColor="#ffffff"
-        android:background="#000"/>
-
-    <ListView
+    <ListView 
         android:id="@+id/friend_view_list"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"/>
-
-    <TextView 
-        android:id="@+id/friend_view_outgoing_separator"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/friend_view_outgoing_separator"
-        android:textColor="#ffffff"
-        android:background="#000"/>
-
-    <ListView
-        android:id="@+id/friend_view_list_outgoing"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#3399ff"/>
-    
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>
