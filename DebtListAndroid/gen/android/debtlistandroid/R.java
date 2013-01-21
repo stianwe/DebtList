@@ -31,6 +31,8 @@ public final class R {
         public static final int friend_view_decline_incoming=0x7f070016;
         public static final int friend_view_list=0x7f07000e;
         public static final int friend_view_list_linear_layout=0x7f070012;
+        public static final int friend_view_menu_add_friend=0x7f07001a;
+        public static final int friend_view_menu_settings=0x7f07001b;
         public static final int friend_view_separator=0x7f070013;
         public static final int friend_view_user_name=0x7f070014;
         public static final int loginerrortext=0x7f070011;
@@ -78,6 +80,7 @@ public final class R {
          */
         public static final int edit_username=0x7f040001;
         public static final int friend_view_accept_incoming=0x7f04001c;
+        public static final int friend_view_add_friend=0x7f04001e;
         public static final int friend_view_confirmed_separator=0x7f04001a;
         public static final int friend_view_decline_incoming=0x7f04001d;
         public static final int friend_view_incoming_separator=0x7f040019;

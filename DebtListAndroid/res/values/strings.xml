@@ -18,7 +18,7 @@
     <string name="debt_view_no_debts2">Click the \"+\" to add one!</string>
     
     <!-- Menu -->
-    <string name="menu_create_debt">+</string>
+    <string name="menu_create_debt">Add debt</string>
     <string name="menu_friends">Friends</string>
     <string name="menu_settings">Settings</string>
 
@@ -41,5 +41,6 @@
     <string name="friend_view_outgoing_separator">Your pending friend requests</string>
     <string name="friend_view_accept_incoming">Accept</string>
     <string name="friend_view_decline_incoming">Decline</string>
+    <string name="friend_view_add_friend">Add friend</string>
 
 </resources>
