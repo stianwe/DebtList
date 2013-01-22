@@ -1,8 +1,12 @@
 package android.debtlistandroid;
 
+import console.Main;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
+import android.view.View;
+import android.widget.TextView;
 
 public class AddFriendView extends Activity {
 
@@ -19,4 +23,16 @@ public class AddFriendView extends Activity {
 		return true;
 	}
 
+	public void add_friend(View v) {
+		System.out.println("add friend " + ((TextView) findViewById(R.id.add_friend_username_email)).getText().toString());
+		// TODO Should really make the console version's method return something telling if everything went well
+		if(Main.processAddFriend("add friend " + ((TextView) findViewById(R.id.add_friend_username_email)).getText().toString())) {
+			// Friend request sent, show friend view
+			startActivity(new Intent(this, FriendViewActivity.class));
+		} else {
+			// Display error message
+			((TextView) findViewById(R.id.add_friend_error_message)).setVisibility(View.VISIBLE);
+		}
+		// 
+	}
 }

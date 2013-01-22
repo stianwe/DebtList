@@ -33,6 +33,9 @@ public class DatabaseUnit {
 	public static final String FIELD_USER_USERNAME = "username";
 	public static final String FIELD_USER_PASSWORD = "password";
 	public static final String FIELD_USER_ID = "id";
+	public static final String FIELD_USER_EMAIL = "email";
+	public static final String FIELD_USER_ACTIVATION_KEY = "activationKey";
+	public static final String FIELD_USER_IS_ACTIVATED = "isActivated";
 	
 	public static final String FIELD_DEBT_ID = "id";
 	public static final String FIELD_DEBT_AMOUNT = "amount";
@@ -106,7 +109,7 @@ public class DatabaseUnit {
 		ResultSet rs = st.executeQuery("SELECT * FROM " + TABLE_USER);
 		Map<User, String> users = new HashMap<User, String>();
 		while(rs.next()) {
-			users.put(new User(rs.getLong(FIELD_USER_ID), rs.getString(FIELD_USER_USERNAME)), rs.getString(FIELD_USER_PASSWORD));
+			users.put(new User(rs.getLong(FIELD_USER_ID), rs.getString(FIELD_USER_USERNAME), rs.getString(FIELD_USER_EMAIL), rs.getString(FIELD_USER_ACTIVATION_KEY), (rs.getString(FIELD_USER_IS_ACTIVATED).equals("0") ? false : true)), rs.getString(FIELD_USER_PASSWORD));
 		}
 		return users;
 	}
@@ -201,13 +204,13 @@ public class DatabaseUnit {
 			System.out.println("Writing " + u.getUsername() + " to database..");
 			// Check if this is a new user
 			if(SQLHelper.exists(con, TABLE_USER, FIELD_USER_ID, u.getId() + "")) {
-				System.out.println("User already exists.");
 				// User already exists
-				// TODO: What can be updated? Password?
+				System.out.println("User already exists.");
+				SQLHelper.update(con, TABLE_USER, new String[]{FIELD_USER_EMAIL, FIELD_USER_PASSWORD, FIELD_USER_IS_ACTIVATED, FIELD_USER_ACTIVATION_KEY}, new String[]{u.getEmail(), passwords.get(u.getUsername()), (u.isActivated() ? "1" : "0"), u.getActivationKey()}, FIELD_USER_USERNAME, u.getUsername());
 			} else {
 				// New user
 				System.out.println("Inserting user into database.");
-				SQLHelper.insert(con, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD}, new String[]{u.getUsername(), passwords.get(u.getUsername())});
+				SQLHelper.insert(con, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD, FIELD_USER_EMAIL, FIELD_USER_ACTIVATION_KEY, FIELD_USER_IS_ACTIVATED}, new String[]{u.getUsername(), passwords.get(u.getUsername()), u.getEmail(), u.getActivationKey(), (u.isActivated() ? "1" : "0")});
 			}
 		}
 		for (User u : users) {

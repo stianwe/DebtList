@@ -251,33 +251,34 @@ public class Main {
 	 * Syntax: "add friend <username>"
 	 * @param command	The add friend command
 	 */
-	public static void processAddFriend(String command) {
+	public static boolean processAddFriend(String command) {
 		try {
 			String friendUsername = command.split(" ")[2];
 			// Check that the user is not sending a request to himself
 			if(friendUsername.equals(PCSession.session.getUser().getUsername())) {
 				System.out.println("You cannot send a friend request to yourself! What are you?!");
-				return;
+				return false;
 			}
 			//Checking if the user already has a friend or a friend request with the requested user name
 			User abb = PCSession.session.getUser();
 			for (int i = 0; i<abb.getNumberOfFriends(); i++){
 				if(friendUsername.equals(abb.getFriend(i).getUsername())){
 					System.out.println("You are already friends with this user");
-					return;
+					return false;
 				}
 			}
 			// Send the friend request
-			PCSession.session.send(new FriendRequest(friendUsername, PCSession.session.getUser()).toXML());
+//			PCSession.session.send(new FriendRequest(friendUsername, PCSession.session.getUser()).toXML());
 			try {
-				FriendRequest response = (FriendRequest) XMLSerializable.toObject(PCSession.session.receive());
+//				FriendRequest response = (FriendRequest) XMLSerializable.toObject(PCSession.session.receive());
+				FriendRequest response = (FriendRequest) XMLSerializable.toObject(Session.session.sendAndReceive(new FriendRequest(friendUsername, PCSession.session.getUser()).toXML()));
 				switch(response.getStatus()) {
 				case USER_NOT_FOUND:
 					System.out.println("The user does not exist.");
-					break;
+					return false;
 				case UNHANDLED:
 					System.err.println("Something wrong happened while sending your friend request. You should probably try again.");
-					break;
+					return false;
 				case ALREADY_EXISTS:
 					// Check if this user already has a request from the requested friend
 					String otherUsername = friendUsername;
@@ -285,9 +286,11 @@ public class Main {
 						System.out.println("You already have a friend request from that user.");
 					else
 						System.out.println("You have already sent a friend request to that user.");
-					break;
+					return false;
 				default:
 					System.out.println("Friend request sent.");
+					Session.session.processUpdate(response);
+					return true;
 				}
 			} catch (IOException e) {
 				printConnectionErrorMessage();
@@ -295,6 +298,7 @@ public class Main {
 		} catch (Exception e) {
 			printSyntaxErrorMessage("add friend <username>");
 		}
+		return false;
 	}
 	
 	/**

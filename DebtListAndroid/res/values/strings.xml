@@ -49,7 +49,7 @@
     <!-- AddFriendActivity -->
     <string name="title_activity_add_friend_view">Add friend</string>
     <string name="add_friend_username_email">Enter user name or e-mail</string>
-    <string name="add_friend_error_message">User not found!</string>
+    <string name="add_friend_error_message">User not found or already added!</string>
     <string name="add_friend_button">Add friend</string>
 
 </resources>
