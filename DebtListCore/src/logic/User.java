@@ -31,6 +31,13 @@ public class User extends XMLSerializable {
 		setVariable("friendRequests", new ArrayList<FriendRequest>());
 		setVariable("friends", friends);
 	}
+
+	public User(long ID, String username, String email, String activationKey, boolean isActivated) {	
+		this(ID, username);
+		setEmail(email);
+		setActivationKey(activationKey);
+		setIsActivated(isActivated);
+	}
 	
 	/**
 	 * User identification
@@ -47,6 +54,51 @@ public class User extends XMLSerializable {
 	 */
 	public void setId(long id) {
 		setVariable("id", id);
+	}
+
+	/**
+	 * Sets the user's activation key
+	 * @param key	The activation key
+	 */
+	public void setActivationKey(String key) {
+		setVariable("activationKey", key);
+	}
+	
+	/**
+	 * @return	The user's activation key
+	 */
+	public String getActivationKey() {
+		return (String) getVariable("activationKey");
+	}
+	
+	/**
+	 * Determines if the user is activated or not
+	 * @param isActivated
+	 */
+	public void setIsActivated(boolean isActivated) {
+		setVariable("isActivated", isActivated);
+	}
+	
+	/**
+	 * @return	True if the user is activated, false if not
+	 */
+	public boolean isActivated() {
+		return (Boolean) getVariable("isActivated");
+	}
+	
+	/**
+	 * Sets the user's email
+	 * @param email	The email
+	 */
+	public void setEmail(String email) {
+		setVariable("email", email);
+	}
+	
+	/**
+	 * @return	The user's email or null if none
+	 */
+	public String getEmail() {
+		return (String) getVariable("email");
 	}
 	
 	/**

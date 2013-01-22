@@ -2,6 +2,9 @@ CREATE TABLE user (
 	id INT NOT NULL AUTO_INCREMENT,
 	username VARCHAR(30) NOT NULL,
 	password VARCHAR(50) NOT NULL,
+	email VARCHAR(50) NOT NULL,
+	activationKey VARCHAR(10) NOT NULL,
+	isActivated INT NOT NULL,
 	PRIMARY KEY (id),
 	KEY id_username (username)
 ) ENGINE=INNODB;
