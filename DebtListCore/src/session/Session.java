@@ -161,7 +161,7 @@ public abstract class Session {
 				getUser().addFriend(new User(req.getFriendUsername()));
 				break;
 			case PENDING:
-				// We received a new friend request, add it (if not already existing
+				// We received a new friend request, add it (if not already existing)
 				for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
 					if(getUser().getFriendRequest(i).getId() == req.getId())
 						return;
