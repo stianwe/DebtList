@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -113,6 +114,9 @@ public class FriendViewActivity extends Activity {
 		
 		@Override
 		public View getView(int pos, View convertView, ViewGroup parent) {
+			if(pos == 0) {
+				confirmedSeparatorHasBeenPlaced = false;
+			}
 			View v = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.friend_list_view, null);
 			TextView sep = (TextView) v.findViewById(R.id.friend_view_separator);
 			sep.setVisibility(View.VISIBLE);
@@ -123,6 +127,8 @@ public class FriendViewActivity extends Activity {
 				sep.setText(v.getResources().getString(R.string.friend_view_confirmed_separator));
 				confirmedSeparatorHasBeenPlaced = true;
 			} else if(s == OUTGOING_SEPARATOR_STRING) {
+				// In case we have no confirmed debts
+				confirmedSeparatorHasBeenPlaced = true;
 				sep.setText(v.getResources().getString(R.string.friend_view_outgoing_separator));
 			} else {
 				sep.setVisibility(View.GONE);
@@ -130,29 +136,40 @@ public class FriendViewActivity extends Activity {
 				t.setVisibility(View.VISIBLE);
 				t.setText(s);
 				// Add buttons for incoming requests
-				final boolean shouldExpand = !confirmedSeparatorHasBeenPlaced;
-				v.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						// Hide previously displayed buttons if any
-						if(lastExpanded != null) {
-							lastExpanded.findViewById(R.id.friend_view_accept_incoming).setVisibility(View.GONE);
-							lastExpanded.findViewById(R.id.friend_view_decline_incoming).setVisibility(View.GONE);
-						}
-						if(lastExpanded != v && shouldExpand) {
-							// Show buttons
-							v.findViewById(R.id.friend_view_accept_incoming).setVisibility(View.VISIBLE);
-							v.findViewById(R.id.friend_view_decline_incoming).setVisibility(View.VISIBLE);
-							lastExpanded = v;
-						} else {
-							lastExpanded = null;
-						}
-					}
-				});
+				System.out.println("Confirmed separator has been placed: " + confirmedSeparatorHasBeenPlaced);
+				v.setOnClickListener(new FriendOnClickListener(!confirmedSeparatorHasBeenPlaced));
 			}
 			return v;
 		}
 
+		class FriendOnClickListener implements OnClickListener {
+			
+			private boolean isExpandable; 
+			
+			public FriendOnClickListener(boolean isExpandable) {
+				this.isExpandable = isExpandable;
+				System.out.println("Is expandable: " + isExpandable);
+			}
+			
+			@Override
+			public void onClick(View v) {
+				// Hide previously displayed buttons if any
+				if(lastExpanded != null) {
+					lastExpanded.findViewById(R.id.friend_view_accept_incoming).setVisibility(View.GONE);
+					lastExpanded.findViewById(R.id.friend_view_decline_incoming).setVisibility(View.GONE);
+				}
+				if(lastExpanded != v && this.isExpandable) {
+					// Show buttons
+					v.findViewById(R.id.friend_view_accept_incoming).setVisibility(View.VISIBLE);
+					v.findViewById(R.id.friend_view_decline_incoming).setVisibility(View.VISIBLE);
+					lastExpanded = v;
+				} else {
+					System.out.println("Not expandable! " + isExpandable);
+					lastExpanded = null;
+				}
+			}
+		}
+		
 		public void collapse(View v) {
 			v.findViewById(R.id.friend_view_accept_incoming).setVisibility(View.GONE);
 			v.findViewById(R.id.friend_view_decline_incoming).setVisibility(View.GONE);
@@ -170,18 +187,14 @@ public class FriendViewActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
+		case R.id.friend_view_menu_add_friend:
+			startActivity(new Intent(this, AddFriendView.class));
+			break;
+		case R.id.friend_view_menu_settings:
+			System.out.println("SETTINGS!");
+			break;
 		}
-		return super.onOptionsItemSelected(item);
+		return true;
 	}
 
 	public void accept_incoming_friend(View v) {

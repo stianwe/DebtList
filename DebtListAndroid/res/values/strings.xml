@@ -2,13 +2,13 @@
 <resources>
 
     <string name="app_name">DebtListAndroid</string>
-    
+
     <!-- LoginActivity -->
     <string name="edit_username">User name</string>
     <string name="edit_password">Password</string>
     <string name="button_login">Log in</string>
     <string name="login_error_message">Incorrect login info</string>
-    
+
     <!-- DebtViewActivity -->
     <string name="button_complete">Complete</string>
     <string name="button_accept">Accept</string>
@@ -16,7 +16,10 @@
     <string name="title_activity_debt_view">DebtList</string>
     <string name="debt_view_no_debts1">You currently have no debts!</string>
     <string name="debt_view_no_debts2">Click the \"+\" to add one!</string>
-    
+    <string name="debt_view_incoming_requests_separator">Incoming debt requests</string>
+    <string name="debt_view_confirmed_separator">Confirmed debts</string>
+    <string name="debt_view_outgoing_requests_separator">Outgoing debt requests</string>
+
     <!-- Menu -->
     <string name="menu_create_debt">Add debt</string>
     <string name="menu_friends">Friends</string>
@@ -33,7 +36,7 @@
     <string name="create_debt_comment">Comment</string>
     <string name="create_debt_radio_to">To selected user</string>
     <string name="create_debt_radio_from">To me</string>
-    
+
     <!-- FriendViewActivity -->
     <string name="title_activity_friend_view">Friends</string>
     <string name="friend_view_incoming_separator">Your friend requests</string>
@@ -42,5 +45,11 @@
     <string name="friend_view_accept_incoming">Accept</string>
     <string name="friend_view_decline_incoming">Decline</string>
     <string name="friend_view_add_friend">Add friend</string>
+    
+    <!-- AddFriendActivity -->
+    <string name="title_activity_add_friend_view">Add friend</string>
+    <string name="add_friend_username_email">Enter user name or e-mail</string>
+    <string name="add_friend_error_message">User not found!</string>
+    <string name="add_friend_button">Add friend</string>
 
 </resources>

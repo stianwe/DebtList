@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddFriendView" >
+
+    <EditText
+        android:id="@+id/add_friend_username_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:hint="@string/add_friend_username_email" />
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_below="@id/add_friend_username_email"
+        tools:context=".LoginActivity" >
+        
+        <TextView
+            android:id="@+id/loginerrortext"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:visibility="invisible"
+            android:textColor="#ff0000"
+            android:text="@string/add_friend_error_message"
+            android:textSize="18sp" >
+        </TextView>
+        
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_friend_button" />
+    </LinearLayout>
+</RelativeLayout>

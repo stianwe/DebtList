@@ -47,13 +47,22 @@ public class DebtViewActivity extends ListActivity {
 			exampleDebtsAdded = true;
 		}
 		List<List<Debt>> debts = new ArrayList<List<Debt>>();
-		// TODO: Check if we have any debts at all
+		debts.add(new ArrayList<Debt>());
 		debts.add(Session.session.getUser().getConfirmedDebts());
-		debts.add(Session.session.getUser().getPendingDebts());
+		debts.add(new ArrayList<Debt>());
+		// Split pending debts requested by the user, and pending debts requested by an other user
+		for (Debt d : Session.session.getUser().getPendingDebts()) {
+			if(d.getRequestedBy().equals(Session.session.getUser())) {
+				debts.get(2).add(d);
+			} else {
+				debts.get(0).add(d);
+			}
+		}
 		List<String> separators = new ArrayList<String>();
-		separators.add("Confirmed debts");
-		separators.add("Pending debts");
-		adapter = new DebtAdapter(this, debts, separators, constructNullList(debts.get(0).size() + debts.get(1).size()));
+		separators.add(getResources().getString(R.string.debt_view_incoming_requests_separator));
+		separators.add(getResources().getString(R.string.debt_view_confirmed_separator));
+		separators.add(getResources().getString(R.string.debt_view_outgoing_requests_separator));
+		adapter = new DebtAdapter(this, debts, separators, constructNullList(debts.get(0).size() + debts.get(1).size() + debts.get(2).size()));
 		setListAdapter(adapter);
 	}
 
@@ -139,13 +148,17 @@ public class DebtViewActivity extends ListActivity {
 			Debt d = null;
 			int count = 0; // The number of debts 'before' the current list
 			int listIndex = -1;
+			System.out.println("Checking position: " + position);
 			for (int i = 0; i < debtLists.size(); i++) {
 				List<Debt> ds = debtLists.get(i);
+				System.out.println("Checking list " + i + " " + ds);
+				System.out.println("Count: " + count);
 				if(position >= ds.size() + count) {
 					count += ds.size();
 				} else {
 					d = ds.get(position - count);
 					listIndex = i;
+					System.out.println("List index: " + listIndex);
 					break;
 				}
 			}
