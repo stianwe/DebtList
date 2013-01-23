@@ -327,11 +327,34 @@ public class ServerConnectionHandler extends Thread {
 				req.getUsername().length() <= 30) {
 			// TODO: Add check on username
 			// Get an id for the user
-			req.getRequestedUser().setId(serverConnection.getNextUserId());
-			// Notify the server of the new user
-			serverConnection.addUser(req.getRequestedUser(), req.getPassword());
+			User user = req.getRequestedUser();
+			user.setId(serverConnection.getNextUserId());
 			// Set the request as approved
+			System.out.println("Setting newly created user as activated for compatibility reasons.");
 			req.setIsAproved(true);
+			// Insert dummy activation key and mail, and set the user as activated, to ensure backwards compatibility
+			user.setActivationKey("N_supplied");
+			// FIXME Only set as activated for compatibility reasons. Should be set as unactivated when created!
+			user.setIsActivated(true);
+			if(user.getEmail() == null) {
+				user.setEmail("Not_supplied");
+			} else {
+				// Check that the email is not already registered
+				boolean foundEmail = false;
+				for (User u : serverConnection.getUsers()) {
+					if(u.getEmail().equals(user.getEmail()))
+						foundEmail = true;
+				}
+				if(foundEmail) {
+					// Set the request as not approved
+					// FIXME Add error message explaining what went wrong!
+					req.setIsAproved(false);
+				}
+			}
+			// Notify the server of the new user if it was approved
+			if(req.isApproved()) {
+				serverConnection.addUser(user, req.getPassword());
+			}
 		}
 		// Reply with an answer
 		send(req.toXML());

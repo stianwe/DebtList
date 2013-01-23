@@ -206,7 +206,7 @@ public class DatabaseUnit {
 			if(SQLHelper.exists(con, TABLE_USER, FIELD_USER_ID, u.getId() + "")) {
 				// User already exists
 				System.out.println("User already exists.");
-				SQLHelper.update(con, TABLE_USER, new String[]{FIELD_USER_EMAIL, FIELD_USER_PASSWORD, FIELD_USER_IS_ACTIVATED, FIELD_USER_ACTIVATION_KEY}, new String[]{u.getEmail(), passwords.get(u.getUsername()), (u.isActivated() ? "1" : "0"), u.getActivationKey()}, FIELD_USER_USERNAME, u.getUsername());
+				SQLHelper.update(con, TABLE_USER, new String[]{FIELD_USER_EMAIL, FIELD_USER_PASSWORD, FIELD_USER_IS_ACTIVATED, FIELD_USER_ACTIVATION_KEY}, new String[]{u.getEmail(), passwords.get(u.getUsername()), (u.isActivated() ? "1" : "0"), u.getActivationKey()}, FIELD_USER_USERNAME, '"' + u.getUsername() + '"');
 			} else {
 				// New user
 				System.out.println("Inserting user into database.");

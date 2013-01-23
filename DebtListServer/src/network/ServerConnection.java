@@ -167,6 +167,14 @@ public class ServerConnection {
 		return tokenManager;
 	}
 	
+	public synchronized List<User> getUsers() {
+		List<User> users = new ArrayList<User>();
+		for (String username : this.users.keySet()) {
+			users.add(this.users.get(username));
+		}
+		return users;
+	}
+	
 	public synchronized void writeToLog(String s) {
 		PrintWriter out = null;
 		try {
