@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import mail.EmailUtils;
 import network.Constants;
 import network.Debugger;
 
@@ -28,7 +29,7 @@ public class Main {
 	public static void main(String[] args) {
 		new PCSession().init();
 		
-		System.out.println("Welcome to DebtList (version 0)!");
+		System.out.println("Welcome to DebtList (VERSION " + Constants.VERSION + ")!");
 		System.out.println("Connect to server by typing " + '"' + "connect" + '"' + " followed by " + '"' + "login" + '"' + " to log in, or " + '"' + "create user" + '"' + " to create a new user.");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String command = null;
@@ -93,12 +94,13 @@ public class Main {
 
 	/**
 	 * Starts a secure procedure for creating a new user.
-	 * Will crash when not compiled (i.e. from an IDE)
+	 * Will crash when not compiled (i.e. run from an IDE)
 	 */
 	public static void safeCreateUser() {
 		System.out.print("User name: ");
 		try {
-			String username = new BufferedReader(new InputStreamReader(System.in)).readLine();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			String username = reader.readLine();
 			System.out.print("Password: ");
 			String pw1 = new String(System.console().readPassword());
 			System.out.print("Re-enter password: ");
@@ -106,12 +108,14 @@ public class Main {
 			if(!pw1.equals(pw2)) {
 				System.out.println("Your passwords does not match!");
 			} else {
-				processCreateUser("create user " + username + " " + pw1);
+				System.out.print("Email: ");
+				String email = reader.readLine();
+				processCreateUser("create user " + username + " " + pw1 + " " + email);
 			}
 		} catch (IOException e) {
 			System.out.println("Input error! Please try again!");
 		} catch (NullPointerException e) {
-			System.out.println("Failed reading the password securely. Did you run this program from an IDE? Please try the normal version.");
+			System.out.println("Failed reading the password securely. Did you run this program from an IDE? Please try the normal VERSION.");
 		}
 	}
 	
@@ -129,7 +133,7 @@ public class Main {
 		} catch (IOException e) {
 			System.out.println("Input error! Please try again.");
 		} catch (NullPointerException e) {
-			System.out.println("Failed reading the password securely. Did you run this program from an IDE? Please try the normal version.");
+			System.out.println("Failed reading the password securely. Did you run this program from an IDE? Please try the normal VERSION.");
 		}
 	}
 	
@@ -154,13 +158,19 @@ public class Main {
 	
 	public static void processCreateUser(String command) {
 		try {
-			// Find username and password
-			String username = command.split(" ")[2], password = command.split(" ")[3];
+			// Find user name, password and email
+			String username = command.split(" ")[2], password = command.split(" ")[3], email = command.split(" ")[4];
+			// Verify user name
 			if (username.length() > 30) {
 				System.out.println("User name cannot exceed 30 characters. Please try again.");
 				return;
 			}
-			PCSession.session.send(new CreateUserRequest(username, password).toXML());
+			// Verify email
+			if(!EmailUtils.verifyEmail(email)) {
+				System.out.println("Invalid email!");
+				return;
+			}
+			PCSession.session.send(new CreateUserRequest(username, password, email).toXML());
 			try {
 				if(((CreateUserRequest) XMLSerializable.toObject(PCSession.session.receive())).isApproved()) System.out.println("User created.");
 				else System.out.println("Could not create user.");
@@ -168,7 +178,7 @@ public class Main {
 				printConnectionErrorMessage();
 			}
 		} catch (Exception e) {
-			printSyntaxErrorMessage("create user <username> <password>");
+			printSyntaxErrorMessage("create user <username> <password> <email>");
 		}
 	}
 	
@@ -549,7 +559,16 @@ public class Main {
 		case UNHANDLED:
 			System.out.println("Something went wrong. Did your remember to connect first?");
 			break;
+		case NOT_ACTIVATED:
+			System.out.println("Your account is not activated!");
 		}
+	}
+	
+	public static void processActivate(String command) {
+		// FIXME
+//		try {
+//			String use
+//		}
 	}
 
 	/**

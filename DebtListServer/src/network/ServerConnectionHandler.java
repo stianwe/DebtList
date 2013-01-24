@@ -8,9 +8,14 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
+
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
+import mail.EmailUtils;
+import mail.MailSender;
 import requests.CreateUserRequest;
 import requests.FriendRequest;
 import requests.LogInRequest;
@@ -18,6 +23,7 @@ import requests.LogInRequestStatus;
 import requests.UpdateRequest;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
+import utils.PasswordHasher;
 
 public class ServerConnectionHandler extends Thread {
 
@@ -321,43 +327,71 @@ public class ServerConnectionHandler extends Thread {
 	 * @param req	The CreateUserRequest
 	 */
 	public void processCreateUserRequest(CreateUserRequest req) {
+		User user = req.getRequestedUser();
 		// Check that the user don't already exist
 		if(serverConnection.getUser(req.getUsername()) == null &&
-			// And that the user name does not exceed 30 characters
+				// And that the user name does not exceed 30 characters
 				req.getUsername().length() <= 30) {
 			// TODO: Add check on username
-			// Get an id for the user
-			User user = req.getRequestedUser();
-			user.setId(serverConnection.getNextUserId());
-			// Set the request as approved
-			System.out.println("Setting newly created user as activated for compatibility reasons.");
-			req.setIsAproved(true);
-			// Insert dummy activation key and mail, and set the user as activated, to ensure backwards compatibility
-			user.setActivationKey("N_supplied");
 			// FIXME Only set as activated for compatibility reasons. Should be set as unactivated when created!
-			user.setIsActivated(true);
-			if(user.getEmail() == null) {
+			// Check the request's version to see if email and activation should be processed
+			if(req.getVersion() == null) {
+				System.out.println("Setting newly created user as activated for compatibility reasons.");
+				// Insert dummy activation key and mail, and set the user as activated, to ensure backwards compatibility
+				user.setActivationKey("N_supplied");
+				user.setIsActivated(true);
 				user.setEmail("Not_supplied");
 			} else {
+				req.setIsAproved(true);
+				user.setIsActivated(false);
+				if(!EmailUtils.verifyEmail(user.getEmail())) {
+					// Invalid email
+					req.setIsAproved(false);
+					// Give no error messages to email, but log the event, since clients should take care of this.
+					System.out.println("Invalid email!");
+					serverConnection.writeToLog("Invalid email from " + user.getUsername() + " at IP " + connection.getInetAddress().getHostAddress());
+				}
+				// If a version is supplied, process email and activation
 				// Check that the email is not already registered
+				System.out.println("Checking if email is already registered..");
 				boolean foundEmail = false;
 				for (User u : serverConnection.getUsers()) {
 					if(u.getEmail().equals(user.getEmail()))
 						foundEmail = true;
 				}
 				if(foundEmail) {
+					System.out.println("Email already registered!");
 					// Set the request as not approved
-					// FIXME Add error message explaining what went wrong!
 					req.setIsAproved(false);
+					// FIXME Add error message explaining what went wrong!
+				} else {
+					System.out.println("Email OK.");
 				}
 			}
-			// Notify the server of the new user if it was approved
 			if(req.isApproved()) {
+				// Get an id for the user
+				user.setId(serverConnection.getNextUserId());
+				// Notify the server of the new user if it was approved
 				serverConnection.addUser(user, req.getPassword());
 			}
 		}
 		// Reply with an answer
 		send(req.toXML());
+		// Set activation key after we have sent the response, so it is not sent to the user
+		if(req.getVersion() != null && req.isApproved() && user != null) {
+			System.out.println("Generating activation key for user: " + user.getUsername());
+			// Generate activation key
+			user.setActivationKey(PasswordHasher.hashPassword(((System.currentTimeMillis() + (long) (Math.random() * 10000000)) + "")).substring(0, 10));
+			// FIXME Send email with activation key
+			System.out.println("Sending activation key for " + user.getUsername() + " to " + user.getEmail() + ".");
+			try {
+				MailSender.sendActivationKey(user.getActivationKey(), user);
+			} catch (Exception e) {
+				System.out.println("Failed sending mail!");
+				e.printStackTrace();
+				serverConnection.writeToLog("Failed sending activation key to user: " + user.getUsername() + " at " + user.getEmail() + ": " + e.toString());
+			}
+		}
 	}
 	
 	/**
@@ -380,23 +414,44 @@ public class ServerConnectionHandler extends Thread {
 		}
 		if(user != null && user.getUsername().equals(req.getUserName()) 
 				&& serverConnection.checkPassword(user, req.getPassword()) 
-				&& !user.isOnline()) {
-			System.out.println("Log in OK!");
-			user.setIsOnline(true);
-			this.user = user;
-			req.setAccepted(true);
-			req.setStatus(LogInRequestStatus.ACCEPTED);
-			// Load the user variables
-			req.setUser((User) user);
-			if(req.isAccepted()) {
-				System.out.println("Log in is set to accepted!");
-				// Assign session token if requested
-				if(req.getSessionToken() != null && req.getSessionToken().equals(Constants.SESSION_TOKEN_REQUEST)) {
-					System.out.println("Token request received.");
-					String token = serverConnection.getTokenManager().generateToken(this);
-					System.out.println("Token granted to " + user.getUsername() + ": " + token);
-					req.setSessionToken(token);
-					this.token = token;
+				/* && !user.isOnline()*/) {
+			// Check that the user is activated
+			if(!user.isActivated()) {
+				// Check if activation key is attached
+				System.out.println("User not activated!");
+				if(req.getUser().getActivationKey() == null) {
+					req.setStatus(LogInRequestStatus.NOT_ACTIVATED);
+					System.out.println("No activation key attached.");
+				} else {
+					// Verify activation key
+					System.out.println("Verifying activation key..");
+					if(user.getActivationKey().equals(req.getUser().getActivationKey())) {
+						user.setIsActivated(true);
+						System.out.println("Activation key OK!");
+					} else {
+						req.setStatus(LogInRequestStatus.INVALID_ACTIVATION_KEY);
+						System.out.println("Activation failed.");
+					}
+				}
+			} 
+			if(user.isActivated()){
+				System.out.println("Log in OK!");
+				user.setIsOnline(true);
+				this.user = user;
+				req.setAccepted(true);
+				req.setStatus(LogInRequestStatus.ACCEPTED);
+				// Load the user variables
+				req.setUser((User) user);
+				if(req.isAccepted()) {
+					System.out.println("Log in is set to accepted!");
+					// Assign session token if requested
+					if(req.getSessionToken() != null && req.getSessionToken().equals(Constants.SESSION_TOKEN_REQUEST)) {
+						System.out.println("Token request received.");
+						String token = serverConnection.getTokenManager().generateToken(this);
+						System.out.println("Token granted to " + user.getUsername() + ": " + token);
+						req.setSessionToken(token);
+						this.token = token;
+					}
 				}
 			}
 		} else if(user != null && user.isOnline()){
@@ -448,7 +503,7 @@ public class ServerConnectionHandler extends Thread {
 		}
 		// Check that this user has not already completed this debt. NO why should we? (Not this way at least.)
 //		if((d.getTo().equals(getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_TO) || (d.getFrom().equals(getUser()) && d.getStatus() == DebtStatus.COMPLETED_BY_FROM)) {
-//			// TODO: Then what? Send back a correct version of the debt?
+//			// TODO: Then what? Send back a correct VERSION of the debt?
 //			System.out.println("Completing of debt failed, because this user has already marked the debt as complete");
 //			return;
 //		}

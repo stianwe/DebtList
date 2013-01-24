@@ -83,7 +83,7 @@ public class User extends XMLSerializable {
 	 * @return	True if the user is activated, false if not
 	 */
 	public boolean isActivated() {
-		return (Boolean) getVariable("isActivated");
+		return getVariable("isActivated") != null && (Boolean) getVariable("isActivated");
 	}
 	
 	/**
@@ -197,9 +197,9 @@ public class User extends XMLSerializable {
 	}
 	
 	/**
-	 * Returns a sendable version of this object (avoiding infinite loops with friends list for example).
+	 * Returns a sendable VERSION of this object (avoiding infinite loops with friends list for example).
 	 * @param fromServer	If the returned object will be sent from the server (true) or not (false). If false debts will not be included.
-	 * @return				A sendable version of this object.
+	 * @return				A sendable VERSION of this object.
 	 */
 	/*public Sendable toSendable(boolean fromServer) {
 		List<String> friendUsernames = new ArrayList<String>();
