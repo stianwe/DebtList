@@ -60,6 +60,7 @@ public class Main {
 		if(command.equals("exit")) return true;
 		else if(command.equals("debug start")) Debugger.setDebug(true);
 		else if(command.equals("debug stop")) Debugger.setDebug(false);
+		else if(command.equals("start gui")) ((PCSession) PCSession.session).startGUI();
 		else {
 			// Commands that only are accessible when the user is NOT logged in
 			if(!PCSession.session.isLoggedIn()) {

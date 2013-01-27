@@ -71,11 +71,17 @@ public class ServerConnection {
 							}
 						} else System.out.println("Not writing to database. Saving is disabled.");
 						// Also check if we should disconnect any inactive users
-						for (ServerConnectionHandler h : handlers) {
-							if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
-								System.out.println("Attempting to close connection");
-								h.close();
+						// Lock the list
+						synchronized (handlers) {
+							List<ServerConnectionHandler> toBeRemoved = new ArrayList<ServerConnectionHandler>();
+							for (ServerConnectionHandler h : handlers) {
+								if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
+									System.out.println("Attempting to close connection");
+									h.close();
+									toBeRemoved.add(h);
+								}
 							}
+							handlers.removeAll(toBeRemoved);
 						}
 					}
 				}, Constants.TIME_BETWEEN_WRITES_TO_DATABASE, Constants.TIME_BETWEEN_WRITES_TO_DATABASE);
@@ -257,7 +263,7 @@ public class ServerConnection {
 	 * @param username	The user's user name
 	 * @return			The user's ServerConnectionHandler
 	 */
-	public ServerConnectionHandler getHandler(String username) {
+	public synchronized ServerConnectionHandler getHandler(String username) {
 		for (ServerConnectionHandler h : handlers) {
 			if(h.getUser() != null && h.getUser().getUsername().equals(username)) return h;
 		}
@@ -280,7 +286,7 @@ public class ServerConnection {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 //			e.printStackTrace();
-//			writeToLog("Failed to accept incomming connection: " + e.toString());
+			writeToLog("Failed to accept incomming connection on port "+ port + ": " + e.toString());
 			System.out.println("Server socket closed.");
 		} finally {
 			try {
@@ -324,6 +330,6 @@ public class ServerConnection {
 		}
 
 		// Accept connections on port 13337
-		server.accept(13337);
+		server.accept(Constants.STANDARD_SERVER_PORT);
 	}
 }
