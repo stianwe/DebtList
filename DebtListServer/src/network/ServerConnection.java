@@ -252,22 +252,22 @@ public class ServerConnection {
 	 */
 	public void notifyUser(String username, XMLSerializable objectToSend) {
 		System.out.println("Notifying " + username);
-		ServerConnectionHandler handler = getHandler(username);
-		if(handler != null) {
+		for(ServerConnectionHandler handler : getHandlers(username)) {
 			handler.sendUpdate(objectToSend);
 		}
 	}
 
 	/**
-	 * Returns the specified user's ServerConnectionHandler
+	 * Returns the specified user's ServerConnectionHandlers
 	 * @param username	The user's user name
-	 * @return			The user's ServerConnectionHandler
+	 * @return			The user's ServerConnectionHandlers
 	 */
-	public synchronized ServerConnectionHandler getHandler(String username) {
+	public synchronized List<ServerConnectionHandler> getHandlers(String username) {
+		List<ServerConnectionHandler> handlers = new ArrayList<ServerConnectionHandler>();
 		for (ServerConnectionHandler h : handlers) {
-			if(h.getUser() != null && h.getUser().getUsername().equals(username)) return h;
+			if(h.getUser() != null && h.getUser().getUsername().equals(username)) handlers.add(h);
 		}
-		return null;
+		return handlers;
 	}
 
 	/**
