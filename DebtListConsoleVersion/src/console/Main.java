@@ -15,6 +15,7 @@ import logic.DebtStatus;
 import logic.User;
 import requests.CreateUserRequest;
 import requests.FriendRequest;
+import requests.LogInRequest;
 import requests.LogInRequestStatus;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
@@ -69,6 +70,7 @@ public class Main {
 					if(command.split(" ").length == 3) processConnect(command);
 					else processConnectOLD(command);
 				}
+				else if(command.startsWith("activate")) processActivate(command);
 				else if(command.equals("login")) safeLogin();
 				else if(command.startsWith("login")) processLogin(command);
 				
@@ -544,7 +546,11 @@ public class Main {
 			printSyntaxErrorMessage("login <username> <password>");
 		}
 		// Attempt to log in
-		switch(PCSession.session.logIn(username, password)) {
+		processLoginRequestStatus(PCSession.session.logIn(username, password));
+	}
+	
+	public static void processLoginRequestStatus(LogInRequestStatus status) {
+		switch(status) {
 		case ACCEPTED:
 			System.out.println("Log in ok.");
 			Debugger.print("Starting updater.");
@@ -560,15 +566,30 @@ public class Main {
 			System.out.println("Something went wrong. Did your remember to connect first?");
 			break;
 		case NOT_ACTIVATED:
-			System.out.println("Your account is not activated!");
+			System.out.println("Your account is not activated! Activate it using the activate command.");
+			break;
+		case INVALID_ACTIVATION_KEY:
+			System.out.println("Invalid activation key.");
+			break;
+		default:
+			System.out.println("SHOULD NOT HAPPEN!");
+			break;
 		}
 	}
 	
 	public static void processActivate(String command) {
 		// FIXME
-//		try {
-//			String use
-//		}
+		try {
+			String[] ss = command.split(" ");
+			String username = ss[1], password = ss[2], key = ss[3];
+			LogInRequest response = (LogInRequest) XMLSerializable.toObject(Session.session.sendAndReceive(new LogInRequest(username, password, key).toXML()));
+			processLoginRequestStatus(response.getStatus());
+		} catch (IndexOutOfBoundsException e) {
+			printSyntaxErrorMessage("<user name> <password> <activation key>");
+		} catch (IOException e) {
+			System.out.println("There was an error with the connection. Please try again.");
+			e.printStackTrace();
+		}
 	}
 
 	/**

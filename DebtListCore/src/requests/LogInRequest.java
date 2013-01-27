@@ -21,6 +21,11 @@ public class LogInRequest extends Request {
 		setVariable("password", PasswordHasher.hashPassword(password));
 	}
 	
+	public LogInRequest(String username, String password, String activationKey) {
+		this(username, password);
+		getUser().setActivationKey(activationKey);
+	}
+	
 	public LogInRequest(String username, String password, boolean isAccepted, LogInRequestStatus status) {
 		this(new User(username), password, isAccepted, status);
 	}
