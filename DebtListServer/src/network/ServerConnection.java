@@ -320,7 +320,7 @@ public class ServerConnection {
 
 	public static void main(String[] args) {
 		ServerConnection server = new ServerConnection(true);
-		// Use the secure VERSION
+		// Use the secure version
 //		ServerConnection server = new SecureServerConnection(true);
 
 		// Print loaded users on startup

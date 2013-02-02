@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.DatagramSocket;
 import java.net.Socket;
 
 /**
@@ -25,6 +26,8 @@ public class ClientConnection {
 		isConnected = false;
 		try {
 			connection = createSocket(host, port);
+			// Set timeout
+			connection.setSoTimeout(Constants.STANDARD_SOCKET_TIMEOUT);
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			writer = new PrintWriter(connection.getOutputStream(), true);
 			isConnected = true;
