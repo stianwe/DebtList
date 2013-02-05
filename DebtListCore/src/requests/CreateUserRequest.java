@@ -10,20 +10,44 @@ public class CreateUserRequest extends Request {
 	 */
 	public CreateUserRequest() {}
 	
+	/**
+	 * Initializes a CreateUserRequest with the given arguments, and the status set to UNHANDLED as default
+	 * @param username
+	 * @param password
+	 * @param email
+	 */
 	public CreateUserRequest(String username, String password, String email) {
-		this(new User(username), password, false);
+		this(new User(username), password, CreateUserRequestStatus.UNHANDLED);
 		getRequestedUser().setEmail(email);
 	}
 	
+	/**
+	 * @deprecated isApproved should no longer be used
+	 * @param requestedUser
+	 * @param password
+	 * @param isApproved
+	 */
 	public CreateUserRequest(User requestedUser, String password, boolean isApproved) {
 		setVariable("requestedUser", requestedUser);
-		setVariable("isApproved", isApproved);
+		setIsAproved(isApproved);
 		setVariable("password", password);
 		// Set the version to the one in the constants
 		System.out.println("Setting version to " + Constants.VERSION);
 		setVersion(Constants.VERSION);
 	}
 
+	/**
+	 * 
+	 * @param requestedUser
+	 * @param password
+	 * @param status
+	 */
+	public CreateUserRequest(User requestedUser, String password, CreateUserRequestStatus status) {
+		setVariable("requestedUser", requestedUser);
+		setVariable("password", password);
+		setStatus(status);
+	}
+	
 	/**
 	 * Sets the version number attached to the create user request
 	 * Does not normally need to be set, as it is set to DebtListCore.network.Constants by the constructors
@@ -42,8 +66,20 @@ public class CreateUserRequest extends Request {
 		return (String) getVariable("version");
 	}
 	
+	/**
+	 * @deprecated Deprecated after status was added. Use setStatus() instead
+	 * @param isApproved
+	 */
 	public void setIsAproved(boolean isApproved) {
 		setVariable("isApproved", isApproved);
+	}
+	
+	public void setStatus(CreateUserRequestStatus status) {
+		setVariable("status", status);
+	}
+	
+	public CreateUserRequestStatus getStatus() {
+		return (CreateUserRequestStatus) getVariable("status");
 	}
 	
 	public String getUsername() {
@@ -54,8 +90,16 @@ public class CreateUserRequest extends Request {
 		return (String) getVariable("password");
 	}
 	
+//	/**
+//	 * @deprecated Deprecated after status was added. Use getStatus() instead
+//	 * @return
+//	 */
+//	public boolean isApproved() {
+//		return (Boolean) getVariable("isApproved");
+//	}
+	
 	public boolean isApproved() {
-		return (Boolean) getVariable("isApproved");
+		return getStatus() == CreateUserRequestStatus.ACCEPTED;
 	}
 	
 	public User getRequestedUser() {

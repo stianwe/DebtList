@@ -17,6 +17,7 @@ import logic.User;
 import mail.EmailUtils;
 import mail.MailSender;
 import requests.CreateUserRequest;
+import requests.CreateUserRequestStatus;
 import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
@@ -329,10 +330,15 @@ public class ServerConnectionHandler extends Thread {
 	public void processCreateUserRequest(CreateUserRequest req) {
 		User user = req.getRequestedUser();
 		// Check that the user don't already exist
-		if(serverConnection.getUser(req.getUsername()) == null &&
-				// And that the user name does not exceed 30 characters
-				req.getUsername().length() <= 30) {
-			// TODO: Add check on username
+		if(serverConnection.getUser(req.getUsername()) != null) {
+			req.setStatus(CreateUserRequestStatus.USERNAME_ALREADY_TAKEN);
+		} 
+		// And that the user name does not exceed 30 characters
+		// TODO: Add check on username
+		else if(req.getUsername().length() <= 30) {
+			req.setStatus(CreateUserRequestStatus.INVALID_USERNAME);
+		}
+		else {
 			// FIXME Only set as activated for compatibility reasons. Should be set as unactivated when created!
 			// Check the request's version to see if email and activation should be processed
 			if(req.getVersion() == null) {
@@ -342,12 +348,14 @@ public class ServerConnectionHandler extends Thread {
 				user.setIsActivated(true);
 				user.setEmail("Not_supplied");
 			} else {
-				req.setIsAproved(true);
+//				req.setIsAproved(true);
+				req.setStatus(CreateUserRequestStatus.ACCEPTED);
 				user.setIsActivated(false);
 				if(!EmailUtils.verifyEmail(user.getEmail())) {
 					// Invalid email
-					req.setIsAproved(false);
 					// Give no error messages to email, but log the event, since clients should take care of this.
+//					req.setIsAproved(false);
+					req.setStatus(CreateUserRequestStatus.UNHANDLED);
 					System.out.println("Invalid email!");
 					serverConnection.writeToLog("Invalid email from " + user.getUsername() + " at IP " + connection.getInetAddress().getHostAddress());
 				}
@@ -362,8 +370,8 @@ public class ServerConnectionHandler extends Thread {
 				if(foundEmail) {
 					System.out.println("Email already registered!");
 					// Set the request as not approved
-					req.setIsAproved(false);
-					// FIXME Add error message explaining what went wrong!
+//					req.setIsAproved(false);
+					req.setStatus(CreateUserRequestStatus.EMAIL_ALREADY_REGISTERED);
 				} else {
 					System.out.println("Email OK.");
 				}
@@ -374,7 +382,7 @@ public class ServerConnectionHandler extends Thread {
 				// Notify the server of the new user if it was approved
 				serverConnection.addUser(user, req.getPassword());
 			}
-		}
+		} 
 		// Reply with an answer
 		send(req.toXML());
 		// Set activation key after we have sent the response, so it is not sent to the user

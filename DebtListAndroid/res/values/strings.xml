@@ -7,6 +7,7 @@
     <string name="edit_username">User name</string>
     <string name="edit_password">Password</string>
     <string name="button_login">Log in</string>
+    <string name="button_register">Register</string>
     <string name="login_error_message">Incorrect login info</string>
 
     <!-- DebtViewActivity -->
@@ -45,11 +46,31 @@
     <string name="friend_view_accept_incoming">Accept</string>
     <string name="friend_view_decline_incoming">Decline</string>
     <string name="friend_view_add_friend">Add friend</string>
-    
+
     <!-- AddFriendActivity -->
     <string name="title_activity_add_friend_view">Add friend</string>
     <string name="add_friend_username_email">Enter user name or e-mail</string>
     <string name="add_friend_error_message">User not found or already added!</string>
     <string name="add_friend_button">Add friend</string>
+
+    <!-- CreateUserActivity -->
+    <string name="title_activity_create_user">Create user</string>
+    <string name="create_user_username">User name</string>
+    <string name="create_user_email">Email</string>
+    <string name="create_user_password1">Password</string>
+    <string name="create_user_password2">Repeat password</string>
+    <string name="create_user_button">Create user</string>
+    <string name="create_user_error_fill">Please fill all fields</string>
+    <string name="create_user_error_password_match">Your passwords does not match</string>
+    <string name="create_user_error_invalid_email">Invalid email address</string>
+    <string name="create_user_error_email_already_registered">Email already registered</string>
+    <string name="create_user_error_invalid_username">Use a maximum of 30 characters for user name</string>
+    <string name="create_user_error_username_taken">User name already taken</string>
+    <string name="create_user_error_network">Could not establish connection to server</string>
+
+    <!-- ActivateUserActivity -->
+
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_activate_user">Activate user</string>
 
 </resources>

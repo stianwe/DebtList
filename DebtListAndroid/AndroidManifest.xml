@@ -53,6 +53,22 @@
             android:name="android.debtlistandroid.AddFriendView"
             android:label="@string/title_activity_add_friend_view" >
         </activity>
+        <activity
+            android:name="android.debtlistandroid.CreateUserActivity"
+            android:label="@string/title_activity_create_user"
+            android:parentActivityName="android.debtlistandroid.LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="android.debtlistandroid.LoginActivity" />
+        </activity>
+        <activity
+            android:name="android.debtlistandroid.ActivateUserActivity"
+            android:label="@string/title_activity_activate_user"
+            android:parentActivityName="android.debtlistandroid.LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="android.debtlistandroid.LoginActivity" />
+        </activity>
     </application>
 
 </manifest>

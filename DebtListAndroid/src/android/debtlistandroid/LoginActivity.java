@@ -40,6 +40,10 @@ public class LoginActivity extends Activity {
 //		return true;
 //	}
 
+	public void register(View v) {
+		startActivity(new Intent(this, CreateUserActivity.class));
+	}
+	
 	public void login(View v) {
 		final Activity dis = this;
 		new Thread() {
@@ -51,8 +55,11 @@ public class LoginActivity extends Activity {
 					startActivity(intent);
 					break;
 				case ALREADY_LOGGED_ON:
+					// Should not happen and can be removed!
+					System.err.println("ERROR!!!!!!!!!!!!!!!!!");
 					break;
 				case UNHANDLED:
+					// TODO
 					break;
 				case WRONG_INFORMATION:
 					runOnUiThread(new Runnable() {
