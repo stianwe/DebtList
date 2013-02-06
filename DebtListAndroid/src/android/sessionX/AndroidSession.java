@@ -15,6 +15,15 @@ public class AndroidSession extends Session {
 		init();
 	}
 	
+	/**
+	 * Clears the session by reseting the user, and by removing the session token.
+	 */
+	@Override
+	public void clear() {
+		super.clear();
+		sessionToken = null;
+	}
+	
 	@Override
 	public void send(String msg)  {
 		try {

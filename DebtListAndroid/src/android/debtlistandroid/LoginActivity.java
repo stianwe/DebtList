@@ -41,10 +41,14 @@ public class LoginActivity extends Activity {
 //	}
 
 	public void register(View v) {
+		// Clear session user in case someone has gotten to this activity while logged in
+		Session.session.clear();
 		startActivity(new Intent(this, CreateUserActivity.class));
 	}
 	
 	public void login(View v) {
+		// Clear session user in case someone has gotten to this activity while logged in
+		Session.session.clear();
 		final Activity dis = this;
 		new Thread() {
 			public void run() {

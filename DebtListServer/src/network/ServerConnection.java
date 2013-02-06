@@ -22,6 +22,7 @@ import database.SessionTokenManager;
 
 import logic.User;
 import requests.xml.XMLSerializable;
+import utils.CaseInsensitiveHashMap;
 import utils.PasswordHasher;
 
 public class ServerConnection {
@@ -38,8 +39,8 @@ public class ServerConnection {
 
 	public ServerConnection(boolean readFromDatabase) {
 		this.handlers = new ArrayList<ServerConnectionHandler>();
-		users = new HashMap<String, User>();
-		passwords = new HashMap<String, String>();
+		users = new CaseInsensitiveHashMap<User>();
+		passwords = new CaseInsensitiveHashMap<String>();
 		tokenManager = new SessionTokenManager();
 		nextDebtId = 1; nextUserId = 1; nextFriendRequestId = 1;
 		if(readFromDatabase) {

@@ -21,6 +21,13 @@ public abstract class Session {
 	public static Session session;
 
 	/**
+	 * Clears the session by reseting the user
+	 */
+	public void clear() {
+		this.user = null;
+	}
+	
+	/**
 	 * Connects to the given host at the given port, if not already connected to a host
 	 * @param host
 	 * @param port

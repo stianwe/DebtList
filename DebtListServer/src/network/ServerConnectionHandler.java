@@ -422,7 +422,7 @@ public class ServerConnectionHandler extends Thread {
 		if(user == null) {
 			System.out.println("User not found!");
 		}
-		if(user != null && user.getUsername().equals(req.getUserName()) 
+		if(user != null /* && user.getUsername().equalsIgnoreCase(req.getUserName()) */ 
 				&& serverConnection.checkPassword(user, req.getPassword()) 
 				/* && !user.isOnline()*/) {
 			// Check that the user is activated
@@ -466,7 +466,8 @@ public class ServerConnectionHandler extends Thread {
 			}
 		} else if(user != null && user.isOnline()){
 			req.setStatus(LogInRequestStatus.ALREADY_LOGGED_ON);
-			System.out.println("User already online.");
+			System.out.println("User already online. (SHOULD NOT HAPPEN!)");
+			serverConnection.writeToLog("User not able to log in, because it is already online.. This should NOT happen.");
 		} else {
 			req.setStatus(LogInRequestStatus.WRONG_INFORMATION);
 			System.out.println("Username or password failed");
