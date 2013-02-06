@@ -19,6 +19,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +42,7 @@ public class FriendViewActivity extends Activity {
 	public static final String INCOMING_SEPARATOR_STRING = "incomingSeparatorString";
 	public static final String CONFIRMED_SEPARATOR_STRING = "confirmedSeparatorString";
 	public static final String OUTGOING_SEPARATOR_STRING = "outgoingSeparatorString";
+	public static final String EMPTY_STRING = "empty";
 
 	public ListAdapter adapter;
 	
@@ -82,6 +84,11 @@ public class FriendViewActivity extends Activity {
 			strings.addAll(outgoing);
 		}
 
+		// If no friends or friend requests, add an empty string to show the info
+		if(strings.isEmpty()) {
+			strings.add(EMPTY_STRING);
+		}
+		
 		// Set adapter
 		this.adapter = new FriendAdapter(this, R.layout.friend_list_view, strings);
 		((ListView) findViewById(R.id.friend_view_list)).setAdapter(this.adapter);
@@ -114,30 +121,44 @@ public class FriendViewActivity extends Activity {
 		
 		@Override
 		public View getView(int pos, View convertView, ViewGroup parent) {
-			if(pos == 0) {
-				confirmedSeparatorHasBeenPlaced = false;
-			}
 			View v = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.friend_list_view, null);
-			TextView sep = (TextView) v.findViewById(R.id.friend_view_separator);
-			sep.setVisibility(View.VISIBLE);
-			String s = objects.get(pos); 
-			if(s == INCOMING_SEPARATOR_STRING) {
-				sep.setText(v.getResources().getString(R.string.friend_view_incoming_separator));
-			} else if(s == CONFIRMED_SEPARATOR_STRING) {
-				sep.setText(v.getResources().getString(R.string.friend_view_confirmed_separator));
-				confirmedSeparatorHasBeenPlaced = true;
-			} else if(s == OUTGOING_SEPARATOR_STRING) {
-				// In case we have no confirmed debts
-				confirmedSeparatorHasBeenPlaced = true;
-				sep.setText(v.getResources().getString(R.string.friend_view_outgoing_separator));
-			} else {
-				sep.setVisibility(View.GONE);
+			// Display message if there are no registered friends or friend requests
+			if(objects.size() == 1 && objects.get(0) == EMPTY_STRING) {
+				System.out.println("ADDING INFORMATION STRING");
 				TextView t = (TextView) v.findViewById(R.id.friend_view_user_name);
+				t.setText(v.getResources().getString(R.string.friend_view_no_friends));
+				// Set the color to white
+				t.setBackgroundColor(Color.WHITE);
+				// Set the text color to black
+				t.setTextColor(Color.BLACK);
+				// Set it as visible
 				t.setVisibility(View.VISIBLE);
-				t.setText(s);
-				// Add buttons for incoming requests
-				System.out.println("Confirmed separator has been placed: " + confirmedSeparatorHasBeenPlaced);
-				v.setOnClickListener(new FriendOnClickListener(!confirmedSeparatorHasBeenPlaced));
+			} else {
+				System.out.println("NOT ADDING INFORMATION STRING, BECAUSE WE HAVE: " + objects.get(pos));
+				if(pos == 0) {
+					confirmedSeparatorHasBeenPlaced = false;
+				}
+				TextView sep = (TextView) v.findViewById(R.id.friend_view_separator);
+				sep.setVisibility(View.VISIBLE);
+				String s = objects.get(pos); 
+				if(s == INCOMING_SEPARATOR_STRING) {
+					sep.setText(v.getResources().getString(R.string.friend_view_incoming_separator));
+				} else if(s == CONFIRMED_SEPARATOR_STRING) {
+					sep.setText(v.getResources().getString(R.string.friend_view_confirmed_separator));
+					confirmedSeparatorHasBeenPlaced = true;
+				} else if(s == OUTGOING_SEPARATOR_STRING) {
+					// In case we have no confirmed debts
+					confirmedSeparatorHasBeenPlaced = true;
+					sep.setText(v.getResources().getString(R.string.friend_view_outgoing_separator));
+				} else {
+					sep.setVisibility(View.GONE);
+					TextView t = (TextView) v.findViewById(R.id.friend_view_user_name);
+					t.setVisibility(View.VISIBLE);
+					t.setText(s);
+					// Add buttons for incoming requests
+					System.out.println("Confirmed separator has been placed: " + confirmedSeparatorHasBeenPlaced);
+					v.setOnClickListener(new FriendOnClickListener(!confirmedSeparatorHasBeenPlaced));
+				}
 			}
 			return v;
 		}

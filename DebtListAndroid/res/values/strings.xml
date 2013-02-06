@@ -16,7 +16,7 @@
     <string name="button_decline">Decline</string>
     <string name="title_activity_debt_view">DebtList</string>
     <string name="debt_view_no_debts1">You currently have no debts!</string>
-    <string name="debt_view_no_debts2">Click the \"+\" to add one!</string>
+    <string name="debt_view_no_debts2">Click \"ADD DEBT\" to add one!</string>
     <string name="debt_view_incoming_requests_separator">Incoming debt requests</string>
     <string name="debt_view_confirmed_separator">Confirmed debts</string>
     <string name="debt_view_outgoing_requests_separator">Outgoing debt requests</string>
@@ -46,6 +46,7 @@
     <string name="friend_view_accept_incoming">Accept</string>
     <string name="friend_view_decline_incoming">Decline</string>
     <string name="friend_view_add_friend">Add friend</string>
+    <string name="friend_view_no_friends">You currently have no friends!\nClick \"ADD FRIEND\" to add one!</string>
 
     <!-- AddFriendActivity -->
     <string name="title_activity_add_friend_view">Add friend</string>
