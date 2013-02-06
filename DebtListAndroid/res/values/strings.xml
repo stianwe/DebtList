@@ -20,6 +20,7 @@
     <string name="debt_view_incoming_requests_separator">Incoming debt requests</string>
     <string name="debt_view_confirmed_separator">Confirmed debts</string>
     <string name="debt_view_outgoing_requests_separator">Outgoing debt requests</string>
+    <string name="debt_view_dialog_no_friends">You currently have no friends to associate debts with.\nPlease add a friend by clicking \"FRIENDS\" and then \"ADD FRIEND\".</string>
 
     <!-- Menu -->
     <string name="menu_create_debt">Add debt</string>

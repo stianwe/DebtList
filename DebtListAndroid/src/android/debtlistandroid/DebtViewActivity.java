@@ -10,6 +10,7 @@ import session.Session;
 import logic.Debt;
 import logic.DebtStatus;
 import android.os.Bundle;
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -75,7 +76,13 @@ public class DebtViewActivity extends ListActivity {
 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if(item.getItemId() == R.id.menu_create_debt) {
-			startActivity(new Intent(this, CreateDebtActivity.class));
+			// Check if the user has any confirmed friends
+			if(Session.session.getUser().getNumberOfFriends() == 0) {
+				// If none, display message telling the user to add a friend before adding a debt
+				new AlertDialog.Builder(this).setMessage(R.string.debt_view_dialog_no_friends).show();
+			} else {
+				startActivity(new Intent(this, CreateDebtActivity.class));
+			}
 		} else if(item.getItemId() == R.id.menu_friends) {
 			startActivity(new Intent(this, FriendViewActivity.class));
 		} else if(item.getItemId() == R.id.menu_settings) {
