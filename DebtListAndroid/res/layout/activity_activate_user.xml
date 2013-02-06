@@ -8,30 +8,35 @@
         android:id="@+id/activate_user_username"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/edit_username" />
+        android:hint="@string/activate_user_username" />
 
     <EditText
         android:id="@+id/activate_user_password"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/edit_password"
+        android:hint="@string/activate_user_password"
         android:inputType="textPassword" />
 
+    <EditText
+        android:id="@+id/activate_user_key"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/activate_user_key" />
+    
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        tools:context=".LoginActivity" >
+        tools:context=".ActivateUserActivity" >
 
         <TextView
-            android:id="@+id/loginerrortext"
+            android:id="@+id/activate_user_error"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:padding="3dp"
-            android:text="@string/login_error_message"
             android:textColor="#ff0000"
             android:textSize="18sp"
             android:visibility="invisible" >
@@ -40,8 +45,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="login"
-            android:text="@string/button_login" />
+            android:onClick="activate_user"
+            android:text="@string/activate_user_button" />
     </LinearLayout>
 
 </LinearLayout>

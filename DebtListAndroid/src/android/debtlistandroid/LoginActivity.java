@@ -69,6 +69,8 @@ public class LoginActivity extends Activity {
 						}
 					});
 					break;
+				case NOT_ACTIVATED:
+					startActivity(new Intent(dis, ActivateUserActivity.class));
 				default:
 					break;
 				}

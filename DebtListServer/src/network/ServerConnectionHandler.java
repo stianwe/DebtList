@@ -335,7 +335,7 @@ public class ServerConnectionHandler extends Thread {
 		} 
 		// And that the user name does not exceed 30 characters
 		// TODO: Add check on username
-		else if(req.getUsername().length() <= 30) {
+		else if(req.getUsername().length() > 30) {
 			req.setStatus(CreateUserRequestStatus.INVALID_USERNAME);
 		}
 		else {
@@ -347,6 +347,7 @@ public class ServerConnectionHandler extends Thread {
 				user.setActivationKey("N_supplied");
 				user.setIsActivated(true);
 				user.setEmail("Not_supplied");
+				req.setStatus(CreateUserRequestStatus.ACCEPTED);
 			} else {
 //				req.setIsAproved(true);
 				req.setStatus(CreateUserRequestStatus.ACCEPTED);

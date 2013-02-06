@@ -69,8 +69,12 @@
     <string name="create_user_error_network">Could not establish connection to server</string>
 
     <!-- ActivateUserActivity -->
-
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_activate_user">Activate user</string>
+    <string name="activate_user_username">User name</string>
+    <string name="activate_user_password">Password</string>
+    <string name="activate_user_key">Activation key (received on mail)</string>
+    <string name="activate_user_button">Activate</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_create_user_activity">Create user</string>
 
 </resources>
