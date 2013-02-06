@@ -47,6 +47,7 @@
     <string name="friend_view_accept_incoming">Accept</string>
     <string name="friend_view_decline_incoming">Decline</string>
     <string name="friend_view_add_friend">Add friend</string>
+    <string name="friend_view_debts">Debts</string>
     <string name="friend_view_no_friends">You currently have no friends!\nClick \"ADD FRIEND\" to add one!</string>
 
     <!-- AddFriendActivity -->

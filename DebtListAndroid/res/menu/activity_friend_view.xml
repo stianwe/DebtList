@@ -6,6 +6,11 @@
         android:title="@string/friend_view_add_friend"/>
 
     <item
+        android:id="@+id/friend_view_menu_debts"
+        android:showAsAction="always"
+        android:title="@string/friend_view_debts"/>
+
+    <item
         android:id="@+id/friend_view_menu_settings"
         android:showAsAction="always"
         android:title="@string/menu_settings"/>

@@ -211,6 +211,8 @@ public class FriendViewActivity extends Activity {
 		case R.id.friend_view_menu_add_friend:
 			startActivity(new Intent(this, AddFriendView.class));
 			break;
+		case R.id.friend_view_menu_debts:
+			startActivity(new Intent(this, DebtViewActivity.class));
 		case R.id.friend_view_menu_settings:
 			System.out.println("SETTINGS!");
 			break;
