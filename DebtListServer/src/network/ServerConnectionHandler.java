@@ -336,6 +336,7 @@ public class ServerConnectionHandler extends Thread {
 		// And that the user name does not exceed 30 characters
 		// TODO: Add check on username
 		else if(req.getUsername().length() > 30) {
+			System.out.println("User name " + req.getUsername() + " is over 30 characters long, and not valid.");
 			req.setStatus(CreateUserRequestStatus.INVALID_USERNAME);
 		}
 		else {

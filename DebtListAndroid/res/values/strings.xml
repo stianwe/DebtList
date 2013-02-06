@@ -74,7 +74,9 @@
     <string name="activate_user_password">Password</string>
     <string name="activate_user_key">Activation key (received on mail)</string>
     <string name="activate_user_button">Activate</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_create_user_activity">Create user</string>
+    <string name="activate_user_error_filled">Please fill in the activation key received on mail</string>
+    <string name="activate_user_error_key">Wrong activation key</string>
+    <string name="activate_user_error_network">Could not establish connection to server</string>
+    <string name="activate_user_error_login_info">SHOULD NOT HAPPEN: Wrong user name or password</string>
 
 </resources>

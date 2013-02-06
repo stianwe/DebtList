@@ -85,9 +85,29 @@ public abstract class Session {
 	 * @return				The status of the received response
 	 */
 	public LogInRequestStatus logIn(String username, String password) {
+		return loginHelper(new LogInRequest(username, password));
+	}
+	
+	/**
+	 * Tries to log in and activate user by sending a LogInRequest to the server connected to by the connection
+	 * @param username		The user name
+	 * @param password		The password
+	 * @param activationKey	The activation key
+	 * @return				The status of the received response
+	 */
+	public LogInRequestStatus logIn(String username, String password, String activationKey) {
+		return loginHelper(new LogInRequest(username, password, activationKey));
+	}
+	
+	/**
+	 * A helper method for logIn that sends the login request given as argument and returns the status contained in the response
+	 * @param req	The LoginRequest to send
+	 * @return		The status of the received response
+	 */
+	private LogInRequestStatus loginHelper(LogInRequest req) {
 		LogInRequest resp = null;
 		try {
-			resp = (LogInRequest) XMLSerializable.toObject(sendAndReceive(new LogInRequest(username, password).toXML()));
+			resp = (LogInRequest) XMLSerializable.toObject(sendAndReceive(req.toXML()));
 			if(resp.isAccepted()) {
 				setUser(resp.getUser());
 			}

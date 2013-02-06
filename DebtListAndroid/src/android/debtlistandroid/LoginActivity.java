@@ -70,6 +70,8 @@ public class LoginActivity extends Activity {
 					});
 					break;
 				case NOT_ACTIVATED:
+					// Send user to activation view
+					ActivateUserActivity.setLoginInformation(((EditText)findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString());
 					startActivity(new Intent(dis, ActivateUserActivity.class));
 				default:
 					break;

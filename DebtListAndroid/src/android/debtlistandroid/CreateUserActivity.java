@@ -30,7 +30,6 @@ public class CreateUserActivity extends Activity {
 //	}
 
 	public void create_user(View v) {
-		System.out.println("CREATE USER");
 		EditText username = (EditText) findViewById(R.id.create_user_username),
 				email = (EditText) findViewById(R.id.create_user_email),
 				password1 = (EditText) findViewById(R.id.create_user_password1),
@@ -66,6 +65,7 @@ public class CreateUserActivity extends Activity {
 			case ACCEPTED:
 				System.out.println("USER REGISTERED!!!!!!");
 				// Send user to activate view
+				ActivateUserActivity.setLoginInformation(username.getText().toString(), password1.getText().toString());
 				startActivity(new Intent(this, ActivateUserActivity.class));
 				break;
 			case EMAIL_ALREADY_REGISTERED:

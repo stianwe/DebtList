@@ -11,7 +11,8 @@ public class CreateUserRequest extends Request {
 	public CreateUserRequest() {}
 	
 	/**
-	 * Initializes a CreateUserRequest with the given arguments, and the status set to UNHANDLED as default
+	 * Initializes a CreateUserRequest with the given arguments, and the status set to UNHANDLED as default. 
+	 * Also sets the version.
 	 * @param username
 	 * @param password
 	 * @param email
@@ -46,6 +47,9 @@ public class CreateUserRequest extends Request {
 		setVariable("requestedUser", requestedUser);
 		setVariable("password", password);
 		setStatus(status);
+		// Set the version to the one in the constants
+		System.out.println("Setting version to " + Constants.VERSION);
+		setVersion(Constants.VERSION);
 	}
 	
 	/**

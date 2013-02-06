@@ -2,8 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ActivateUserActivity" >
 
+    <!-- 
+    Don't need to specify user name and password here, since it must already be done when reaching this activity
     <EditText
         android:id="@+id/activate_user_username"
         android:layout_width="fill_parent"
@@ -16,13 +19,13 @@
         android:layout_height="wrap_content"
         android:hint="@string/activate_user_password"
         android:inputType="textPassword" />
+     -->
 
     <EditText
         android:id="@+id/activate_user_key"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:hint="@string/activate_user_key" />
-    
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
