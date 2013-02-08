@@ -55,7 +55,11 @@ public class PCSession extends Session {
 	 */
 	public void connect(String host, int port) {
 		if(!isConnected()) {
-			connection.connect(host, port);
+			try {
+				connection.connect(host, port);
+			} catch(IOException e) {
+				System.out.println("Failed to connect.");
+			}
 		}
 	}
 	

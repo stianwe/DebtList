@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
@@ -22,26 +23,34 @@ public class ClientConnection {
 	 * @param host	The host
 	 * @param port	The port
 	 */
-	public void connect(String host, int port) {
+	public void connect(String host, int port) throws IOException {
 		isConnected = false;
 		try {
 			connection = createSocket(host, port);
 			// Set timeout
-			connection.setSoTimeout(Constants.STANDARD_SOCKET_TIMEOUT);
+			connection.setSoTimeout(Constants.STANDARD_SOCKET_RECEIVE_TIMEOUT);
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			writer = new PrintWriter(connection.getOutputStream(), true);
 			isConnected = true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("FAILED TO CONNECT!!!!!!!!!!!!!!!!!!!!");
 			try {
 				connection.close();
 			} catch (Exception ex) {}
+			System.out.println("Throwing exception!");
+			throw e;
 		}
 	}
 	
 	public Socket createSocket(String host, int port) throws IOException {
-		return new Socket(host, port);
+		Socket s = new Socket();
+		// Connect and set the timeout
+		System.out.println("Waiting up to 10 sec..");
+		s.connect(new InetSocketAddress(host, port), Constants.STANDARD_SOCKET_CONNECT_TIMEOUT);
+		System.out.println("Connected!! :)");
+		return s;
 	}
 	
 	/**

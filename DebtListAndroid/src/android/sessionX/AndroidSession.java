@@ -45,6 +45,7 @@ public class AndroidSession extends Session {
 
 	@Override
 	public String sendAndReceive(String msg) throws IOException {
+		System.out.println("Sending over an Android connection.");
 		return connection.send(msg, true);
 	}
 

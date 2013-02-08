@@ -13,8 +13,9 @@ public class Constants {
 	/**
 	 * How long the client will wait to receive a response from the server
 	 */
-	public static final int STANDARD_SOCKET_TIMEOUT = 0; 
+	public static final int STANDARD_SOCKET_RECEIVE_TIMEOUT = 0; 
 	
+	public static final int STANDARD_SOCKET_CONNECT_TIMEOUT = 10 * 1000; // 10 seconds
 	
 	public static final String SERVER_LOG_FILE = "TEST_debtlog.txt";
 	

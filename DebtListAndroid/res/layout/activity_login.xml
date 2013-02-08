@@ -36,7 +36,6 @@
             android:padding="3dp"
             android:visibility="invisible"
             android:textColor="#ff0000"
-            android:text="@string/login_error_message"
             android:textSize="18sp" >
         </TextView>
         

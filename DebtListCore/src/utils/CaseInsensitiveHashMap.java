@@ -19,6 +19,7 @@ public class CaseInsensitiveHashMap<T> extends HashMap<String, T> {
 	
 	@Override
 	public T get(Object key) {
+		if(key == null) return null;
 		return super.get(((String) key).toLowerCase());
 	}
 	

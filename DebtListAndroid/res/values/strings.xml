@@ -8,7 +8,8 @@
     <string name="edit_password">Password</string>
     <string name="button_login">Log in</string>
     <string name="button_register">Register</string>
-    <string name="login_error_message">Incorrect login info</string>
+    <string name="login_error_incorrect">Incorrect login info</string>
+    <string name="login_error_connection">Could not connect to server!</string>
 
     <!-- DebtViewActivity -->
     <string name="button_complete">Complete</string>

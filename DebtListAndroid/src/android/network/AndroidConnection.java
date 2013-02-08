@@ -35,7 +35,9 @@ public class AndroidConnection {
 	
 	private ClientConnection connect() throws IOException {
 		ClientConnection con = new ClientConnection();
+		System.out.println("Attempting to connect with an Android connection..");
 		con.connect(host, port);
+		System.out.println("Connected with Android connection!");
 		if(!con.isConnected()) throw new IOException("Could not connect to " + host + ":" + port);
 		return con;
 	}
@@ -130,6 +132,14 @@ public class AndroidConnection {
 					con.close();
 				} catch (IOException e) {
 					ex = e;
+					System.out.println("Caught exception!");
+					synchronized (this) {
+						setShouldSleep(false);
+						System.out.println("Trying to wake up sleeping thread..");
+						notifyAll();
+					}
+					// Can we just throw it here?
+//					throw e;
 				}
 			}
 		};

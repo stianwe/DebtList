@@ -50,8 +50,9 @@ public class LoginActivity extends Activity {
 		// Clear session user in case someone has gotten to this activity while logged in
 		Session.session.clear();
 		final Activity dis = this;
-		new Thread() {
-			public void run() {
+		final View vv = v;
+//		new Thread() {
+//			public void run() {
 				switch(Session.session.logIn(((EditText) findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString())) {
 				case ACCEPTED:
 					// Start the DebtViewActivity
@@ -63,15 +64,18 @@ public class LoginActivity extends Activity {
 					System.err.println("ERROR!!!!!!!!!!!!!!!!!");
 					break;
 				case UNHANDLED:
-					// TODO
+					// Probably connection error
+					((TextView) loginErrorTextView).setText(vv.getResources().getString(R.string.login_error_connection));
+					loginErrorTextView.setVisibility(View.VISIBLE);
 					break;
 				case WRONG_INFORMATION:
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
+//					runOnUiThread(new Runnable() {
+//						@Override
+//						public void run() {
+							((TextView) loginErrorTextView).setText(vv.getResources().getString(R.string.login_error_incorrect));
 							loginErrorTextView.setVisibility(View.VISIBLE);
-						}
-					});
+//						}
+//					});
 					break;
 				case NOT_ACTIVATED:
 					// Send user to activation view
@@ -80,7 +84,7 @@ public class LoginActivity extends Activity {
 				default:
 					break;
 				}
-			}
-		}.start();
+//			}
+//		}.start();
 	}
 }

@@ -39,6 +39,10 @@ public class LogInRequest extends Request {
 	}
 	
 	public boolean isAccepted() {
+		Object isAccepted = getVariable("accepted");
+		if(isAccepted == null) {
+			return getStatus() == LogInRequestStatus.ACCEPTED;
+		}
 		return (Boolean) getVariable("accepted");
 	}
 	
