@@ -16,6 +16,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:uiOptions="splitActionBarWhenNarrow"
         android:theme="@style/AppTheme" >
         <activity
             android:name="android.debtlistandroid.LoginActivity"
@@ -28,8 +29,7 @@
         </activity>
         <activity
             android:name="android.debtlistandroid.DebtViewActivity"
-            android:label="@string/title_activity_debt_view"
-            android:uiOptions="splitActionBarWhenNarrow" >
+            android:label="@string/title_activity_debt_view" >
         </activity>
         <activity
             android:name="android.debtlistandroid.CreateDebtActivity"
@@ -43,8 +43,7 @@
         <activity
             android:name="android.debtlistandroid.FriendViewActivity"
             android:label="@string/title_activity_friend_view"
-            android:parentActivityName="android.debtlistandroid.DebtViewActivity"
-            android:uiOptions="splitActionBarWhenNarrow" >
+            android:parentActivityName="android.debtlistandroid.DebtViewActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="android.debtlistandroid.DebtViewActivity" />
