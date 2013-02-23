@@ -36,20 +36,21 @@ public final class R {
         public static final int create_user_username=0x7f07000b;
         public static final int edit_password=0x7f070019;
         public static final int edit_username=0x7f070018;
-        public static final int friend_view_accept_incoming=0x7f07001e;
-        public static final int friend_view_decline_incoming=0x7f07001f;
+        public static final int friend_view_accept_incoming=0x7f07001f;
+        public static final int friend_view_decline_incoming=0x7f070020;
         public static final int friend_view_list=0x7f070017;
-        public static final int friend_view_list_linear_layout=0x7f07001b;
-        public static final int friend_view_menu_add_friend=0x7f070023;
-        public static final int friend_view_menu_debts=0x7f070024;
-        public static final int friend_view_menu_settings=0x7f070025;
-        public static final int friend_view_separator=0x7f07001c;
-        public static final int friend_view_user_name=0x7f07001d;
+        public static final int friend_view_list_linear_layout=0x7f07001c;
+        public static final int friend_view_menu_add_friend=0x7f070024;
+        public static final int friend_view_menu_debts=0x7f070025;
+        public static final int friend_view_menu_settings=0x7f070026;
+        public static final int friend_view_separator=0x7f07001d;
+        public static final int friend_view_user_name=0x7f07001e;
         public static final int loginerrortext=0x7f07001a;
-        public static final int menu_create_debt=0x7f070021;
-        public static final int menu_friends=0x7f070022;
-        public static final int menu_settings=0x7f070020;
+        public static final int menu_create_debt=0x7f070022;
+        public static final int menu_friends=0x7f070023;
+        public static final int menu_settings=0x7f070021;
         public static final int separator=0x7f070010;
+        public static final int settings_time_between_updates=0x7f07001b;
         public static final int spinner_create_debt_user=0x7f070004;
         public static final int toptext=0x7f070011;
     }
@@ -62,7 +63,8 @@ public final class R {
         public static final int activity_debt_view=0x7f030005;
         public static final int activity_friend_view=0x7f030006;
         public static final int activity_login=0x7f030007;
-        public static final int friend_list_view=0x7f030008;
+        public static final int activity_settings=0x7f030008;
+        public static final int friend_list_view=0x7f030009;
     }
     public static final class menu {
         public static final int activity_activate_user=0x7f060000;
@@ -73,6 +75,7 @@ public final class R {
         public static final int activity_debt_view=0x7f060005;
         public static final int activity_friend_view=0x7f060006;
         public static final int activity_login=0x7f060007;
+        public static final int activity_settings=0x7f060008;
     }
     public static final class string {
         public static final int activate_user_button=0x7f04003c;
@@ -140,6 +143,7 @@ public final class R {
         public static final int menu_create_debt=0x7f040011;
         public static final int menu_friends=0x7f040012;
         public static final int menu_settings=0x7f040013;
+        public static final int settings_time_between_updates_text_view=0x7f040042;
         /**  ActivateUserActivity 
          */
         public static final int title_activity_activate_user=0x7f040038;
@@ -156,6 +160,9 @@ public final class R {
         /**  FriendViewActivity 
          */
         public static final int title_activity_friend_view=0x7f04001e;
+        /**  SettingsActivity 
+         */
+        public static final int title_activity_settings=0x7f040041;
     }
     public static final class style {
         /** 
