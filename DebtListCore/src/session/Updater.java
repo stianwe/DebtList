@@ -76,9 +76,8 @@ public class Updater {
 		 */
 		public void update() {
 			System.out.println("Updating..");
-			PCSession.session.send(new UpdateRequest().toXML());
 			try {
-				UpdateRequest response = (UpdateRequest) XMLSerializable.toObject(PCSession.session.receive());
+				UpdateRequest response = (UpdateRequest) XMLSerializable.toObject(Session.session.sendAndReceive(new UpdateRequest().toXML()));
 				for (int i = 0; i < response.size(); i++) {
 					PCSession.session.processUpdate(response.get(i));
 				}

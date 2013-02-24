@@ -2,14 +2,19 @@ package android.sessionX;
 
 import java.io.IOException;
 
+import network.Constants;
+
 import android.network.AndroidConnection;
+import android.support.v4.app.NotificationCompat;
 
 import session.Session;
+import session.Updater;
 
 public class AndroidSession extends Session {
 
 	private AndroidConnection connection;
 	private String sessionToken = null;
+	private Updater updater;
 	
 	public AndroidSession() {
 		init();
@@ -22,6 +27,19 @@ public class AndroidSession extends Session {
 	public void clear() {
 		super.clear();
 		sessionToken = null;
+	}
+	
+	public void startUpdater() {
+		if(updater == null) {
+			updater = new Updater();
+		}
+		updater.startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
+	}
+	
+	public void stopUpdater() {
+		if(updater != null) {
+			updater.stopUpdater();
+		}
 	}
 	
 	@Override
