@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import network.Constants;
 
+import android.content.Context;
 import android.network.AndroidConnection;
-import android.support.v4.app.NotificationCompat;
 
 import session.Session;
 import session.Updater;
@@ -29,9 +29,10 @@ public class AndroidSession extends Session {
 		sessionToken = null;
 	}
 	
-	public void startUpdater() {
+	public void startUpdater(Context context) {
 		if(updater == null) {
-			updater = new Updater();
+			System.out.println("Creating new ANDROIDUpdater!!!!");
+			updater = new AndroidUpdater(context);
 		}
 		updater.startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
 	}

@@ -12,9 +12,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.sessionX.AndroidSession;
+import android.sessionX.AndroidUpdater;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+import android.utils.Tools;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -62,36 +64,10 @@ public class LoginActivity extends Activity {
 //			public void run() {
 				switch(Session.session.logIn(((EditText) findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString())) {
 				case ACCEPTED:
+					// Display dummy notification
+					Tools.createNotification(this, "Updater", "Updater started", LoginActivity.class, LoginActivity.class);
 					// Start the updater
-					
-					System.out.println("Displaying notification!");
-					NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-			        .setContentTitle("Updater started!")
-			        .setContentText("This is the subject.. :)").setSmallIcon(R.drawable.ic_launcher);
-					Intent resultIntent = new Intent(this, DebtViewActivity.class);
-
-					// The stack builder object will contain an artificial back stack for the
-					// started Activity.
-					// This ensures that navigating backward from the Activity leads out of
-					// your application to the Home screen.
-					TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-					// Adds the back stack for the Intent (but not the Intent itself)
-					stackBuilder.addParentStack(DebtViewActivity.class);
-					// Adds the Intent that starts the Activity to the top of the stack
-					stackBuilder.addNextIntent(resultIntent);
-					PendingIntent resultPendingIntent =
-					        stackBuilder.getPendingIntent(
-					            0,
-					            PendingIntent.FLAG_UPDATE_CURRENT
-					        );
-					mBuilder.setContentIntent(resultPendingIntent);
-					NotificationManager mNotificationManager =
-					    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-					// mId allows you to update the notification later on.
-					mNotificationManager.notify(0, mBuilder.build());
-					
-					Updater updater = new Updater();
-					((AndroidSession) Session.session).startUpdater();
+					((AndroidSession) Session.session).startUpdater(this);
 					// Start the DebtViewActivity
 					Intent intent = new Intent(dis, DebtViewActivity.class);
 					startActivity(intent);
