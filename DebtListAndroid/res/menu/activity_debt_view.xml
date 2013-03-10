@@ -23,5 +23,5 @@
         android:title="@string/menu_settings"
         android:showAsAction="always"
         />
-    
+
 </menu>

@@ -1,16 +1,29 @@
 package android.utils;
 
+import network.Constants;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.debtlistandroid.DebtViewActivity;
 import android.debtlistandroid.R;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 public abstract class Tools {
 
+	private static int notificationCounter = 0;
+	
+	/**
+	 * Create and display an Android notification
+	 * 
+	 * @param context
+	 * @param title
+	 * @param text
+	 * @param parent
+	 * @param source
+	 */
 	public static void createNotification(Context context, String title, String text, Class<? extends Activity> parent, Class<? extends Activity> source) {
 		System.out.println("Displaying notification!");
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
@@ -36,6 +49,21 @@ public abstract class Tools {
 		NotificationManager mNotificationManager =
 		    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		// mId allows you to update the notification later on.
-		mNotificationManager.notify(0, mBuilder.build());
+		mNotificationManager.notify(notificationCounter++, mBuilder.build());
+	}
+	
+	/**
+	 * Create and display a debug notification if debug flag (in DebtListCore.network.Constants) is set.
+	 * 
+	 * @param context
+	 * @param title
+	 * @param text
+	 * @param parent
+	 * @param source
+	 */
+	public static void createDebugNotification(Context context, String title, String text) {
+		if(Constants.ANDROID_DEBUG_MODE) {
+			createNotification(context, "[DEBUG] " + title, text, DebtViewActivity.class, DebtViewActivity.class);
+		}
 	}
 }

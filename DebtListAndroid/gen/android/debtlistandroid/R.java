@@ -143,6 +143,10 @@ public final class R {
         public static final int menu_create_debt=0x7f040011;
         public static final int menu_friends=0x7f040012;
         public static final int menu_settings=0x7f040013;
+        public static final int notification_friend_request_pending_text=0x7f040044;
+        /**  Notifications NOT USED FOR NOW..
+         */
+        public static final int notification_friend_request_pending_title=0x7f040043;
         public static final int settings_time_between_updates_text_view=0x7f040042;
         /**  ActivateUserActivity 
          */

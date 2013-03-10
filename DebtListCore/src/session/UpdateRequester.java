@@ -61,6 +61,9 @@ public class UpdateRequester extends TimerTask {
 				l.add(response.get(i));
 				Session.session.processUpdate(response.get(i));
 			}
+			if(response.size() == 0) {
+				System.out.println("No updates received!");
+			}
 			System.out.println("Done updating.");
 		} catch (IOException e) {
 			System.out.println("Automatic update failed.");
