@@ -90,9 +90,12 @@ public class ServerConnection {
 					@Override
 					public void run() {
 						try {
-							System.out.println("Writing updates to database..");
-							saveAll();
-							System.out.println("Wrote updates to database.");
+							// Only write updates if not disabled
+							if(shouldSave) {
+								System.out.println("Writing updates to database..");
+								saveAll();
+								System.out.println("Wrote updates to database.");
+							}
 						} catch (SQLException e) {
 							System.out.println("Failed writing to database.");
 							e.printStackTrace();
@@ -223,6 +226,7 @@ public class ServerConnection {
 
 	public synchronized void removeConnectionHandler(ServerConnectionHandler handler) {
 		this.handlers.remove(handler);
+		System.out.println("Removed conneciont handler for " + handler.getUser().getUsername());
 	}
 
 	/**
@@ -254,8 +258,10 @@ public class ServerConnection {
 	public void notifyUser(String username, XMLSerializable objectToSend) {
 		System.out.println("Notifying " + username);
 		for(ServerConnectionHandler handler : getHandlers(username)) {
+			System.out.println("Update added to session.");
 			handler.sendUpdate(objectToSend);
 		}
+		System.out.println("Done notifiying " + username);
 	}
 
 	/**
@@ -265,8 +271,14 @@ public class ServerConnection {
 	 */
 	public synchronized List<ServerConnectionHandler> getHandlers(String username) {
 		List<ServerConnectionHandler> handlers = new ArrayList<ServerConnectionHandler>();
-		for (ServerConnectionHandler h : handlers) {
-			if(h.getUser() != null && h.getUser().getUsername().equals(username)) handlers.add(h);
+		System.out.println("Number of handlers: " + this.handlers.size());
+		for (ServerConnectionHandler h : this.handlers) {
+			if(h.getUser() != null && h.getUser().getUsername().equals(username)) {
+				System.out.println("Found matching handler!");
+				handlers.add(h);
+			} else {
+				System.out.println("Found handler that did not match!");
+			}
 		}
 		return handlers;
 	}

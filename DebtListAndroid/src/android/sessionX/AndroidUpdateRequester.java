@@ -84,11 +84,14 @@ public class AndroidUpdateRequester extends UpdateRequester {
 			String subject = "", text = "";
 			switch(d.getStatus()) {
 			case REQUESTED:
+				System.out.println("REQUESTED DEBT");
 				// Check that it is not this user that created the debt
 				if(!d.getRequestedBy().equals(Session.session.getUser())) {
+					System.out.println("BY OTHER USER");
 					subject = "Received new debt from " + otherUser;
 				} else {
 					// DEBUG
+					System.out.println("BY THIS USER");
 					Tools.createDebugNotification(context, "Received self-made update", "New debt with id=" + d.getId());
 				}
 				break;
@@ -122,7 +125,10 @@ public class AndroidUpdateRequester extends UpdateRequester {
 				// Nothing to display
 				Tools.createDebugNotification(context, "Received hidden update", "Status=" + d.getStatus() + ", id=" + d.getId());
 			}
-			text = d.getAmount() + " " + d.getWhat() + " " + (d.getTo().equals(d.getRequestedBy()) ? "to" : "from") + d.getRequestedBy().getUsername();  
+			text = d.getAmount() + " " + d.getWhat() + " " + (d.getTo().equals(d.getRequestedBy()) ? "to " : "from ") + d.getRequestedBy().getUsername();
+			if(!subject.equals("")) {
+				Tools.createNotification(context, subject, text, DebtViewActivity.class, DebtViewActivity.class);
+			}
 		} else {
 			System.out.println("UNKNOWN!");
 			// Received something unknown

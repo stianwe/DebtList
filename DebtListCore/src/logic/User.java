@@ -366,17 +366,17 @@ public class User extends XMLSerializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Username: " + getUsername());
-		if(getFriends() != null) {
-			sb.append(", friends = [");
-			for (int i = 0; i < getFriends().size(); i++) {
-				User f = getFriends().get(i);
-				sb.append(f.toString());
-				if(i < getFriends().size() - 1) {
-					sb.append(", ");
-				}
-			}
-			sb.append("]");
-		}
+//		if(getFriends() != null) {
+//			sb.append(", friends = [");
+//			for (int i = 0; i < getFriends().size(); i++) {
+//				User f = getFriends().get(i);
+//				sb.append(f.toString());
+//				if(i < getFriends().size() - 1) {
+//					sb.append(", ");
+//				}
+//			}
+//			sb.append("]");
+//		}
 		return sb.toString();
 	}
 }

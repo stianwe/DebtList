@@ -38,6 +38,20 @@ public class ServerConnectionHandler extends Thread {
 	private long timeOfLastCommand = 0;
 	private String token;
 	
+//	public static void main(String[] args) {
+//		ServerConnection server = new ServerConnection(true);
+//		ServerConnectionHandler h = new ServerConnectionHandler(new Socket(), server);
+//		LogInRequest r = new LogInRequest("Stian", "pwd");
+//		r.setSessionToken(Constants.SESSION_TOKEN_REQUEST);
+//		h.processLoginRequest(r);
+//		h.update.add(new Debt(13337, 33, "hardcoded things", server.getUser("Stian"), server.getUser("Arne"), "TEST", server.getUser("Arne"), DebtStatus.REQUESTED));
+//		System.out.println("Number of updates: " + h.update.size());
+//		ServerConnectionHandler h2 = new ServerConnectionHandler(new Socket(), server);
+////		h2.processToken(h.token);
+//		h2.
+//		System.out.println("Number of updates: " + h2.update.size());
+//	}
+	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
 		update = new UpdateRequest();
@@ -92,7 +106,7 @@ public class ServerConnectionHandler extends Thread {
 		System.out.println("ServerConnectionHandler running!");
 		String xml;
 		while(running && (xml = receive()) != null) {
-			// Register the time of the command
+			// Register the time of the comusernamemand
 			// FIXME: This should be uncommented!
 			updateTimeOfLastCommand();
 			System.out.println("Received XML: " + xml);
@@ -101,6 +115,7 @@ public class ServerConnectionHandler extends Thread {
 				System.out.println("Done parsing object!");
 				// Process token if any is attached
 				if(!processToken(o.getSessionToken())) { 
+					System.out.println("Is this happening..?");
 					die(false);
 					System.out.println("Should not happen..");
 					return;
@@ -141,7 +156,15 @@ public class ServerConnectionHandler extends Thread {
 				serverConnection.writeToLog("Failed to parse/process XML: " + e.toString());
 			}
 		}
-		die(true);
+		// Only kill thread if it is not an android connection.
+		// This is because the CLientConnectionHandler will be hijacked when the
+		// User polls for updates.
+		if(token == null) {
+			System.out.println("Connection handler is done..");
+			die(true);
+		} else {
+			System.out.println("Keeping ClientConnectionHandler alive, since it is for an Android connection.");
+		}
 	}
 	
 	/**
@@ -165,6 +188,7 @@ public class ServerConnectionHandler extends Thread {
 					// We hijack this user
 					// FIXME!!!! UNTESTED!
 					this.update = handler.getUpdate();
+					System.out.println("Number of updates hijacked: " + update.size());
 					this.user = handler.getUser();
 					this.user.setIsOnline(true);
 					this.token = token;
@@ -227,6 +251,7 @@ public class ServerConnectionHandler extends Thread {
 	public void processUpdate() {
 		// Send the update
 		send(update.toXML());
+		System.out.println("Number of updates sent: " + update.size());
 		// Clear the update
 		update.clear();
 	}
@@ -705,6 +730,7 @@ public class ServerConnectionHandler extends Thread {
 			System.out.println("Did not attach any token because this session has none.");
 		}
 		System.out.println("Sending: " + msg);
+		// FIXME
 		writer.println(msg);
 	}
 	
