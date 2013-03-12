@@ -86,7 +86,7 @@ public class DebtViewActivity extends ListActivity {
 		} else if(item.getItemId() == R.id.menu_friends) {
 			startActivity(new Intent(this, FriendViewActivity.class));
 		} else if(item.getItemId() == R.id.menu_settings) {
-			System.out.println("SETTINGS!");
+			startActivity(new Intent(this, SettingsActivity.class));
 		} else {
 			System.out.println("WTF?!");
 		}

@@ -86,6 +86,8 @@
     <!-- SettingsActivity -->
     <string name="title_activity_settings">Settings</string>
     <string name="settings_time_between_updates_text_view">Time between updates\:</string>
+    <string name="settings_save_button">Save</string>
+    <string name="settings_time_between_updates_key">debtlist.TIME_BETWEEN_UPDATES</string>
     
     <!-- Notifications NOT USED FOR NOW..-->
     <string name="notification_friend_request_pending_title">New friend request</string>

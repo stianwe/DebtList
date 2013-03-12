@@ -215,6 +215,7 @@ public class FriendViewActivity extends Activity {
 			startActivity(new Intent(this, DebtViewActivity.class));
 		case R.id.friend_view_menu_settings:
 			System.out.println("SETTINGS!");
+			startActivity(new Intent(this, SettingsActivity.class));
 			break;
 		}
 		return true;
