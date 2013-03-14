@@ -8,15 +8,21 @@ import session.Updater;
 public class AndroidUpdater extends Updater {
 
 	private Context context;
+	private boolean shouldUpdateWithoutWifi;
 	
-	public AndroidUpdater(Context context) {
+	public AndroidUpdater(Context context, boolean shouldUpdateWithoutWifi) {
 		System.out.println("Creating AndroidUpdater..");
 		this.context = context;
+		this.shouldUpdateWithoutWifi = shouldUpdateWithoutWifi;
 	}
 	
 	@Override
 	public void startUpdater(long timeBetweenUpdates) {
-		super.updateRequester = new AndroidUpdateRequester(timeBetweenUpdates, context);
+		if(timeBetweenUpdates == 0) {
+			// Don't update
+			return;
+		}
+		super.updateRequester = new AndroidUpdateRequester(timeBetweenUpdates, shouldUpdateWithoutWifi, context);
 		(super.timer = new Timer()).schedule(updateRequester, timeBetweenUpdates, timeBetweenUpdates);
 	}
 }

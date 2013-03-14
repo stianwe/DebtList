@@ -85,9 +85,12 @@
     
     <!-- SettingsActivity -->
     <string name="title_activity_settings">Settings</string>
-    <string name="settings_time_between_updates_text_view">Time between updates\:</string>
+    <string name="settings_time_between_updates_text_view">Time between updates (in milliseconds). Enter 0 to turn off automatic updates\:</string>
+    <string name="settings_disable_when_not_on_wifi">Disable automatic updates when not connected by wifi?</string>
     <string name="settings_save_button">Save</string>
     <string name="settings_time_between_updates_key">debtlist.TIME_BETWEEN_UPDATES</string>
+    <string name="settings_disable_updates_when_not_on_wifi_key">debtlist.DISABLE_UPDATES_WHEN_NOT_ON_WIFI</string>
+    <string name="settings_time_between_updates_error_message">Invalid time between updates! Must be greater than 1 minute (60 000 milliseconds) or 0 to disable.</string>
     
     <!-- Notifications NOT USED FOR NOW..-->
     <string name="notification_friend_request_pending_title">New friend request</string>

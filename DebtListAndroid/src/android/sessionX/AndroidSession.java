@@ -29,12 +29,17 @@ public class AndroidSession extends Session {
 		sessionToken = null;
 	}
 	
-	public void startUpdater(Context context) {
-		if(updater == null) {
-			System.out.println("Creating new ANDROIDUpdater!!!!");
-			updater = new AndroidUpdater(context);
+	public void startUpdater(Context context, long timeBetweenUpdates, boolean shouldUpdateWithoutWifi) {
+		// Stop old updater if it exists
+		if(updater != null) {
+			updater.stopUpdater();
 		}
-		updater.startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
+//		if(updater == null) {
+			System.out.println("Creating new ANDROIDUpdater!!!!");
+			updater = new AndroidUpdater(context, shouldUpdateWithoutWifi);
+			updater.startUpdater(timeBetweenUpdates);
+//		}
+//		updater.startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
 	}
 	
 	public void stopUpdater() {

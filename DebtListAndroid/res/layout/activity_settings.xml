@@ -17,11 +17,18 @@
         android:inputType="number"
         android:layout_height="wrap_content" />
 	
+	<CheckBox 
+	    android:id="@+id/settings_disable_when_not_on_wifi_cb"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/settings_time_between_updates"
+	    android:layout_width="match_parent"
+	    android:text="@string/settings_disable_when_not_on_wifi" />
+	    
 	<Button 
 	    android:text="@string/settings_save_button"
 	    android:layout_height="wrap_content"
 	    android:layout_width="wrap_content"
-	    android:layout_below="@id/settings_time_between_updates"
+	    android:layout_below="@id/settings_disable_when_not_on_wifi_cb"
 	    android:onClick="save"
 	    android:layout_alignParentRight="true" />
 </RelativeLayout>

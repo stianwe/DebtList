@@ -3,4 +3,5 @@
 */.classpath
 */.project
 */.settings
+*.log
 DebtListServer/*log*

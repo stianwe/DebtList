@@ -67,7 +67,7 @@ public class LoginActivity extends Activity {
 					// Display dummy notification
 					Tools.createNotification(this, "Updater", "Updater started", LoginActivity.class, LoginActivity.class);
 					// Start the updater
-					((AndroidSession) Session.session).startUpdater(this);
+					((AndroidSession) Session.session).startUpdater(this, getPreferences(Context.MODE_PRIVATE).getLong(getString(R.string.settings_time_between_updates_key), Constants.STANDARD_TIME_BETWEEN_UPDATES), !getPreferences(Context.MODE_PRIVATE).getBoolean(getString(R.string.settings_disable_updates_when_not_on_wifi_key), !Constants.STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI));
 					// Start the DebtViewActivity
 					Intent intent = new Intent(dis, DebtViewActivity.class);
 					startActivity(intent);

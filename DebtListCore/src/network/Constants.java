@@ -5,7 +5,7 @@ public class Constants {
 	public static final String VERSION = "0";
 	
 	// Network
-	public static final String SERVER_ADDRESS = "192.168.0.101";
+	public static final String SERVER_ADDRESS = "78.91.7.6";
 	public static final int STANDARD_SERVER_PORT = 13337;
 	public static final long STANDARD_TIME_BETWEEN_UPDATES = 5 * 60 * 1000; // 5 minutes
 	public static final long TIME_BETWEEN_WRITES_TO_DATABASE = 15 * 60 * 1000; // 15 minutes
@@ -22,4 +22,6 @@ public class Constants {
 	public static final String SESSION_TOKEN_REQUEST = "REQUEST";
 	
 	public static final boolean ANDROID_DEBUG_MODE = true;
+	
+	public static final boolean STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI = false;
 }

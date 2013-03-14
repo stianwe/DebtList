@@ -5,9 +5,12 @@ import java.util.List;
 import logic.Debt;
 import logic.DebtStatus;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.debtlistandroid.DebtViewActivity;
 import android.debtlistandroid.FriendViewActivity;
+import android.net.ConnectivityManager;
 import android.utils.Tools;
 
 import requests.FriendRequest;
@@ -19,10 +22,12 @@ import session.UpdateRequester;
 public class AndroidUpdateRequester extends UpdateRequester {
 
 	private Context context;
+	private boolean shouldUpdateWithoutWifi;
 	
-	public AndroidUpdateRequester(long timeBetweenUpdates, Context context) {
+	public AndroidUpdateRequester(long timeBetweenUpdates, boolean shouldUpdateWithoutWifi, Context context) {
 		super(timeBetweenUpdates);
 		this.context = context;
+		this.shouldUpdateWithoutWifi = shouldUpdateWithoutWifi;
 	}
 
 	@Override
@@ -34,6 +39,15 @@ public class AndroidUpdateRequester extends UpdateRequester {
 		// Display dummy notification
 //		Tools.createNotification(context, "UPDATE", "DebtList has updated", DebtViewActivity.class, DebtViewActivity.class);
 		
+		// Don't update without wifi, if user has specified it
+		if(!shouldUpdateWithoutWifi && 
+			!((ConnectivityManager) context.getSystemService(Activity.CONNECTIVITY_SERVICE)).getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected()){
+			System.out.println("Won't update since we are not connected to wifi!");
+			return;
+		} else {
+			System.out.println("Updating..!");
+		}
+			
 		List<XMLSerializable> updates = update();
 		System.out.println("ANDROID AHAHHAAHAHAHHAHAASJDKLAJSDKLJAKSDJ RUNAR!");
 		for (XMLSerializable u : updates) {
