@@ -213,8 +213,8 @@ public class FriendViewActivity extends Activity {
 			break;
 		case R.id.friend_view_menu_debts:
 			startActivity(new Intent(this, DebtViewActivity.class));
+			break;
 		case R.id.friend_view_menu_settings:
-			System.out.println("SETTINGS!");
 			startActivity(new Intent(this, SettingsActivity.class));
 			break;
 		}
