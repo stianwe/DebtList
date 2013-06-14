@@ -106,8 +106,7 @@ public class ServerConnectionHandler extends Thread {
 		System.out.println("ServerConnectionHandler running!");
 		String xml;
 		while(running && (xml = receive()) != null) {
-			// Register the time of the comusernamemand
-			// FIXME: This should be uncommented!
+			// Register the time of the comumand
 			updateTimeOfLastCommand();
 			System.out.println("Received XML: " + xml);
 			try {
@@ -338,7 +337,7 @@ public class ServerConnectionHandler extends Thread {
 				thisUser.getFriendRequestFrom(otherUser.getUsername()).setStatus(request.getStatus());
 			}
 			// Notify other user
-			serverConnection.notifyUser(otherUser.getUsername(), request);
+			serverConnection.notifyUser(otherUser.getUsername(), request, this);
 		} else {
 			System.out.println("FriendRequest was not valid.");
 			serverConnection.writeToLog("Received invalid friend request from: " + thisUser.getUsername() + ": " + request.toXML());
@@ -551,7 +550,7 @@ public class ServerConnectionHandler extends Thread {
 			d.setStatus(DebtStatus.COMPLETED);
 		} 
 		old.setStatus(d.getStatus());
-		serverConnection.notifyUser((old.getTo().equals(getUser()) ? old.getFrom() : old.getTo()).getUsername(), old);
+		serverConnection.notifyUser((old.getTo().equals(getUser()) ? old.getFrom() : old.getTo()).getUsername(), old, this);
 		send(old.toXML());
 	}
 	
@@ -590,7 +589,7 @@ public class ServerConnectionHandler extends Thread {
 			// If the debt was deleted we simply let it be removed..
 		}
 		// Let the requesting user know about the accept/decline
-		serverConnection.notifyUser(d.getRequestedBy().getUsername(), d);
+		serverConnection.notifyUser(d.getRequestedBy().getUsername(), d, this);
 		send(d.toXML());
 		// TODO Anything else?
 	}
@@ -628,7 +627,7 @@ public class ServerConnectionHandler extends Thread {
 			getUser().addPendingDebt(d);
 //			System.out.println(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())) == serverConnection.getHandler(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).getUsername()).getUser());
 			// Notify other user
-			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d);
+			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d, this);
 		} else {
 			serverConnection.writeToLog("Received invalid debt from " + getUser().getUsername());
 		}

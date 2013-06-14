@@ -168,8 +168,12 @@ public class ServerConnection {
 	
 	public synchronized void disconnectUsers() {
 		System.out.println("Attempting to close all connections");
-		for (ServerConnectionHandler h : handlers) {
-			h.close();
+//		for (ServerConnectionHandler h : handlers) {
+//			h.close();
+//		}
+		// TODO: Handlers should be removed aswell, right??
+		while(!handlers.isEmpty()) {
+			handlers.remove(0).close();
 		}
 	}
 	
@@ -226,7 +230,11 @@ public class ServerConnection {
 
 	public synchronized void removeConnectionHandler(ServerConnectionHandler handler) {
 		this.handlers.remove(handler);
-		System.out.println("Removed conneciont handler for " + handler.getUser().getUsername());
+		if(handler.getUser() != null) {
+			System.out.println("Removed connection handler for " + handler.getUser().getUsername());
+		} else {
+			System.out.println("Removed connection handler for a user that was trying to log in.");
+		}
 	}
 
 	/**
@@ -255,11 +263,19 @@ public class ServerConnection {
 	 * @param username		The user to notify
 	 * @param objectToSend	The object to send
 	 */
-	public void notifyUser(String username, XMLSerializable objectToSend) {
+	public void notifyUser(String username, XMLSerializable objectToSend, ServerConnectionHandler fromHandler) {
 		System.out.println("Notifying " + username);
 		for(ServerConnectionHandler handler : getHandlers(username)) {
 			System.out.println("Update added to session.");
 			handler.sendUpdate(objectToSend);
+		}
+		// Also send updates to this user's other handlers (e.g. for other devices)
+		System.out.println("Also notifying this user's other handlers (if it has hany)..");
+		for(ServerConnectionHandler handler : getHandlers(fromHandler.getUser().getUsername())) {
+			if(handler != fromHandler) { 
+				System.out.println("It has!");
+				handler.sendUpdate(objectToSend);
+			}
 		}
 		System.out.println("Done notifiying " + username);
 	}
