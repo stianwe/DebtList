@@ -3,6 +3,12 @@ This is the changelog for the Android version.
 The app is still in a very early phase, so bug fixes and feature implementations are done at irregular intervals. 
 This means that you should check this changelog before submiting an issue/bug, since it might already have been fixed. 
 
+DebtList_android_TEST_160613:     Fixed bug with session system.
+                                  Note: Database was rolled back (only users are still saved)!
+                                  Note2: The polling for updates service is currently disabled. Time between updates
+                                  can therefore be set to 0 (disabled) from the settings menu to improve battery life.
+                                  This service is under revision, and will hopefully be back soon!
+                                  (Commit: https://github.com/stianwe/DebtList/commit/6bf9269c1958182cc24be1982a4c4b7d5cf63610 ).
 DebtList_android_TEST_140613_2:   Fixed bug in the navigation menu at the Friends-view, that took the user to 
                                   settings instead of the debt-view when clicking on "Debts" 
                                   (Commit: https://github.com/stianwe/DebtList/commit/224392fbbf811c6cee17910483838e2de493e316 ).
