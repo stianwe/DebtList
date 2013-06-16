@@ -21,6 +21,7 @@ import database.DatabaseUnit;
 import database.SessionTokenManager;
 
 import logic.User;
+import requests.UpdateRequest;
 import requests.xml.XMLSerializable;
 import utils.CaseInsensitiveHashMap;
 import utils.PasswordHasher;
@@ -72,6 +73,7 @@ public class ServerConnection {
 							}
 						} else System.out.println("Not writing to database. Saving is disabled.");
 						// Also check if we should disconnect any inactive users
+						// FIXME: No longer needed since handlers are no longer persistent... What should be done is removing session tokens from the token manager!
 						// Lock the list
 						synchronized (handlers) {
 							List<ServerConnectionHandler> toBeRemoved = new ArrayList<ServerConnectionHandler>();
@@ -263,20 +265,28 @@ public class ServerConnection {
 	 * @param username		The user to notify
 	 * @param objectToSend	The object to send
 	 */
-	public void notifyUser(String username, XMLSerializable objectToSend, ServerConnectionHandler fromHandler) {
+	public void notifyUser(String username, XMLSerializable objectToSend, String fromUserToken) {
 		System.out.println("Notifying " + username);
-		for(ServerConnectionHandler handler : getHandlers(username)) {
-			System.out.println("Update added to session.");
-			handler.sendUpdate(objectToSend);
+//		for(ServerConnectionHandler handler : getHandlers(username)) {
+//			System.out.println("Update added to session.");
+//			handler.sendUpdate(objectToSend);
+//		}
+		for(UpdateRequest ur : tokenManager.getUpdates(username)) {
+			ur.add(objectToSend);
 		}
 		// Also send updates to this user's other handlers (e.g. for other devices)
 		System.out.println("Also notifying this user's other handlers (if it has hany)..");
-		for(ServerConnectionHandler handler : getHandlers(fromHandler.getUser().getUsername())) {
-			if(handler != fromHandler) { 
-				System.out.println("It has!");
-				handler.sendUpdate(objectToSend);
+		for(UpdateRequest ur : tokenManager.getUpdates(tokenManager.getUsername(fromUserToken))) {
+			if(ur != tokenManager.getUpdate(fromUserToken)) {
+				ur.add(objectToSend);
 			}
 		}
+//		for(ServerConnectionHandler handler : getHandlers(fromHandler.getUser().getUsername())) {
+//			if(handler != fromHandler) { 
+//				System.out.println("It has!");
+//				handler.sendUpdate(objectToSend);
+//			}
+//		}
 		System.out.println("Done notifiying " + username);
 	}
 

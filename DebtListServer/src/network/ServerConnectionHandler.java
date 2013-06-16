@@ -34,7 +34,8 @@ public class ServerConnectionHandler extends Thread {
 	private PrintWriter writer;
 	private User user;
 	private boolean running;
-	private UpdateRequest update;
+	// Updates are no longer a part of the handler, since the change of the session system as of 16th of June 2013.
+//	private UpdateRequest update;
 	private long timeOfLastCommand = 0;
 	private String token;
 	
@@ -54,7 +55,7 @@ public class ServerConnectionHandler extends Thread {
 	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
-		update = new UpdateRequest();
+//		update = new UpdateRequest();
 		this.serverConnection = serverConnection;
 		serverConnection.addConnectionHandler(this);
 		try {
@@ -85,8 +86,23 @@ public class ServerConnectionHandler extends Thread {
 	 * Adds the given object to this user's send queue
 	 * @param o	The object to send
 	 */
-	public void sendUpdate(XMLSerializable o) {
-		update.add(o);
+//	public void sendUpdate(XMLSerializable o) {
+//		update.add(o);
+//	}
+//	
+//	public UpdateRequest getUpdate() {
+//		return update;
+//	}
+	
+	public void processUpdate() {
+		// Retrieve the update
+		UpdateRequest update = serverConnection.getTokenManager().getUpdate(this.token);
+		System.out.println("Fetching update for token: " + this.token);
+		// Send the update
+		send(update.toXML());
+		System.out.println("Number of updates sent: " + update.size());
+		// Clear the update
+		update.clear();
 	}
 	
 	/**
@@ -106,19 +122,20 @@ public class ServerConnectionHandler extends Thread {
 		System.out.println("ServerConnectionHandler running!");
 		String xml;
 		while(running && (xml = receive()) != null) {
-			// Register the time of the comumand
+			// Register the time of the command
 			updateTimeOfLastCommand();
 			System.out.println("Received XML: " + xml);
 			try {
 				XMLSerializable o = XMLSerializable.toObject(xml);
 				System.out.println("Done parsing object!");
 				// Process token if any is attached
-				if(!processToken(o.getSessionToken())) { 
-					System.out.println("Is this happening..?");
-					die(false);
-					System.out.println("Should not happen..");
-					return;
-				}
+				processToken(o.getSessionToken());
+//				if(!processToken(o.getSessionToken())) { 
+//					System.out.println("Is this happening..?");
+//					die(false);
+//					System.out.println("Should not happen..");
+//					return;
+//				}
 				// Receive LogInRequest
 				if(o instanceof LogInRequest) {
 					System.out.println("Received login request!");
@@ -179,12 +196,23 @@ public class ServerConnectionHandler extends Thread {
 		}
 	}
 	
+	private void processToken(String token) {
+		if(token != null) {
+			if(token.equals(Constants.SESSION_TOKEN_REQUEST)) {
+				System.out.println("SESSION TOKEN REQUEST DETECTED!");
+				return ;
+			}
+			System.out.println("Token detected! " + token);
+			this.token = token;
+		}
+	}
+	
 	/**
 	 * 
 	 * @param token
 	 * @return		Should continue
 	 */
-	private boolean processToken(String token) {
+/*	private boolean processToken(String token) {
 		if(token != null) {
 			if(token.equals(Constants.SESSION_TOKEN_REQUEST))
 				return true;
@@ -240,11 +268,7 @@ public class ServerConnectionHandler extends Thread {
 			}
 		} // If not, we just handle it as normal
 		return true;
-	}
-	
-	public UpdateRequest getUpdate() {
-		return update;
-	}
+	}*/
 	
 	private void die(boolean logOffUser) {
 		System.out.println("Killing thread.");
@@ -258,14 +282,6 @@ public class ServerConnectionHandler extends Thread {
 		running = false;
 		// Remove ourself from the handler list
 		serverConnection.removeConnectionHandler(this);
-	}
-	
-	public void processUpdate() {
-		// Send the update
-		send(update.toXML());
-		System.out.println("Number of updates sent: " + update.size());
-		// Clear the update
-		update.clear();
 	}
 	
 	/**
@@ -362,7 +378,7 @@ public class ServerConnectionHandler extends Thread {
 				thisUser.getFriendRequestFrom(otherUser.getUsername()).setStatus(request.getStatus());
 			}
 			// Notify other user
-			serverConnection.notifyUser(otherUser.getUsername(), request, this);
+			serverConnection.notifyUser(otherUser.getUsername(), request, token);
 		} else {
 			System.out.println("FriendRequest was not valid.");
 			serverConnection.writeToLog("Received invalid friend request from: " + thisUser.getUsername() + ": " + request.toXML());
@@ -576,7 +592,7 @@ public class ServerConnectionHandler extends Thread {
 			d.setStatus(DebtStatus.COMPLETED);
 		} 
 		old.setStatus(d.getStatus());
-		serverConnection.notifyUser((old.getTo().equals(getUser()) ? old.getFrom() : old.getTo()).getUsername(), old, this);
+		serverConnection.notifyUser((old.getTo().equals(getUser()) ? old.getFrom() : old.getTo()).getUsername(), old, token);
 		send(old.toXML());
 	}
 	
@@ -615,7 +631,7 @@ public class ServerConnectionHandler extends Thread {
 			// If the debt was deleted we simply let it be removed..
 		}
 		// Let the requesting user know about the accept/decline
-		serverConnection.notifyUser(d.getRequestedBy().getUsername(), d, this);
+		serverConnection.notifyUser(d.getRequestedBy().getUsername(), d, token);
 		send(d.toXML());
 		// TODO Anything else?
 	}
@@ -653,7 +669,7 @@ public class ServerConnectionHandler extends Thread {
 			getUser().addPendingDebt(d);
 //			System.out.println(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())) == serverConnection.getHandler(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).getUsername()).getUser());
 			// Notify other user
-			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d, this);
+			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d, token);
 		} else {
 			serverConnection.writeToLog("Received invalid debt from " + getUser().getUsername());
 		}

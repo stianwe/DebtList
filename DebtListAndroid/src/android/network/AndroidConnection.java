@@ -86,18 +86,16 @@ public class AndroidConnection {
 					System.out.println("Connecting..");
 					ClientConnection con = connect();
 					if(xml != null) {
-//						XMLSerializable obj = XMLSerializable.toObject(xml);
-						// FIXME: Screw tokens for now! Send login request instead, if the user has logged in.. NO
-						// Attach username and password instead
+						XMLSerializable obj = XMLSerializable.toObject(xml);
+						// Attach username and password 
 						if(((AndroidSession) Session.session).getPassword() != null) {
 							// TODO: Should not need to parse back and forth when passing the objects instead of the strings
-							XMLSerializable o = XMLSerializable.toObject(xml);
-							o.setUserInformation(Session.session.getUser().getUsername(), ((AndroidSession) Session.session).getPassword());
-							xml = o.toXML();
+//							XMLSerializable o = XMLSerializable.toObject(xml);
+							obj.setUserInformation(Session.session.getUser().getUsername(), ((AndroidSession) Session.session).getPassword());
+//							xml = o.toXML();
 //							con.send(new LogInRequest(Session.session.getUser().getUsername(), ((AndroidSession) Session.session).getPassword()).toXML());
 						}
 						// Attach the session token if present
-						/*
 						if(Session.session instanceof AndroidSession && ((AndroidSession) Session.session).getSessionToken() != null) {
 							System.out.println("Attatching session token.");
 							obj.setSessionToken(((AndroidSession) Session.session).getSessionToken());
@@ -106,8 +104,7 @@ public class AndroidConnection {
 							System.out.println("Requesting session token");
 							obj.setSessionToken(Constants.SESSION_TOKEN_REQUEST);
 						}
-						*/
-//						xml = obj.toXML();
+						xml = obj.toXML();
 						System.out.println("Sending message: " + xml);
 						con.send(xml);
 					} else {
