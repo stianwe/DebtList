@@ -127,11 +127,21 @@ public class ServerConnectionHandler extends Thread {
 					System.out.println("Received create user request!");
 					processCreateUserRequest((CreateUserRequest) o);
 				} else {
-					// Check that the connected user is logged in before processing any of these requests
-					// TODO: Send error message to user?
+					// Check that the connected user is logged in before processing any of these requests..
+					// .. or if username and password is attached
 					if(this.user == null || !this.user.isOnline()) {
-						System.out.println("User not logged in. Not processing message!");
-						continue;
+						// Check if the supplied username and password is OK
+						System.out.println("Checking if username and password is attached..");
+						if(o.getUserInformationName() != null && o.getUserInformationPass() != null && serverConnection.checkPassword(serverConnection.getUser(o.getUserInformationName().toLowerCase()), o.getUserInformationPass())) {
+							System.out.println("Username and password attached was OK! User is " + o.getUserInformationName());
+							// Set the user as logged in
+							this.user = serverConnection.getUser(o.getUserInformationName().toLowerCase());
+							this.user.setIsOnline(true);
+						} else {
+							System.out.println("User not logged in. Not processing message!");
+							// TODO: Send error message to user?
+							continue;
+						}
 					}
 					if(o instanceof Debt) {
 						System.out.println("Received debt..");
@@ -163,6 +173,9 @@ public class ServerConnectionHandler extends Thread {
 			die(true);
 		} else {
 			System.out.println("Keeping ClientConnectionHandler alive, since it is for an Android connection.");
+			// TODO: Killing handler even if it is an Android connection, for now
+			// TODO: Should the user be logged off?
+			die(true);
 		}
 	}
 	
@@ -267,7 +280,6 @@ public class ServerConnectionHandler extends Thread {
 	 * @param request	The FriendRequest
 	 */
 	public void processFriendRequest(FriendRequest request) {
-		// TODO: Don't let a user send friend requests to the same user twice.
 		// Validate
 		boolean valid = true;
 		// TODO: This should be unnecessary (should be able to use this.getUser())
@@ -301,10 +313,21 @@ public class ServerConnectionHandler extends Thread {
 			valid = false;
 		}
 		User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername()));
+		// Don't let a user send friend requests to the same user twice.
+		// FIXME: Does not work
+		System.out.println("Checking for already existing requests between these two");
+		for (int i = 0; i < serverConnection.getUser(this.getUser().getUsername()).getNumberOfFriendRequests(); i++) {
+			System.out.println("Checking " + i);
+			if(serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFromUser().equals(otherUser) || serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFriendUsername().equalsIgnoreCase(otherUser.getUsername())) {
+				valid = false;
+				System.out.println("These users already have requests between them!");
+				break;
+			}
+		}
 		// If this is a new friend request, check that these two users don't already have any requests for each other, or that the user is sending a request to himself
 		if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
 			if(thisUser.hasFriendRequest(request) || otherUser.hasFriendRequest(request) ||
-					// Check the oposite way too
+					// Check the opposite way aswell
 					thisUser.hasOppositeFriendRequest(request) || otherUser.hasOppositeFriendRequest(request)) {
 				valid = false;
 				request.setStatus(FriendRequestStatus.ALREADY_EXISTS);
@@ -323,6 +346,8 @@ public class ServerConnectionHandler extends Thread {
 				request.setStatus(FriendRequestStatus.PENDING);
 				// Add it to the target friend
 				serverConnection.getUser(request.getFriendUsername()).addFriendRequest(request);
+				// And to the current user
+				serverConnection.getUser(request.getFromUser().getUsername()).addFriendRequest(request);
 			} else {
 				System.out.println("This was a reply to a friend request.");
 				// If this is a accepted/declined friend request, update the requesting user's friends (if accepted, if not accepted we do nothig except to remove the request)
@@ -344,6 +369,7 @@ public class ServerConnectionHandler extends Thread {
 			// Send some garbage that will trigger an error
 			// TODO Set a crap status?? But don't overwrite already set error status!
 		}
+		System.out.println("Sending with status: " + request.getStatus());
 		send(request.toXML());
 	}
 	

@@ -55,13 +55,21 @@ public class FriendViewActivity extends Activity {
 
 		List<String> incoming = new ArrayList<String>();
 		List<String> outgoing = new ArrayList<String>();
+		System.out.println("Number of friend requests: " + Session.session.getUser().getNumberOfFriendRequests());
 		for (int i = 0; i < Session.session.getUser().getNumberOfFriendRequests(); i++) {
 			FriendRequest r = Session.session.getUser().getFriendRequest(i);
+			System.out.println("LOOP");
 			if(r.getStatus() == FriendRequestStatus.PENDING) {
-				if(r.getFriendUsername().equals(Session.session.getUser().getUsername())) 
+				System.out.println("PENDING");
+				System.out.println("From " + r.getFromUser().getUsername() + " to " + r.getFriendUsername());
+				if(r.getFriendUsername().equalsIgnoreCase(Session.session.getUser().getUsername())) {
+					System.out.println("INC");
 					incoming.add(r.getFromUser().getUsername());
-				else if(r.getFromUser().getUsername().equals(Session.session.getUser().getUsername()))
+				}
+				else if(r.getFromUser().getUsername().equalsIgnoreCase(Session.session.getUser().getUsername())) {
+					System.out.println("NOT INC");
 					outgoing.add(r.getFriendUsername());
+				}
 			}
 		}
 		// Find confirmed friends

@@ -263,6 +263,7 @@ public class Main {
 	 * Process the add friend command by sending a friend request to the server, which will be forwarded to the specified user.
 	 * Syntax: "add friend <username>"
 	 * @param command	The add friend command
+	 * @return TODODOOOOOOOOOODD TODO FIXME !!!!!!!! HAKSLHFAJFLK:AFJAJF:SLFJJALKSFL:HALFH
 	 */
 	public static boolean processAddFriend(String command) {
 		try {
@@ -309,6 +310,8 @@ public class Main {
 				printConnectionErrorMessage();
 			}
 		} catch (Exception e) {
+			System.out.println("ERROR: " + e);
+			e.printStackTrace();
 			printSyntaxErrorMessage("add friend <username>");
 		}
 		return false;

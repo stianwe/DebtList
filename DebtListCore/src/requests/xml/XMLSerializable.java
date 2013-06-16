@@ -18,6 +18,8 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import utils.PasswordHasher;
+
 /**
  * A object that supports serializing to and from a simple XML format
  * 
@@ -99,6 +101,19 @@ abstract public class XMLSerializable implements XMLConstants {
 	 */
 	public String getSessionToken() {
 		return (String) getVariable("session_token");
+	}
+	
+	public void setUserInformation(String username, String password) {
+		setVariable("user_info_name", username);
+		setVariable("user_info_pass", PasswordHasher.hashPassword(password));
+	}
+	
+	public String getUserInformationName() {
+		return (String) getVariable("user_info_name");
+	}
+	
+	public String getUserInformationPass() {
+		return (String) getVariable("user_info_pass");
 	}
 	
 	/**

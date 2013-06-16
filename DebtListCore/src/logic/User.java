@@ -360,7 +360,7 @@ public class User extends XMLSerializable {
 	@Override
 	public boolean equals(Object o) {
 		if(!(o instanceof User)) return false;
-		return getUsername().equals(((User)o).getUsername());
+		return getUsername().equalsIgnoreCase(((User)o).getUsername());
 	}
 	
 	public String toString() {

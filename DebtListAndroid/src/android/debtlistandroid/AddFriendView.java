@@ -30,7 +30,7 @@ public class AddFriendView extends Activity {
 			// Friend request sent, show friend view
 			startActivity(new Intent(this, FriendViewActivity.class));
 		} else {
-			// Display error message
+			// Display error messagereq
 			((TextView) findViewById(R.id.add_friend_error_message)).setVisibility(View.VISIBLE);
 		}
 		// 

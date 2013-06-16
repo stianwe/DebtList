@@ -7,6 +7,7 @@ import network.Constants;
 import android.content.Context;
 import android.network.AndroidConnection;
 
+import requests.LogInRequestStatus;
 import session.Session;
 import session.Updater;
 
@@ -15,6 +16,7 @@ public class AndroidSession extends Session {
 	private AndroidConnection connection;
 	private String sessionToken = null;
 	private Updater updater;
+	private String password;
 	
 	public AndroidSession() {
 		init();
@@ -27,6 +29,28 @@ public class AndroidSession extends Session {
 	public void clear() {
 		super.clear();
 		sessionToken = null;
+	}
+	
+	@Override
+	public LogInRequestStatus logIn(String username, String password) {
+		LogInRequestStatus s = super.logIn(username, password);
+		if(s == LogInRequestStatus.ACCEPTED) {
+			this.password = password;
+		}
+		return s;
+	}
+	
+	@Override
+	public LogInRequestStatus logIn(String username, String password, String activationKey) {
+		LogInRequestStatus s = super.logIn(username, password, activationKey);
+		if(s == LogInRequestStatus.ACCEPTED) {
+			this.password = password;
+		}
+		return s;
+	}
+	
+	public String getPassword() {
+		return password;
 	}
 	
 	public void startUpdater(Context context, long timeBetweenUpdates, boolean shouldUpdateWithoutWifi) {
