@@ -3,7 +3,7 @@ This is the changelog for the Android version.
 The app is still in a very early phase, so bug fixes and feature implementations are done at irregular intervals. 
 This means that you should check this changelog before submiting an issue/bug, since it might already have been fixed. 
 
-DebtList_android_TEST_160613:     Fixed bug with session system.
+DebtList_android_TEST_160613:     Fixed bug with session system. This should fix the bugged friend request system aswell.
                                   Note: Database was rolled back (only users are still saved)!
                                   Note2: The polling for updates service is currently disabled. Time between updates
                                   can therefore be set to 0 (disabled) from the settings menu to improve battery life.
