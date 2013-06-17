@@ -3,6 +3,8 @@ This is the changelog for the Android version.
 The app is still in a very early phase, so bug fixes and feature implementations are done at irregular intervals. 
 This means that you should check this changelog before submiting an issue/bug, since it might already have been fixed. 
 
+DebtList_android_TEST_170613:     Fix bugs regarding accepting/declining friend requests, and creating debts.
+                                  (Commit: https://github.com/stianwe/DebtList/commit/a8e9ea03043c289affa021373d18bafd033e2a04 )
 DebtList_android_TEST_160613_2:   The update/notification system was fixed and re-activated. Should hopefully be working now!
                                   (Commit: https://github.com/stianwe/DebtList/commit/fdf7d5f2bf315fc39c318ebae09d667a9103eb12 ).
 DebtList_android_TEST_160613:     Fixed bug with session system. This should fix the bugged friend request system aswell.
