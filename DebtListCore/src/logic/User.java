@@ -115,8 +115,8 @@ public class User extends XMLSerializable {
 	 * @return		The index of the given friend request, or -1 if not found
 	 */
 	public synchronized int indexOfFriendRequest(FriendRequest req) {
-		// We assume that only the user that can respond to the request has it saved 
-		if(!req.getFriendUsername().equals(this.getUsername())) return -1;
+		// We assume that only the user that can respond to the request has it saved... NO, that assumption is wrong!!
+//		if(!req.getFriendUsername().equals(this.getUsername())) return -1;
 		// Find the given request among ours
 		for (int i = 0; i < this.getNumberOfFriendRequests(); i++) {
 			if(req.getFromUser().equals(this.getFriendRequest(i).getFromUser())) {

@@ -98,9 +98,16 @@ public class ServerConnectionHandler extends Thread {
 		// Retrieve the update
 		UpdateRequest update = serverConnection.getTokenManager().getUpdate(this.token);
 		System.out.println("Fetching update for token: " + this.token);
-		// Send the update
-		send(update.toXML());
-		System.out.println("Number of updates sent: " + update.size());
+		if(update != null) { 
+			// Send the update
+			send(update.toXML());
+			System.out.println("Number of updates sent: " + update.size());
+		} else {
+			// Send an empty one if none exists
+			// TODO: This is a sign that the client is not logged in.. Make the client aware of this?
+			send(new UpdateRequest().toXML());
+			System.out.println("Sending blank update");
+		}
 		// Clear the update
 		update.clear();
 	}
@@ -204,6 +211,8 @@ public class ServerConnectionHandler extends Thread {
 			}
 			System.out.println("Token detected! " + token);
 			this.token = token;
+			// Set the user
+			this.user = serverConnection.getUser(serverConnection.getTokenManager().getUsername(token));
 		}
 	}
 	
@@ -299,12 +308,25 @@ public class ServerConnectionHandler extends Thread {
 		// Validate
 		boolean valid = true;
 		// TODO: This should be unnecessary (should be able to use this.getUser())
-		User thisUser = serverConnection.getUser(this.getUser().getUsername());
+		String tokenUser = serverConnection.getTokenManager().getUsername(request.getSessionToken());
+//		User thisUser = serverConnection.getUser(this.getUser().getUsername());
+		User thisUser = serverConnection.getUser(tokenUser);
 		// Check that this is the requesting user's handler if this is a new request
-		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
+//		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
 		// Check that this is the target user's handler if this is a response
-		else if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername()))
+//		else if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername())) {
+//			valid = false;
+//		}
+		// No, handlers are no longer associated with users.. Check token instead (!!! TODO: This means that console version/swing version must attatch a token!!!!)
+		// Check requesting
+		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !tokenUser.equalsIgnoreCase(request.getFromUser().getUsername())) {
 			valid = false;
+		} 
+		// Check that this is the target user, if this is a response
+		else if ((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !tokenUser.equalsIgnoreCase(request.getFriendUsername())) {
+			valid = false;
+		}
+		// Check if the status is invalid
 		else if(request.getStatus() == FriendRequestStatus.PENDING || request.getStatus() == FriendRequestStatus.USER_NOT_FOUND)
 			valid = false;
 		// Check that the FriendRequest's target exists
@@ -316,30 +338,38 @@ public class ServerConnectionHandler extends Thread {
 		for(int i=0; i<thisUser.getNumberOfFriends(); i++){
 			if(request.getFriendUsername().equals(thisUser.getFriend(i).getUsername())){
 				valid=false;
+				System.out.println("CAPS");
 			}
 		}
+//		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) {
+//			System.out.println("Here aswell??");
+//			valid = false;
+//		}
 		// Check that the sending user is allowed to set the given status
-		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
-		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername())) {
-			valid = false;
-		}
-		if(request.getStatus() == FriendRequestStatus.USER_NOT_FOUND) valid = false;
+//		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername())) {
+//			valid = false;
+//			System.out.println("SUG");
+//		}
 		// If this is a response to a friend request, check that this has a corresponding friend request
 		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !thisUser.hasFriendRequest(request)) {
+//		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !serverConnection.getUser(tokenUser).hasFriendRequest(request)) {
 			valid = false;
+			System.out.println("LAST");
 		}
 		User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername()));
 		// Don't let a user send friend requests to the same user twice.
 		// FIXME: Does not work
-		System.out.println("Checking for already existing requests between these two");
-		for (int i = 0; i < serverConnection.getUser(this.getUser().getUsername()).getNumberOfFriendRequests(); i++) {
-			System.out.println("Checking " + i);
-			if(serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFromUser().equals(otherUser) || serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFriendUsername().equalsIgnoreCase(otherUser.getUsername())) {
-				valid = false;
-				System.out.println("These users already have requests between them!");
-				break;
-			}
-		}
+//		System.out.println("Checking for already existing requests between these two");
+//		if(request.getStatus() == FriendRequestStatus.PENDING) {
+//			for (int i = 0; i < serverConnection.getUser(this.getUser().getUsername()).getNumberOfFriendRequests(); i++) {
+//				System.out.println("Checking " + i);
+//				if(serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFromUser().equals(otherUser) || serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFriendUsername().equalsIgnoreCase(otherUser.getUsername())) {
+//					valid = false;
+//					System.out.println("These users already have requests between them!");
+//					break;
+//				}
+//			}
+//		}
 		// If this is a new friend request, check that these two users don't already have any requests for each other, or that the user is sending a request to himself
 		if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
 			if(thisUser.hasFriendRequest(request) || otherUser.hasFriendRequest(request) ||
@@ -348,8 +378,10 @@ public class ServerConnectionHandler extends Thread {
 				valid = false;
 				request.setStatus(FriendRequestStatus.ALREADY_EXISTS);
 			}
-			if(request.getFriendUsername().equals(thisUser.getUsername()))
+			if(request.getFriendUsername().equals(thisUser.getUsername())) {
 				valid = false;
+				System.out.println("Here?");
+			}
 		}
 		if(valid) {
 			System.out.println("FriendRequest was valid.");
@@ -378,12 +410,16 @@ public class ServerConnectionHandler extends Thread {
 				thisUser.getFriendRequestFrom(otherUser.getUsername()).setStatus(request.getStatus());
 			}
 			// Notify other user
-			serverConnection.notifyUser(otherUser.getUsername(), request, token);
+			serverConnection.notifyUser(otherUser.getUsername(), request, tokenUser);
 		} else {
 			System.out.println("FriendRequest was not valid.");
 			serverConnection.writeToLog("Received invalid friend request from: " + thisUser.getUsername() + ": " + request.toXML());
 			// Send some garbage that will trigger an error
 			// TODO Set a crap status?? But don't overwrite already set error status!
+			if(request.getStatus() == FriendRequestStatus.ACCEPTED) {
+				// TODO: IS this ok?
+				request.setStatus(FriendRequestStatus.UNHANDLED);
+			}
 		}
 		System.out.println("Sending with status: " + request.getStatus());
 		send(request.toXML());
@@ -637,6 +673,7 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	public void processRequestedDebt(Debt d) {
+		System.out.println("From: " + d.getFrom().getUsername() + ", to: " + d.getTo().getUsername());
 		// Validate that this is a valid debt
 		boolean valid = true;
 		System.out.println("Checkin if new debt is valid..");

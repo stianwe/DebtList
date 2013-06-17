@@ -89,7 +89,8 @@ public class CreateDebtActivity extends Activity {
 		EditText amount = (EditText) findViewById(R.id.create_debt_amount),
 				what = (EditText) findViewById(R.id.create_debt_what),
 				comment = (EditText) findViewById(R.id.create_debt_comment);
-		RadioButton from = (RadioButton) findViewById(R.id.create_debt_radio_from);
+		RadioButton from = (RadioButton) findViewById(R.id.create_debt_radio_from),
+				to = (RadioButton) findViewById(R.id.create_debt_radio_to);
 		// Check that all fields are filled
 		boolean allFieldsFilled = true;
 		// Check that a valid user (not the hint) is selected
@@ -99,7 +100,7 @@ public class CreateDebtActivity extends Activity {
 			allFieldsFilled = false;
 		} 
 		// Check that one of the radio buttons are checked
-		if(!(from.isChecked() || ((RadioButton) findViewById(R.id.create_debt_radio_to)).isChecked())) {
+		if(!(from.isChecked() || to.isChecked())) {
 			allFieldsFilled = false;
 			System.out.println("radio");
 			if(!from.isChecked()) System.out.println("FROM");
@@ -135,8 +136,13 @@ public class CreateDebtActivity extends Activity {
 				// Remove error message (not necessary?)
 //				errorField.setVisibility(View.INVISIBLE);
 				// Build command
+				if(from.isChecked()) {
+					System.out.println("From was selected");
+				} else {
+					System.out.println("From was not selected");
+				}
 				Main.processCreateDebt("create debt " + amount.getText().toString() + " " + '"' + sWhat + '"' + " " + 
-						(from.isSelected() ? "from" : "to") + " " + '"' + ((String) spinner.getSelectedItem()) + '"' + " " + 
+						(from.isChecked() ? "from" : "to") + " " + '"' + ((String) spinner.getSelectedItem()) + '"' + " " + 
 						'"' + sComment + '"');
 				// Return to main view
 				startActivity(new Intent(this, DebtViewActivity.class));
