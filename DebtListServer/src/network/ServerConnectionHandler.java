@@ -11,6 +11,8 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 
+import database.SessionTokenManager;
+
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
@@ -136,7 +138,11 @@ public class ServerConnectionHandler extends Thread {
 				XMLSerializable o = XMLSerializable.toObject(xml);
 				System.out.println("Done parsing object!");
 				// Process token if any is attached
-				processToken(o.getSessionToken());
+				if(!processToken(o.getSessionToken())) {
+					// Session token has expired.. User has to log in again
+					die(true);
+					return;
+				}
 //				if(!processToken(o.getSessionToken())) { 
 //					System.out.println("Is this happening..?");
 //					die(false);
@@ -203,17 +209,33 @@ public class ServerConnectionHandler extends Thread {
 		}
 	}
 	
-	private void processToken(String token) {
+	/**
+	 * 
+	 * @param token
+	 * @return		False if the token has expired, true if not
+	 */
+	private boolean processToken(String token) {
 		if(token != null) {
 			if(token.equals(Constants.SESSION_TOKEN_REQUEST)) {
 				System.out.println("SESSION TOKEN REQUEST DETECTED!");
-				return ;
+				return true;
 			}
 			System.out.println("Token detected! " + token);
-			this.token = token;
-			// Set the user
-			this.user = serverConnection.getUser(serverConnection.getTokenManager().getUsername(token));
+			// Check if the token has expired
+			if (serverConnection.getTokenManager().getUsername(token) == null) {
+				// Notify the device that its session has expired
+				System.out.println("User has timed out!");
+				send(Constants.SESSION_EXPIRED);
+				return false;
+			} else {
+				this.token = token;
+				// Set the user
+				this.user = serverConnection.getUser(serverConnection.getTokenManager().getUsername(token));
+				return true;
+			}
 		}
+		// FIXME: If no token is attached.. What should we do?? (ignore lacking token for now and process message)
+		return true;
 	}
 	
 	/**

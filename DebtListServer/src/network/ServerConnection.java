@@ -57,6 +57,19 @@ public class ServerConnection {
 				nextDebtId = dbUnit.getNextId(DatabaseUnit.TABLE_DEBT, DatabaseUnit.FIELD_DEBT_ID);
 				nextUserId = dbUnit.getNextId(DatabaseUnit.TABLE_USER, DatabaseUnit.FIELD_USER_ID);
 				nextFriendRequestId = dbUnit.getNextId(DatabaseUnit.TABLE_FRIEND_REQUEST, DatabaseUnit.FIELD_FRIEND_REQUEST_ID);
+				// Timeout token sessions
+				new Timer().schedule(new TimerTask() {
+					
+					@Override
+					public void run() {
+						System.out.println("Timing out sessions..");
+						// Remove a token if it hasn't requested an update in the set interval
+						for(String token : tokenManager.removeOldTokens(System.currentTimeMillis() - Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT)) {
+							System.out.println("Removed token: " + token);
+						}	
+						System.out.println("Done.");
+					}
+				}, Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT, Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT);
 				// Write to database and disconnect inactive users
 				(timer = new Timer()).schedule(new TimerTask() {
 
@@ -75,17 +88,17 @@ public class ServerConnection {
 						// Also check if we should disconnect any inactive users
 						// FIXME: No longer needed since handlers are no longer persistent... What should be done is removing session tokens from the token manager!
 						// Lock the list
-						synchronized (handlers) {
-							List<ServerConnectionHandler> toBeRemoved = new ArrayList<ServerConnectionHandler>();
-							for (ServerConnectionHandler h : handlers) {
-								if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
-									System.out.println("Attempting to close connection");
-									h.close();
-									toBeRemoved.add(h);
-								}
-							}
-							handlers.removeAll(toBeRemoved);
-						}
+//						synchronized (handlers) {
+//							List<ServerConnectionHandler> toBeRemoved = new ArrayList<ServerConnectionHandler>();
+//							for (ServerConnectionHandler h : handlers) {
+//								if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
+//									System.out.println("Attempting to close connection");
+//									h.close();
+//									toBeRemoved.add(h);
+//								}
+//							}
+//							handlers.removeAll(toBeRemoved);
+//						}
 					}
 				}, Constants.TIME_BETWEEN_WRITES_TO_DATABASE, Constants.TIME_BETWEEN_WRITES_TO_DATABASE);
 				Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -124,9 +137,16 @@ public class ServerConnection {
 						if(command.equals("save")) saveAll();
 						// Close all connections
 						else if(command.equals("disconnect")) {
-							disconnectUsers();
+//							disconnectUsers();
+							tokenManager.removeOldTokens(System.currentTimeMillis());
 						} else if(command.equals("ls connections")) {
-							listConnections();
+//							listConnections();
+							System.out.println("No longer supported since connections are not persistent. Did you mean ls tokens?");
+						} else if(command.equals("ls tokens")) {
+							System.out.println("Current active tokens and users:");
+							for (String  token : tokenManager.getTokens()) {
+								System.out.println(token + ": " + tokenManager.getUsername(token));
+							}
 						} else if(command.equals("disable saving")) {
 							shouldSave = false;
 						} else if(command.equals("enable saving")) {

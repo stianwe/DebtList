@@ -79,6 +79,13 @@ public class AndroidConnection {
 		final String message = msg;
 		final boolean sr = shouldReceive;
 		ThreadX x = new ThreadX() {
+			
+			private synchronized void wakeUp() {
+				setShouldSleep(false);
+				//					System.out.println("Trying to wake up sleeping thread..");
+				notifyAll();
+			}
+			
 			@Override
 			public void run() {
 				String xml = message;
@@ -105,7 +112,8 @@ public class AndroidConnection {
 							obj.setSessionToken(Constants.SESSION_TOKEN_REQUEST);
 						}
 						xml = obj.toXML();
-						System.out.println("Sending message: " + xml);
+//						System.out.println("Sending message: " + xml);
+						System.out.println("Sending message..");
 						con.send(xml);
 					} else {
 						System.out.println("Won't send, only receive!");
@@ -114,6 +122,20 @@ public class AndroidConnection {
 						System.out.println("Waiting for response..");
 						toBeReturned = con.receive();
 						System.out.println("Received: " + toBeReturned);
+						// Check if our token has expired
+						if(toBeReturned.equals(Constants.SESSION_EXPIRED)) {
+							// Login again
+							System.out.println("Attempting to log in again..");
+							String username = Session.session.getUser().getUsername();
+							String password = ((AndroidSession) Session.session).getPassword();
+							Session.session.clear();
+							Session.session.logIn(username, password);
+							System.out.println("Attempt done.. Did it work?");
+							// Re-send whatever we sent, and return the response
+							toBeReturned = send(message, true);
+							wakeUp();
+							return;
+						}
 						// Update our session token
 						String token = XMLSerializable.toObject(toBeReturned).getSessionToken();
 						if(token == null) {
@@ -129,24 +151,17 @@ public class AndroidConnection {
 							}
 							s.setSessionToken(token);
 						}
-						synchronized (this) {
-							setShouldSleep(false);
-							System.out.println("Trying to wake up sleeping thread..");
-							notifyAll();
-						}
-						System.out.println("Response received: " + toBeReturned);
+						wakeUp();
+//						System.out.println("Response received: " + toBeReturned);
+						System.out.println("Received response!");
 					} else {
-						System.out.println("Should not receive response!");
+//						System.out.println("Should not receive response!");
 					}
 					con.close();
 				} catch (IOException e) {
 					ex = e;
 					System.out.println("Caught exception!");
-					synchronized (this) {
-						setShouldSleep(false);
-						System.out.println("Trying to wake up sleeping thread..");
-						notifyAll();
-					}
+					wakeUp();
 					// Can we just throw it here?
 //					throw e;
 				}
@@ -156,25 +171,25 @@ public class AndroidConnection {
 		x.start();
 		if(x.shouldSleep()) {
 			try {
-				System.out.println("Going to sleep..");
+//				System.out.println("Going to sleep..");
 				synchronized (x) {
 					x.wait();
 				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				System.out.println("Woke up!" + e);
+//				System.out.println("Woke up!" + e);
 			}
 		} else {
-			System.out.println("Won't sleep!");
+//			System.out.println("Won't sleep!");
 		}
 		if(x.ex != null) {
 			System.out.println("Exception: " + x.ex);
 			throw x.ex;
 		} else {
-			System.out.println("No exception!");
+//			System.out.println("No exception!");
 		}
-		System.out.println("Stopped waiting!");
-		System.out.println("Returning: " + x.toBeReturned);
+//		System.out.println("Stopped waiting!");
+//		System.out.println("Returning: " + x.toBeReturned);
 		return x.toBeReturned;
 	}
 	

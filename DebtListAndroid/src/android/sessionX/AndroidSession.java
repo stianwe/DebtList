@@ -29,6 +29,7 @@ public class AndroidSession extends Session {
 	public void clear() {
 		super.clear();
 		sessionToken = null;
+		password = null;
 	}
 	
 	@Override
@@ -39,7 +40,7 @@ public class AndroidSession extends Session {
 		}
 		return s;
 	}
-	
+
 	@Override
 	public LogInRequestStatus logIn(String username, String password, String activationKey) {
 		LogInRequestStatus s = super.logIn(username, password, activationKey);
