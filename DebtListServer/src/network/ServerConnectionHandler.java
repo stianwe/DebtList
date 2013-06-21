@@ -23,6 +23,7 @@ import requests.CreateUserRequestStatus;
 import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
+import requests.Request;
 import requests.UpdateRequest;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
@@ -137,6 +138,14 @@ public class ServerConnectionHandler extends Thread {
 			try {
 				XMLSerializable o = XMLSerializable.toObject(xml);
 				System.out.println("Done parsing object!");
+				// Check version
+				if(!checkVersion(o)) {
+					// Incompatible version, don't process the request
+					// (but send back a response
+					send(o.toXML());
+					die(true);
+					return;
+				}
 				// Process token if any is attached
 				if(!processToken(o.getSessionToken())) {
 					// Session token has expired.. User has to log in again
@@ -207,6 +216,33 @@ public class ServerConnectionHandler extends Thread {
 			// TODO: Should the user be logged off?
 			die(true);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param o
+	 * @return		True if the version was compatible, false if not
+	 */
+	public boolean checkVersion(XMLSerializable o) {
+		if(o instanceof Request) {
+			Request r = (Request) o;
+			// Check compatibility
+			if(!r.getServerVersion().isCompatible(Constants.SERVER_VERSION)) {
+				// Notify user
+				if(r instanceof LogInRequest) {
+					System.out.println("INCOMPATIBLE VERSION! " + r.getServerVersion());
+					((LogInRequest) r).setStatus(LogInRequestStatus.INCOMPATIBLE_CLIENT_VERSION);
+				} else if (r instanceof CreateUserRequest) {
+					((CreateUserRequest) r).setStatus(CreateUserRequestStatus.INCOMPATIBLE_CLIENT_VERSION);
+					System.out.println("INCOMPATIBLE VERSION! " + r.getServerVersion());
+				} else {
+					serverConnection.writeToLog("Received request that was not login/register from client with incompatible version. Version was: " + r.getServerVersion() + ", current version is: " + Constants.SERVER_VERSION);
+				}
+				return false;
+			}
+			System.out.println("Version ok! " + r.getServerVersion());
+		}
+		return true;
 	}
 	
 	/**
@@ -814,21 +850,25 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	public void send(String msg) {
-		// Attach session token if present
-		if(this.token != null) {
-			XMLSerializable o = null;
-			try {
-				o = XMLSerializable.toObject(msg);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				serverConnection.writeToLog("Error while attaching session token: " + e.toString());
+		XMLSerializable o = null;
+		try {
+			o = XMLSerializable.toObject(msg);
+			// Attach version
+			if(o instanceof Request) {
+				((Request) o).setServerVersion(Constants.SERVER_VERSION);
 			}
-			System.out.println("Attaching token: " + this.token);
-			o.setSessionToken(this.token);
+			// Attach session token if present
+			if(this.token != null) {
+				System.out.println("Attaching token: " + this.token);
+				o.setSessionToken(this.token);
+			} else {
+				System.out.println("Did not attach any token because this session has none.");
+			}
 			msg = o.toXML();
-		} else {
-			System.out.println("Did not attach any token because this session has none.");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			serverConnection.writeToLog("Error while parsing before send (in send): " + e.toString());
 		}
 		System.out.println("Sending: " + msg);
 		// FIXME

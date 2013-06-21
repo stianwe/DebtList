@@ -9,6 +9,7 @@ import session.Session;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.utils.Tools;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -84,6 +85,11 @@ public class CreateUserActivity extends Activity {
 			case USERNAME_ALREADY_TAKEN:
 				errorView.setText(v.getResources().getString(R.string.create_user_error_username_taken));
 				errorView.setVisibility(View.VISIBLE);
+				break;
+			case INCOMPATIBLE_CLIENT_VERSION:
+				// TODO: Display information about incompatible version
+				System.out.println("INCOMPATIBLE VERSION!");
+				Tools.displayIncompatibleVersionDialog(this);
 				break;
 			default:
 				break;

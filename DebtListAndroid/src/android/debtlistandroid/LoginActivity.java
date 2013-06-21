@@ -9,6 +9,8 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.sessionX.AndroidSession;
@@ -24,6 +26,9 @@ import android.widget.TextView;
 
 public class LoginActivity extends Activity {
 
+	public static Context context;
+	public static View view;
+	
 	private View loginErrorTextView = null;
 	
 	@Override
@@ -39,6 +44,8 @@ public class LoginActivity extends Activity {
 		Session.session.connect(Constants.SERVER_ADDRESS, Constants.STANDARD_SERVER_PORT);
 		
 		loginErrorTextView = findViewById(R.id.loginerrortext);
+		
+		context = getApplicationContext();
 	}
 	
 // No need for menu on the login screen(?)
@@ -50,12 +57,14 @@ public class LoginActivity extends Activity {
 //	}
 
 	public void register(View v) {
+		view = v;
 		// Clear session user in case someone has gotten to this activity while logged in
 		Session.session.clear();
 		startActivity(new Intent(this, CreateUserActivity.class));
 	}
 	
 	public void login(View v) {
+		view = v;
 		// Clear session user in case someone has gotten to this activity while logged in
 		Session.session.clear();
 		final Activity dis = this;
@@ -94,6 +103,12 @@ public class LoginActivity extends Activity {
 					// Send user to activation view
 					ActivateUserActivity.setLoginInformation(((EditText)findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString());
 					startActivity(new Intent(dis, ActivateUserActivity.class));
+					break;
+				case INCOMPATIBLE_CLIENT_VERSION:
+					// TODO: Display information about incompatible version
+					System.out.println("INCOMPATIBLE VERSION!");
+					Tools.displayIncompatibleVersionDialog(dis);
+					break;
 				default:
 					break;
 				}

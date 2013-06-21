@@ -30,7 +30,8 @@ public class Main {
 	public static void main(String[] args) {
 		new PCSession().init();
 		
-		System.out.println("Welcome to DebtList (VERSION " + Constants.VERSION + ")!");
+//		System.out.println("Welcome to DebtList (VERSION " + Constants.VERSION + ")!");
+		System.out.println("Welcome to DebtList (VERSION " + Constants.SERVER_VERSION + ")!");
 		System.out.println("Connect to server by typing " + '"' + "connect" + '"' + " followed by " + '"' + "login" + '"' + " to log in, or " + '"' + "create user" + '"' + " to create a new user.");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String command = null;

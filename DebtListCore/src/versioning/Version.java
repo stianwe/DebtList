@@ -5,6 +5,27 @@ public class Version {
 	protected int a, b, c;
 	private boolean release;
 	
+	public static Version parseVersion(String version) {
+		System.out.println("Parsing version: " + version);
+		if(version.contains("pre-release")) {
+			return new PrereleaseVersion(version);
+		}
+		return new Version(version);
+	}
+	
+	public Version(String version) {
+		String newVersion = version.replaceAll(" TEST", "");
+		if(newVersion.length() != version.length()) {
+			this.release = false;
+		}
+		newVersion = newVersion.substring(1);
+		System.out.println("Splitting version: " + newVersion);
+		String[] vs = newVersion.split("\\.");
+		this.a = Integer.parseInt(vs[0]);
+		this.b = Integer.parseInt(vs[1]);
+		this.c = Integer.parseInt(vs[2]);
+	}
+	
 	public Version(int a, int b, int c, boolean release) {
 		this.a = a;
 		this.b = b;
@@ -29,6 +50,10 @@ public class Version {
 	}
 	
 	public boolean isGreaterThan(Version v) {
+		return isGreaterThanHelper(v, false);
+	}
+	
+	protected boolean isGreaterThanHelper(Version v, boolean defaultB) {
 		if(this.a > v.a) {
 			return true;
 		}
@@ -44,6 +69,9 @@ public class Version {
 		if(this.c > v.c) {
 			return true;
 		}
-		return false;
+		else if(this.c < v.c) {
+			return false;
+		}
+		return defaultB;
 	}
 }

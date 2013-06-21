@@ -7,12 +7,12 @@ public class Constants {
 	
 	// Versions
 	public static final Version SERVER_VERSION = new PrereleaseVersion(0, 0, 0, 0);
-	public static final Version ANDROID_VERSION = new PrereleaseVersion(0, 0, 0, 0);
-	public static final Version CONSOLE_VERSION = new PrereleaseVersion(-1, 0, 0, 0);
-	public static final Version SWING_VERSION = new PrereleaseVersion(-2, 0, 0, 0);
+//	public static final Version ANDROID_VERSION = new PrereleaseVersion(0, 0, 0, 0);
+//	public static final Version CONSOLE_VERSION = new PrereleaseVersion(-1, 0, 0, 0);
+//	public static final Version SWING_VERSION = new PrereleaseVersion(-2, 0, 0, 0);
 	
 	// Network
-	public static final String SERVER_ADDRESS = "invert.ed.ntnu.no";
+	public static final String SERVER_ADDRESS = "129.241.150.34";
 	public static final int STANDARD_SERVER_PORT = 13337;
 	public static final long STANDARD_TIME_BETWEEN_UPDATES = 5 * 60 * 1000; // 5 minutes 
 	public static final long TIME_BETWEEN_WRITES_TO_DATABASE = 15 * 60 * 1000; // 15 minutes

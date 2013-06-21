@@ -4,9 +4,13 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLSocket;
 
+import android.debtlistandroid.LoginActivity;
+import android.os.Looper;
 import android.sessionX.AndroidSession;
+import android.utils.Tools;
 
 import requests.LogInRequest;
+import requests.Request;
 import requests.xml.XMLSerializable;
 import session.Session;
 
@@ -94,6 +98,13 @@ public class AndroidConnection {
 					ClientConnection con = connect();
 					if(xml != null) {
 						XMLSerializable obj = XMLSerializable.toObject(xml);
+						// Attach version
+						if(obj instanceof Request) {
+							Request r = (Request) obj;
+//							r.setClientVersion(Constants.ANDROID_VERSION);
+							r.setServerVersion(Constants.SERVER_VERSION);
+							System.out.println("Attaching version: " + Constants.SERVER_VERSION);
+						}
 						// Attach username and password 
 						if(((AndroidSession) Session.session).getPassword() != null) {
 							// TODO: Should not need to parse back and forth when passing the objects instead of the strings
@@ -136,8 +147,25 @@ public class AndroidConnection {
 							wakeUp();
 							return;
 						}
+						XMLSerializable o = XMLSerializable.toObject(toBeReturned); 
+						// Check if our version is outdated (but compatible)
+						if(o instanceof Request) {
+							Request r = (Request) o;
+							if(r.getServerVersion().isGreaterThan(Constants.SERVER_VERSION) && r.getServerVersion().isCompatible(Constants.SERVER_VERSION)) {
+								// TODO: Display information about compatible, but outdated version
+								System.out.println("Compatible but outdated version!");
+//								LoginActivity.view.post(new Runnable() {
+//									public void run() {
+////										Looper.prepare();
+//										Tools.displayDialog("Old version", "You are currently using an old version of the Android client.\nPlease consider updating it from the webpage!", null, null, null, null, LoginActivity.context);
+//									}
+//								});
+							} else {
+								System.out.println("Version not outdated (might be incompatible though!)");
+							}
+						}
 						// Update our session token
-						String token = XMLSerializable.toObject(toBeReturned).getSessionToken();
+						String token = o.getSessionToken();
 						if(token == null) {
 							System.out.println("Something wrong happened! No session token was received from the server.");
 						} else if(! (Session.session instanceof AndroidSession)) {

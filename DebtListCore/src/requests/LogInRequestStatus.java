@@ -25,5 +25,10 @@ public enum LogInRequestStatus {
 	/**
 	 * The attached activation key did not match the one registered by the server
 	 */
-	INVALID_ACTIVATION_KEY;
+	INVALID_ACTIVATION_KEY,
+	/**
+	 * The client that tried to log in is using an incompatible version 
+	 */
+	INCOMPATIBLE_CLIENT_VERSION,
+	;
 }

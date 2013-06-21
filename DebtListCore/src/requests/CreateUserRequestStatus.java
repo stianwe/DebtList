@@ -22,5 +22,10 @@ public enum CreateUserRequestStatus {
 	 * The request was accepted by the server, and the user has been
 	 * created (but not activated)
 	 */
-	ACCEPTED;
+	ACCEPTED,
+	/**
+	 * The client that tried to register a user is using an incompatible version 
+	 */
+	INCOMPATIBLE_CLIENT_VERSION,
+	;
 }
