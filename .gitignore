@@ -5,3 +5,4 @@
 */.settings
 *.log
 DebtListServer/*log*
+*.config

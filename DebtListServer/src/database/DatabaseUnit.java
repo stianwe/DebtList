@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import config.Config;
+import config.ConfigManager;
+
 import requests.FriendRequest;
 import requests.FriendRequest.FriendRequestStatus;
 
@@ -18,11 +21,7 @@ import logic.User;
 
 public class DatabaseUnit {
 
-	public static final String DB_HOST_NAME = "mysql://invert.ed.ntnu.no";
-	public static final int DB_PORT = 3306;
-	public static final String DB_NAME = "TEST_DebtList";
-	public static final String DB_USERNAME = "SENSURED";
-	public static final String DB_PASSWORD = "SENSURED";
+	public static final String CONFIG_FILE = "DebtList_server.conf";
 	
 	// Database tables
 	public static final String TABLE_USER = "user";
@@ -54,6 +53,22 @@ public class DatabaseUnit {
 	private Statement st;
 	private Connection con;
 	
+	private String dbUsername;
+	private String dbPassword;
+	private String dbHostName;
+	private String dbName;
+	private int dbPort;
+	
+	public DatabaseUnit() {
+		// Load config file
+		Config config = ConfigManager.loadConfig(CONFIG_FILE);
+		dbUsername = config.getMySQLUsername();
+		dbPassword = config.getMySQLPassword();
+		dbHostName = config.getMySQLHostName();
+		dbName = config.getMySQLDBName();
+		dbPort = config.getMySQLPort();
+	}
+	
 	/**
 	 * Connects to the database specified with this class' constants
 	 * @throws Exception 
@@ -64,10 +79,11 @@ public class DatabaseUnit {
 
 		//Define URL of database server for
 		String url =
-				"jdbc:" + DB_HOST_NAME + ":" + DB_PORT + "/" + DB_NAME;
+//				"jdbc:" + DB_HOST_NAME + ":" + DB_PORT + "/" + DB_NAME;
+				"jdbc:" + dbHostName + ":" + dbPort + "/" + dbName;
 
 		//Get a connection to the database for a
-		con = DriverManager.getConnection(url, DB_USERNAME, DB_PASSWORD);
+		con = DriverManager.getConnection(url, dbUsername, dbPassword);
 
 		//Display URL and connection information
 		System.out.println("URL: " + url);
