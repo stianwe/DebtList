@@ -464,16 +464,17 @@ public class ServerConnectionHandler extends Thread {
 			req.setStatus(CreateUserRequestStatus.INVALID_USERNAME);
 		}
 		else {
-			// FIXME Only set as activated for compatibility reasons. Should be set as unactivated when created!
-			// Check the request's version to see if email and activation should be processed
-			if(req.getVersion() == null) {
-				System.out.println("Setting newly created user as activated for compatibility reasons.");
-				// Insert dummy activation key and mail, and set the user as activated, to ensure backwards compatibility
-				user.setActivationKey("N_supplied");
-				user.setIsActivated(true);
-				user.setEmail("Not_supplied");
-				req.setStatus(CreateUserRequestStatus.ACCEPTED);
-			} else {
+			// CreateUserRequests are now never activated, no matter where they come from!!
+			// (Only set as activated for compatibility reasons. Should be set as unactivated when created!)
+			// (Check the request's version to see if email and activation should be processed)
+//			if(req.getVersion() == null) {
+//				System.out.println("Setting newly created user as activated for compatibility reasons.");
+//				// Insert dummy activation key and mail, and set the user as activated, to ensure backwards compatibility
+//				user.setActivationKey("N_supplied");
+//				user.setIsActivated(true);
+//				user.setEmail("Not_supplied");
+//				req.setStatus(CreateUserRequestStatus.ACCEPTED);
+//			} else {
 //				req.setIsAproved(true);
 				req.setStatus(CreateUserRequestStatus.ACCEPTED);
 				user.setIsActivated(false);
@@ -501,7 +502,7 @@ public class ServerConnectionHandler extends Thread {
 				} else {
 					System.out.println("Email OK.");
 				}
-			}
+//			}
 			if(req.isApproved()) {
 				// Get an id for the user
 				user.setId(serverConnection.getNextUserId());
@@ -512,7 +513,7 @@ public class ServerConnectionHandler extends Thread {
 		// Reply with an answer
 		send(req.toXML());
 		// Set activation key after we have sent the response, so it is not sent to the user
-		if(req.getVersion() != null && req.isApproved() && user != null) {
+		if(/* req.getVersion() != null && */ req.isApproved() && user != null) {
 			System.out.println("Generating activation key for user: " + user.getUsername());
 			// Generate activation key
 			user.setActivationKey(PasswordHasher.hashPassword(((System.currentTimeMillis() + (long) (Math.random() * 10000000)) + "")).substring(0, 10));

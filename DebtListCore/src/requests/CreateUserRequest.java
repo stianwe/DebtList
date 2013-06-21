@@ -1,6 +1,5 @@
 package requests;
 
-import network.Constants;
 import logic.User;
 
 public class CreateUserRequest extends Request {
@@ -33,8 +32,7 @@ public class CreateUserRequest extends Request {
 		setIsAproved(isApproved);
 		setVariable("password", password);
 		// Set the version to the one in the constants
-		System.out.println("Setting version to " + Constants.VERSION);
-		setVersion(Constants.VERSION);
+//		setVersion(Constants.VERSION);
 	}
 
 	/**
@@ -48,8 +46,7 @@ public class CreateUserRequest extends Request {
 		setVariable("password", password);
 		setStatus(status);
 		// Set the version to the one in the constants
-		System.out.println("Setting version to " + Constants.VERSION);
-		setVersion(Constants.VERSION);
+//		setVersion(Constants.VERSION);
 	}
 	
 	/**
@@ -58,17 +55,17 @@ public class CreateUserRequest extends Request {
 	 * (except the default one, which is (should be!) only used by the XMLSerializer).
 	 * @param version	The version, typically found in DebtListCore.network.Constants
 	 */
-	public void setVersion(String version) {
-		setVariable("version", version);
-	}
+//	public void setVersion(String version) {
+//		setVariable("version", version);
+//	}
 	
 	/**
 	 * @return The version of the DebtList this request originated from.
 	 * Typically found in DebtListCore.network.Constants.VERSION.
 	 */
-	public String getVersion() {
-		return (String) getVariable("version");
-	}
+//	public String getVersion() {
+//		return (String) getVariable("version");
+//	}
 	
 	/**
 	 * @deprecated Deprecated after status was added. Use setStatus() instead

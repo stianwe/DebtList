@@ -1,8 +1,15 @@
 package network;
 
-public class Constants {
+import versioning.PrereleaseVersion;
+import versioning.Version;
 
-	public static final String VERSION = "0";
+public class Constants {
+	
+	// Versions
+	public static final Version SERVER_VERSION = new PrereleaseVersion(0, 0, 0, 0);
+	public static final Version ANDROID_VERSION = new PrereleaseVersion(0, 0, 0, 0);
+	public static final Version CONSOLE_VERSION = new PrereleaseVersion(-1, 0, 0, 0);
+	public static final Version SWING_VERSION = new PrereleaseVersion(-2, 0, 0, 0);
 	
 	// Network
 	public static final String SERVER_ADDRESS = "invert.ed.ntnu.no";
