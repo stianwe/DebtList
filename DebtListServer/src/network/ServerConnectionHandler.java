@@ -669,7 +669,9 @@ public class ServerConnectionHandler extends Thread {
 		// TODO: Verify!!!!
 		Debt old = null;
 		for (int i = 0; i < getUser().getNumberOfConfirmedDebts(); i++) {
-			if(getUser().getConfirmedDebt(i).getId() == d.getId()) old = getUser().getConfirmedDebt(i);
+			if(getUser().getConfirmedDebt(i).getId() == d.getId()) {
+				old = getUser().getConfirmedDebt(i);
+			}
 		}
 		if(old == null) {
 			System.out.println("Something wrong happened while processing completedDebt");

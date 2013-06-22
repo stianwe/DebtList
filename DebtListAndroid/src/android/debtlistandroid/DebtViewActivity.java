@@ -49,7 +49,16 @@ public class DebtViewActivity extends ListActivity {
 		}
 		List<List<Debt>> debts = new ArrayList<List<Debt>>();
 		debts.add(new ArrayList<Debt>());
-		debts.add(Session.session.getUser().getConfirmedDebts());
+		// Add confirmed debts that are not completed
+//		debts.add(Session.session.getUser().getConfirmedDebts());
+		List<Debt> confirmedDebts = new ArrayList<Debt>();
+		for(Debt d : Session.session.getUser().getConfirmedDebts()) {
+			// Don't display completed debts
+			if(d.getStatus() != DebtStatus.COMPLETED) {
+				confirmedDebts.add(d);
+			}
+		}
+		debts.add(confirmedDebts);
 		debts.add(new ArrayList<Debt>());
 		// Split pending debts requested by the user, and pending debts requested by an other user
 		for (Debt d : Session.session.getUser().getPendingDebts()) {
