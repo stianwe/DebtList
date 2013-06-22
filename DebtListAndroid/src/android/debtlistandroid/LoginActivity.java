@@ -45,7 +45,8 @@ public class LoginActivity extends Activity {
 		
 		loginErrorTextView = findViewById(R.id.loginerrortext);
 		
-		context = getApplicationContext();
+//		context = getApplicationContext();
+		context = this;
 	}
 	
 // No need for menu on the login screen(?)
@@ -98,6 +99,17 @@ public class LoginActivity extends Activity {
 							loginErrorTextView.setVisibility(View.VISIBLE);
 //						}
 //					});
+					// Display outdated version dialog if outdated version
+					if(Session.session.isVersionOutdated()) {
+						final Context diss = this;
+						v.post(new Runnable() {
+							public void run() {
+								Tools.displayOutdatedVersionDialog(diss);
+							}
+						});
+						// We only want the message displayed once
+						Session.session.setIsVersionOutdated(false);
+					}
 					break;
 				case NOT_ACTIVATED:
 					// Send user to activation view

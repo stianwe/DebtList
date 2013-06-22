@@ -72,11 +72,27 @@ public abstract class Tools {
 	}
 
 	public static void displayIncompatibleVersionDialog(Context context) {
-		Tools.displayDialog("Incompatible version!", "You are using an outdated version of this application, that is no longer compatible with the current one. Please visit http://github.com/stianwe/DebtList to update!", "OK", new OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				Tools.lastCreatedDialog.cancel();
-			}
-		}, null, null, context);
+		Tools.displayDialog("Incompatible version!", 
+				"You are using an outdated version of this application, that is no longer compatible with the current one. Please visit " + Constants.NEW_VERSION_URL + " to update!", 
+				"OK", new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						Tools.lastCreatedDialog.cancel();
+					}
+				}, 
+				null, null,
+				context);
+	}
+	
+	public static void displayOutdatedVersionDialog(Context context) {
+		Tools.displayDialog("Outdated version!", 
+				"You are using an outdated version of this application.\nIt is still compatible with the server, but it is strongly adviced to update. Please visit " + Constants.NEW_VERSION_URL + " for more information!", 
+				"OK", new OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						Tools.lastCreatedDialog.cancel();
+					}
+				}, 
+				null, null, 
+				context);
 	}
 	
 	public static void displayDialog(String title, String message, String yesOrOkText, DialogInterface.OnClickListener yesOrOkListener, String noText, DialogInterface.OnClickListener noListener, Context context) {

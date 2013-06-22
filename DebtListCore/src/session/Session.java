@@ -18,8 +18,17 @@ import requests.xml.XMLSerializable;
 public abstract class Session {
 
 	private User user;
+	private boolean isVersionOutdated = false;
 	public static Session session;
 
+	public void setIsVersionOutdated(boolean versionIsOutdated) {
+		this.isVersionOutdated = versionIsOutdated;
+	}
+	
+	public boolean isVersionOutdated() {
+		return isVersionOutdated;
+	}
+	
 	/**
 	 * Clears the session by reseting the user
 	 */

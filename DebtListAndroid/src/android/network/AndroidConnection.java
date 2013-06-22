@@ -151,13 +151,14 @@ public class AndroidConnection {
 						// Check if our version is outdated (but compatible)
 						if(o instanceof Request) {
 							Request r = (Request) o;
+							System.out.println("Server version: " + r.getServerVersion());
+							System.out.println("Client version: " + Constants.SERVER_VERSION);
 							if(r.getServerVersion().isGreaterThan(Constants.SERVER_VERSION) && r.getServerVersion().isCompatible(Constants.SERVER_VERSION)) {
-								// TODO: Display information about compatible, but outdated version
 								System.out.println("Compatible but outdated version!");
+								Session.session.setIsVersionOutdated(true);
 //								LoginActivity.view.post(new Runnable() {
 //									public void run() {
-////										Looper.prepare();
-//										Tools.displayDialog("Old version", "You are currently using an old version of the Android client.\nPlease consider updating it from the webpage!", null, null, null, null, LoginActivity.context);
+//										Tools.displayOutdatedVersionDialog(LoginActivity.context);
 //									}
 //								});
 							} else {

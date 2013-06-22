@@ -39,6 +39,7 @@ public class ServerConnection {
 	private SessionTokenManager tokenManager;
 
 	public ServerConnection(boolean readFromDatabase) {
+		System.out.println("Starting server " + Constants.SERVER_VERSION);
 		this.handlers = new ArrayList<ServerConnectionHandler>();
 		users = new CaseInsensitiveHashMap<User>();
 		passwords = new CaseInsensitiveHashMap<String>();

@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
+import android.utils.Tools;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +36,23 @@ public class DebtViewActivity extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+//		LoginActivity.context = this;
+//		LoginActivity.view = findViewById(R.layout.activity_debt_view);
+		
+		// Display information about outdated version if the version is outdated
+		if(Session.session.isVersionOutdated()) {
+			final Context dis = this;
+			System.out.println(findViewById(R.layout.activity_debt_view) + " is it null????");
+			LoginActivity.view.post(new Runnable() {
+				public void run() {
+					Tools.displayOutdatedVersionDialog(dis);
+				}
+			});
+			// Set version not outdated, so we only get this message once
+			Session.session.setIsVersionOutdated(false);
+		}
+		
 //		setContentView(R.layout.activity_debt_view);
 		
 		// Set up list view

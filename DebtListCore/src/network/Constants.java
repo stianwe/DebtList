@@ -6,14 +6,15 @@ import versioning.Version;
 public class Constants {
 	
 	// Versions
-	public static final Version SERVER_VERSION = new PrereleaseVersion(0, 0, 0, 0);
+														// v0.0.0.0 PRE-RELEASE
+	public static final Version SERVER_VERSION = new PrereleaseVersion(0, 0, 0, -1);
 //	public static final Version ANDROID_VERSION = new PrereleaseVersion(0, 0, 0, 0);
 //	public static final Version CONSOLE_VERSION = new PrereleaseVersion(-1, 0, 0, 0);
 //	public static final Version SWING_VERSION = new PrereleaseVersion(-2, 0, 0, 0);
 	
 	// Network
-//	public static final String SERVER_ADDRESS = "192.168.0.119";
-	public static final String SERVER_ADDRESS = "invert.ed.ntnu.no";
+	public static final String SERVER_ADDRESS = "192.168.0.119";
+//	public static final String SERVER_ADDRESS = "invert.ed.ntnu.no";
 	public static final int STANDARD_SERVER_PORT = 13337;
 	public static final long STANDARD_TIME_BETWEEN_UPDATES = 5 * 60 * 1000; // 5 minutes 
 	public static final long TIME_BETWEEN_WRITES_TO_DATABASE = 15 * 60 * 1000; // 15 minutes
@@ -38,4 +39,6 @@ public class Constants {
 	public static final boolean STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI = false;
 
 	public static final String SESSION_EXPIRED = "session-expired";
+	
+	public static final String NEW_VERSION_URL = "http://github.com/stianwe/DebtList";
 }
