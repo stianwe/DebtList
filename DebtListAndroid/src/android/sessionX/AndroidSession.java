@@ -6,6 +6,7 @@ import network.Constants;
 
 import android.content.Context;
 import android.network.AndroidConnection;
+import android.updater.AndroidUpdater;
 
 import requests.LogInRequestStatus;
 import session.Session;

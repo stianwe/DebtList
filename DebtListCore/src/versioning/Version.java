@@ -6,7 +6,6 @@ public class Version {
 	private boolean release;
 	
 	public static Version parseVersion(String version) {
-		System.out.println("Parsing version: " + version);
 		if(version.contains("pre-release")) {
 			return new PrereleaseVersion(version);
 		}
@@ -19,7 +18,6 @@ public class Version {
 			this.release = false;
 		}
 		newVersion = newVersion.substring(1);
-		System.out.println("Splitting version: " + newVersion);
 		String[] vs = newVersion.split("\\.");
 		this.a = Integer.parseInt(vs[0]);
 		this.b = Integer.parseInt(vs[1]);
