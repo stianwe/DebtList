@@ -3,6 +3,15 @@ This is the changelog for the Android version.
 The app is still in a very early phase, so bug fixes and feature implementations are done at irregular intervals. 
 This means that you should check this changelog before submiting an issue/bug, since it might already have been fixed. 
 
+v0.0.0.0_pre-release:             Re-make versioning system (see wiki for more information). You will now receive a warning
+                                  if you're using an outdated version, and not be able to log in if your version is no
+                                  longer compatible with the current one.
+                                  Bug with debts not disapearing after both users has completed is has now been corrected.
+                                  Commits:
+                                  https://github.com/stianwe/DebtList/commit/6a2b6d090daba909b1f69f58cd8009e78caaa2c9
+                                  https://github.com/stianwe/DebtList/commit/7369f370f77f0db53c23335b297685031d93342f
+                                  https://github.com/stianwe/DebtList/commit/057bc823566c944f6af37f3771836ddd11fc89ee
+                                  https://github.com/stianwe/DebtList/commit/0252a2346fb1f92f83db0c606c3a8e3f364eaf47
 DebtList_android_TEST_170613:     Fix bugs regarding accepting/declining friend requests, and creating debts.
                                   Note: Friends and friend requests has ben reseted.
                                   (Commit: https://github.com/stianwe/DebtList/commit/a8e9ea03043c289affa021373d18bafd033e2a04 )
