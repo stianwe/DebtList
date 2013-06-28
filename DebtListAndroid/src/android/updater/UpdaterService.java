@@ -9,6 +9,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class UpdaterService extends IntentService {
 
@@ -16,11 +17,15 @@ public class UpdaterService extends IntentService {
 	public static final String UPDATE_ACTION = "debtlist.updateAction";
 	public static final String EXTENDED_DATA_RECEIVED_UDPATES = "debtlist.receivedUpdates";
 	
-	private Context context;
+	private static Context context;
 	
-	public UpdaterService(Context context) {
+	public UpdaterService() {
 		super(WORKER_THREAD_NAME);
-		this.context = context;
+	}
+
+	public static somethingWithLock(Context context) {
+		// FIXME!! LOCK!!
+		UpdaterService.context = context;
 	}
 	
 	@Override
@@ -43,6 +48,7 @@ public class UpdaterService extends IntentService {
 				// Notify activities about updates (if we received any)
 				Intent localIntent = new Intent(UPDATE_ACTION)
 				.putExtra(EXTENDED_DATA_RECEIVED_UDPATES, updates);
+				LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 			} catch (IOException e) {
 				System.out.println("Could not fetch updates: ");
 				e.printStackTrace();

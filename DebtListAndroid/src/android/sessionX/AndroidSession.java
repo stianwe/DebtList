@@ -4,9 +4,15 @@ import java.io.IOException;
 
 import network.Constants;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.network.AndroidConnection;
+import android.support.v4.content.LocalBroadcastManager;
 import android.updater.AndroidUpdater;
+import android.updater.OnAlarmReceiver;
+import android.updater.UpdateServiceMessageReceiver;
 
 import requests.LogInRequestStatus;
 import session.Session;
@@ -18,6 +24,8 @@ public class AndroidSession extends Session {
 	private String sessionToken = null;
 	private Updater updater;
 	private String password;
+	
+	private boolean updaterIsRunning = false;
 	
 	public AndroidSession() {
 		init();
@@ -57,7 +65,7 @@ public class AndroidSession extends Session {
 	
 	public void startUpdater(Context context, long timeBetweenUpdates, boolean shouldUpdateWithoutWifi) {
 		// Stop old updater if it exists
-		if(updater != null) {
+		/*if(updater != null) {
 			updater.stopUpdater();
 		}
 //		if(updater == null) {
@@ -65,7 +73,17 @@ public class AndroidSession extends Session {
 			updater = new AndroidUpdater(context, shouldUpdateWithoutWifi);
 			updater.startUpdater(timeBetweenUpdates);
 //		}
-//		updater.startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES);
+//		updater.startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES); */
+		
+		// Only start updater if it is not already running
+		if(!updaterIsRunning) {
+			UpdateServiceMessageReceiver receiver = new UpdateServiceMessageReceiver();
+			LocalBroadcastManager.getInstance(context).registerReceiver(receiver, null);
+			
+			AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			am.set(AlarmManager.RTC_WAKEUP, timeBetweenUpdates, PendingIntent.getBroadcast(context, 0, new Intent(context, OnAlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
+			updaterIsRunning = true;
+		}
 	}
 	
 	public void stopUpdater() {
