@@ -80,14 +80,14 @@ public final class R {
         public static final int activity_settings=0x7f060008;
     }
     public static final class string {
-        public static final int activate_user_button=0x7f04003c;
-        public static final int activate_user_error_filled=0x7f04003d;
-        public static final int activate_user_error_key=0x7f04003e;
-        public static final int activate_user_error_login_info=0x7f040040;
-        public static final int activate_user_error_network=0x7f04003f;
-        public static final int activate_user_key=0x7f04003b;
-        public static final int activate_user_password=0x7f04003a;
-        public static final int activate_user_username=0x7f040039;
+        public static final int activate_user_button=0x7f04003d;
+        public static final int activate_user_error_filled=0x7f04003e;
+        public static final int activate_user_error_key=0x7f04003f;
+        public static final int activate_user_error_login_info=0x7f040041;
+        public static final int activate_user_error_network=0x7f040040;
+        public static final int activate_user_key=0x7f04003c;
+        public static final int activate_user_password=0x7f04003b;
+        public static final int activate_user_username=0x7f04003a;
         public static final int add_friend_button=0x7f04002a;
         public static final int add_friend_error_message=0x7f040029;
         public static final int add_friend_username_email=0x7f040028;
@@ -114,6 +114,7 @@ public final class R {
         public static final int create_user_error_fill=0x7f040031;
         public static final int create_user_error_invalid_email=0x7f040033;
         public static final int create_user_error_invalid_username=0x7f040035;
+        public static final int create_user_error_mail=0x7f040038;
         public static final int create_user_error_network=0x7f040037;
         public static final int create_user_error_password_match=0x7f040032;
         public static final int create_user_error_username_taken=0x7f040036;
@@ -145,19 +146,19 @@ public final class R {
         public static final int menu_create_debt=0x7f040011;
         public static final int menu_friends=0x7f040012;
         public static final int menu_settings=0x7f040013;
-        public static final int notification_friend_request_pending_text=0x7f040049;
+        public static final int notification_friend_request_pending_text=0x7f04004a;
         /**  Notifications NOT USED FOR NOW..
          */
-        public static final int notification_friend_request_pending_title=0x7f040048;
-        public static final int settings_disable_updates_when_not_on_wifi_key=0x7f040046;
-        public static final int settings_disable_when_not_on_wifi=0x7f040043;
-        public static final int settings_save_button=0x7f040044;
-        public static final int settings_time_between_updates_error_message=0x7f040047;
-        public static final int settings_time_between_updates_key=0x7f040045;
-        public static final int settings_time_between_updates_text_view=0x7f040042;
+        public static final int notification_friend_request_pending_title=0x7f040049;
+        public static final int settings_disable_updates_when_not_on_wifi_key=0x7f040047;
+        public static final int settings_disable_when_not_on_wifi=0x7f040044;
+        public static final int settings_save_button=0x7f040045;
+        public static final int settings_time_between_updates_error_message=0x7f040048;
+        public static final int settings_time_between_updates_key=0x7f040046;
+        public static final int settings_time_between_updates_text_view=0x7f040043;
         /**  ActivateUserActivity 
          */
-        public static final int title_activity_activate_user=0x7f040038;
+        public static final int title_activity_activate_user=0x7f040039;
         /**  AddFriendActivity 
          */
         public static final int title_activity_add_friend_view=0x7f040027;
@@ -173,7 +174,7 @@ public final class R {
         public static final int title_activity_friend_view=0x7f04001e;
         /**  SettingsActivity 
          */
-        public static final int title_activity_settings=0x7f040041;
+        public static final int title_activity_settings=0x7f040042;
     }
     public static final class style {
         /** 

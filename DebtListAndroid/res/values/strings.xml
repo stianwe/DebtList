@@ -71,6 +71,7 @@
     <string name="create_user_error_invalid_username">Use a maximum of 30 characters for user name</string>
     <string name="create_user_error_username_taken">User name already taken</string>
     <string name="create_user_error_network">Could not establish connection to server</string>
+    <string name="create_user_error_mail">Failed sending activation mail, please try again later!</string>
 
     <!-- ActivateUserActivity -->
     <string name="title_activity_activate_user">Activate user</string>

@@ -539,30 +539,45 @@ public class ServerConnectionHandler extends Thread {
 					System.out.println("Email OK.");
 				}
 //			}
-			if(req.isApproved()) {
-				// Get an id for the user
-				user.setId(serverConnection.getNextUserId());
-				// Notify the server of the new user if it was approved
-				serverConnection.addUser(user, req.getPassword());
-			}
 		} 
-		// Reply with an answer
-		send(req.toXML());
+		// Get ready to send a reply
+		String reply = req.toXML();
+		boolean welcomeMailSent = true;
 		// Set activation key after we have sent the response, so it is not sent to the user
 		if(/* req.getVersion() != null && */ req.isApproved() && user != null) {
 			System.out.println("Generating activation key for user: " + user.getUsername());
 			// Generate activation key
 			user.setActivationKey(PasswordHasher.hashPassword(((System.currentTimeMillis() + (long) (Math.random() * 10000000)) + "")).substring(0, 10));
-			// FIXME Send email with activation key
+			// Send email with activation key
 			System.out.println("Sending activation key for " + user.getUsername() + " to " + user.getEmail() + ".");
 			try {
 				MailSender.sendActivationKey(user.getActivationKey(), user);
 			} catch (Exception e) {
 				System.out.println("Failed sending mail!");
+				welcomeMailSent = false;
 				e.printStackTrace();
 				serverConnection.writeToLog("Failed sending activation key to user: " + user.getUsername() + " at " + user.getEmail() + ": " + e.toString());
 			}
 		}
+		// Only register the user if the request was valid, and the welcome mail could be sent
+		if(req.isApproved() && welcomeMailSent) {
+			// Get an id for the user
+			user.setId(serverConnection.getNextUserId());
+			// Notify the server of the new user if it was approved
+			serverConnection.addUser(user, req.getPassword());
+		}
+		// If we failed to send welcome mail, notify the user
+		if(!welcomeMailSent) {
+			try {
+				CreateUserRequest r = (CreateUserRequest) XMLSerializable.toObject(reply);
+				r.setStatus(CreateUserRequestStatus.COULD_NOT_SEND_WELCOME_MESSAGE);
+				reply = r.toXML();
+			} catch (IOException e) {
+				serverConnection.writeToLog("Should never EVER happen! Failed while notifying create user request about no mail sent..");
+				e.printStackTrace();
+			}
+		}
+		send(reply);
 	}
 	
 	/**

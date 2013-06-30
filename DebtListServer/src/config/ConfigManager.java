@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import network.ServerConnection;
+
 import database.DatabaseUnit;
 
 import requests.xml.XMLSerializable;
@@ -72,7 +74,7 @@ public class ConfigManager {
 		config.setSupportEmailPassword(SUPPORT_EMAIL_PASSWORD);
 		
 		try {
-			saveConfig(config, DatabaseUnit.CONFIG_FILE);
+			saveConfig(config, ServerConnection.CONFIG_FILE);
 			System.out.println("Config file saved.");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

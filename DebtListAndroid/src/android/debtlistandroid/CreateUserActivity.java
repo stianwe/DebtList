@@ -87,10 +87,13 @@ public class CreateUserActivity extends Activity {
 				errorView.setVisibility(View.VISIBLE);
 				break;
 			case INCOMPATIBLE_CLIENT_VERSION:
-				// TODO: Display information about incompatible version
 				System.out.println("INCOMPATIBLE VERSION!");
 				Tools.displayIncompatibleVersionDialog(this);
 				break;
+			case COULD_NOT_SEND_WELCOME_MESSAGE:
+				System.out.println("Could not send welcome message!");
+				errorView.setText(v.getResources().getString(R.string.create_user_error_mail));
+				errorView.setVisibility(View.VISIBLE);
 			default:
 				break;
 			}

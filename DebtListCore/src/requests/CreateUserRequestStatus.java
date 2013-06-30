@@ -27,5 +27,9 @@ public enum CreateUserRequestStatus {
 	 * The client that tried to register a user is using an incompatible version 
 	 */
 	INCOMPATIBLE_CLIENT_VERSION,
+	/**
+	 * The server was not able to send the welcome message
+	 */
+	COULD_NOT_SEND_WELCOME_MESSAGE,
 	;
 }
