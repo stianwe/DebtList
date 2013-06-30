@@ -9,6 +9,8 @@ v0.0.0.1_pre-release:             The database now uses a user's ID instead of t
                                   to do the polling for updates. This has been attempted fixed by using the AlarmManager
                                   to time the updates, and using a IntentService to do the polling when the application
                                   runs in the background.
+                                  A bug that caused some users to see the login view when resuming the app, even if the
+                                  user is already logged in, should now be fixed.
 v0.0.0.0_pre-release:             Re-make versioning system (see wiki for more information). You will now receive a warning
                                   if you're using an outdated version, and not be able to log in if your version is no
                                   longer compatible with the current one.
