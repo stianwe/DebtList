@@ -6,6 +6,8 @@ public class UpdaterServiceMessage extends XMLSerializable {
 
 	private static final String SHOULD_UPDATE_WITHOUT_WIFI_KEY = "shouldUpdateWithoutWifi";
 	
+	public UpdaterServiceMessage() {}
+	
 	public UpdaterServiceMessage(boolean shouldUpdateWithoutWifi) {
 		setShouldUpdateWithoutWifi(shouldUpdateWithoutWifi);
 	}

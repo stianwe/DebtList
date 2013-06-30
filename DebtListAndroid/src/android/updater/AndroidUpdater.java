@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import session.Updater;
 
+/**
+ * @deprecated No longer supported!
+ */
 public class AndroidUpdater extends Updater {
 
 	private Context context;

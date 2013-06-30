@@ -21,8 +21,6 @@ import session.UpdateRequester;
 
 /**
  * @deprecated No longer in use, since normal threads in the background get killed almost instantly. See UpdaterService instead!
- * @author Stian
- *
  */
 public class AndroidUpdateRequester extends UpdateRequester {
 

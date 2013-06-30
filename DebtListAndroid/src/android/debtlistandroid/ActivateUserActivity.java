@@ -1,19 +1,15 @@
 package android.debtlistandroid;
 
-import java.io.IOException;
-
-import requests.LogInRequest;
-import requests.xml.XMLSerializable;
+import network.Constants;
 import session.Session;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.sessionX.AndroidSession;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.support.v4.app.NavUtils;
 
 public class ActivateUserActivity extends Activity {
 
@@ -44,6 +40,9 @@ public class ActivateUserActivity extends Activity {
 		switch(Session.session.logIn(username, password, key.getText().toString())) {
 		case ACCEPTED:
 			// Activation and login ok, proceed
+			// Start update requester
+			((AndroidSession) Session.session).startUpdater(this, getPreferences(Context.MODE_PRIVATE).getLong(getString(R.string.settings_time_between_updates_key), Constants.STANDARD_TIME_BETWEEN_UPDATES), !getPreferences(Context.MODE_PRIVATE).getBoolean(getString(R.string.settings_disable_updates_when_not_on_wifi_key), !Constants.STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI));
+			// Send user to debt list view
 			startActivity(new Intent(this, DebtViewActivity.class));
 			break;
 		case ALREADY_LOGGED_ON:

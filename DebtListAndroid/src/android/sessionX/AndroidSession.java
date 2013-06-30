@@ -8,11 +8,16 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
 import android.network.AndroidConnection;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.BoringLayout;
 import android.updater.AndroidUpdater;
 import android.updater.OnAlarmReceiver;
 import android.updater.UpdateServiceMessageReceiver;
+import android.updater.UpdaterService;
+import android.updater.UpdaterServiceMessage;
 
 import requests.LogInRequestStatus;
 import session.Session;
@@ -24,6 +29,8 @@ public class AndroidSession extends Session {
 	private String sessionToken = null;
 	private Updater updater;
 	private String password;
+	private long timeBetweenUpdates;
+	private LocalBroadcastManager broadcastManager;
 	
 	private boolean updaterIsRunning = false;
 	
@@ -39,6 +46,14 @@ public class AndroidSession extends Session {
 		super.clear();
 		sessionToken = null;
 		password = null;
+	}
+	
+	public LocalBroadcastManager getBroadcastManager() {
+		return broadcastManager;
+	}
+	
+	public long getTimeBetweenUpdates() {
+		return timeBetweenUpdates;
 	}
 	
 	@Override
@@ -75,13 +90,21 @@ public class AndroidSession extends Session {
 //		}
 //		updater.startUpdater(Constants.STANDARD_TIME_BETWEEN_UPDATES); */
 		
+		this.timeBetweenUpdates = timeBetweenUpdates;
+		
 		// Only start updater if it is not already running
 		if(!updaterIsRunning) {
+			System.out.println("Starting updater..");
 			UpdateServiceMessageReceiver receiver = new UpdateServiceMessageReceiver();
-			LocalBroadcastManager.getInstance(context).registerReceiver(receiver, null);
+			broadcastManager = LocalBroadcastManager.getInstance(context);
+			broadcastManager.registerReceiver(receiver, new IntentFilter(UpdaterService.UPDATE_ACTION));
 			
 			AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-			am.set(AlarmManager.RTC_WAKEUP, timeBetweenUpdates, PendingIntent.getBroadcast(context, 0, new Intent(context, OnAlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
+//			am.set(AlarmManager.RTC_WAKEUP, timeBetweenUpdates, PendingIntent.getBroadcast(context, 0, new Intent(context, OnAlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT));
+			Intent i = new Intent(context, OnAlarmReceiver.class);
+			UpdaterService.shouldUpdateWithoutWifi = shouldUpdateWithoutWifi;
+//			i.setData(Uri.parse(new UpdaterServiceMessage(shouldUpdateWithoutWifi).toXML()));
+			am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timeBetweenUpdates, PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 			updaterIsRunning = true;
 		}
 	}
