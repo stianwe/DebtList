@@ -1,6 +1,9 @@
 package mail;
 
 import com.sun.mail.smtp.SMTPTransport;
+
+import config.Config;
+
 import java.security.Security;
 import java.util.Date;
 import java.util.Properties;
@@ -15,17 +18,20 @@ import logic.User;
 
 
 public class MailSender {
+
+	public static String SUPPORT_EMAIL;
+	public static String SUPPORT_EMAIL_USERNAME;
+	public static String SUPPORT_EMAIL_PASSWORD;
 	
-	public static void main(String[] args) {
-		try {
-			send("webmaster.debtlist", "qazqazqazqazqaz1qaz1", "weiestian_91@hotmail.com", "POLS", "Med sprostekt lok");
-		} catch (AddressException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	/**
+	 * Should be called before any other functions are called. 
+	 * @param config
+	 */
+	public static void init(Config config) {
+		// Load settings
+		SUPPORT_EMAIL = config.getSupportEmail();
+		SUPPORT_EMAIL_USERNAME = config.getSupportEmailUsername();
+		SUPPORT_EMAIL_PASSWORD = config.getSupportEmailPassword();
 	}
 	
     /**
@@ -110,7 +116,7 @@ public class MailSender {
      * @throws MessagingException if the connection is dead or not in the connected state or if the message is not a MimeMessage
      */
     public static void sendActivationKey(String activationKey, User user) throws AddressException, MessagingException {
-    	send(ActivationMailText.SUPPORT_EMAIL_USERNAME, ActivationMailText.SUPPORT_EMAIL_PASSWORD, user.getEmail(), ActivationMailText.generateSubject(user.getUsername()), ActivationMailText.generateMessage(user.getUsername(), activationKey));
+    	send(SUPPORT_EMAIL_USERNAME, SUPPORT_EMAIL_PASSWORD, user.getEmail(), ActivationMailText.generateSubject(user.getUsername()), ActivationMailText.generateMessage(user.getUsername(), activationKey, SUPPORT_EMAIL));
     }
     
 }

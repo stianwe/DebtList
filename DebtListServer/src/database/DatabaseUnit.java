@@ -20,8 +20,6 @@ import logic.DebtStatus;
 import logic.User;
 
 public class DatabaseUnit {
-
-	public static final String CONFIG_FILE = "DebtList_server.conf";
 	
 	// Database tables
 	public static final String TABLE_USER = "user";
@@ -59,9 +57,8 @@ public class DatabaseUnit {
 	private String dbName;
 	private int dbPort;
 	
-	public DatabaseUnit() {
-		// Load config file
-		Config config = ConfigManager.loadConfig(CONFIG_FILE);
+	public DatabaseUnit(Config config) {
+		// Load settings from config file
 		dbUsername = config.getMySQLUsername();
 		dbPassword = config.getMySQLPassword();
 		dbHostName = config.getMySQLHostName();
@@ -137,21 +134,27 @@ public class DatabaseUnit {
 	 * @throws SQLException
 	 */
 	public void loadFriends(Map<String, User> users) throws SQLException {
+		// Build a mapping between user ID's and users
+		Map<Long, User> userIds = new HashMap<Long, User>();
+		for (User u : users.values()) {
+			userIds.put(u.getId(), u);
+		}
 		ResultSet rs = st.executeQuery("SELECT * FROM " + TABLE_FRIEND_REQUEST);
 		while(rs.next()) {
 			FriendRequestStatus status = Enum.valueOf(FriendRequestStatus.class, rs.getString(FIELD_FRIEND_REQUEST_STATUS));
 			switch(status) {
 			case ACCEPTED:
 				// Add the users as friends
-				users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)).addFriend(users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)));
-				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriend(users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)));
+				userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_FROM_USER)).addFriend(userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_TO_USER)));
+				userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_TO_USER)).addFriend(userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_FROM_USER)));
 				// Fall through to add the friend request
 			case PENDING:
-				FriendRequest r = new FriendRequest(rs.getString(FIELD_FRIEND_REQUEST_TO_USER), users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)), status, rs.getLong(FIELD_FRIEND_REQUEST_ID));
+				FriendRequest r = new FriendRequest(userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_TO_USER)).getUsername(), 
+													userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_FROM_USER)), status, rs.getLong(FIELD_FRIEND_REQUEST_ID));
 				// Add the friend request to the target friend
-				users.get(rs.getString(FIELD_FRIEND_REQUEST_TO_USER)).addFriendRequest(r);
+				userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_TO_USER)).addFriendRequest(r);
 				// Also add the request to the requesting user
-				users.get(rs.getString(FIELD_FRIEND_REQUEST_FROM_USER)).addFriendRequest(r);
+				userIds.get(rs.getLong(FIELD_FRIEND_REQUEST_FROM_USER)).addFriendRequest(r);
 				break;
 			default:
 				System.out.println("Skipped FriendRequest with weird status while loading friends.");
@@ -180,9 +183,19 @@ public class DatabaseUnit {
 	 * @throws SQLException
 	 */
 	public void loadDebts(Map<String, User> users) throws SQLException {
+		// Build a mapping between user ID's and users
+		Map<Long, User> userIds = new HashMap<Long, User>();
+		for (User u : users.values()) {
+			userIds.put(u.getId(), u);
+		}
 		ResultSet rs = st.executeQuery("SELECT * FROM " + TABLE_DEBT);
 		while(rs.next()) {
-			Debt d = new Debt(rs.getLong(FIELD_DEBT_ID), rs.getDouble(FIELD_DEBT_AMOUNT), rs.getString(FIELD_DEBT_WHAT), users.get(rs.getString(FIELD_DEBT_FROM_USER)), users.get(rs.getString(FIELD_DEBT_TO_USER)), rs.getString(FIELD_DEBT_COMMENT), users.get(rs.getString(FIELD_DEBT_REQUESTED_BY_USER)), Enum.valueOf(DebtStatus.class, rs.getString(FIELD_DEBT_STATUS)));
+			Debt d = new Debt(rs.getLong(FIELD_DEBT_ID), rs.getDouble(FIELD_DEBT_AMOUNT), rs.getString(FIELD_DEBT_WHAT), 
+								userIds.get(rs.getLong(FIELD_DEBT_FROM_USER)), 
+								userIds.get(rs.getLong(FIELD_DEBT_TO_USER)), 
+								rs.getString(FIELD_DEBT_COMMENT), 
+								userIds.get(rs.getLong(FIELD_DEBT_REQUESTED_BY_USER)), 
+								Enum.valueOf(DebtStatus.class, rs.getString(FIELD_DEBT_STATUS)));
 			switch(d.getStatus()) {
 			case REQUESTED:
 			case DECLINED:

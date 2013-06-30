@@ -17,12 +17,16 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import config.Config;
+import config.ConfigManager;
+
 import database.DatabaseUnit;
 import database.SessionTokenManager;
 
 import logic.Debt;
 import logic.DebtStatus;
 import logic.User;
+import mail.MailSender;
 import requests.FriendRequest;
 import requests.FriendRequest.FriendRequestStatus;
 import requests.UpdateRequest;
@@ -31,6 +35,8 @@ import utils.CaseInsensitiveHashMap;
 import utils.PasswordHasher;
 
 public class ServerConnection {
+
+	public static final String CONFIG_FILE = "DebtList_server.conf";
 
 	private DatabaseUnit dbUnit;
 	private Map<String, User> users;
@@ -49,8 +55,11 @@ public class ServerConnection {
 		passwords = new CaseInsensitiveHashMap<String>();
 		tokenManager = new SessionTokenManager();
 		nextDebtId = 1; nextUserId = 1; nextFriendRequestId = 1;
+		
+		Config config = ConfigManager.loadConfig(CONFIG_FILE);
+		MailSender.init(config);
 		if(readFromDatabase) {
-			dbUnit = new DatabaseUnit();
+			dbUnit = new DatabaseUnit(config);
 			try {
 				dbUnit.connect();
 				for(Map.Entry<User, String> entry :	dbUnit.loadUsers().entrySet()) {

@@ -9,6 +9,10 @@ public class Config extends XMLSerializable{
 		return 0;
 	}
 
+	/*
+	 * SQL configs
+	 */
+	
 	public void setMySQLUsername(String username) {
 		setVariable("MySQLUsername", username);
 	}
@@ -47,5 +51,33 @@ public class Config extends XMLSerializable{
 	
 	public int getMySQLPort() {
 		return (Integer) getVariable("MySQLPort");
+	}
+	
+	/*
+	 * Mail server configs
+	 */
+	
+	public void setSupportEmail(String mail) {
+		setVariable("supportEmail", mail);
+	}
+	
+	public String getSupportEmail() {
+		return (String) getVariable("supportEmail");
+	}
+	
+	public void setSupportEmailUsername(String username) {
+		setVariable("supportEmailUsername", username);
+	}
+	
+	public String getSupportEmailUsername() {
+		return (String) getVariable("supportEmailUsername");
+	}
+	
+	public void setSupportEmailPassword(String password) {
+		setVariable("supportEmailPassword", password);
+	}
+	
+	public String getSupportEmailPassword() {
+		return (String) getVariable("supportEmailPassword");
 	}
 }
