@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
 import logic.Debt;
 
@@ -101,24 +102,26 @@ public class SQLHelper {
 	 * Will check if the debt given as argument exists in the database, and will
 	 * 	o update the debt if it already exists (as of now the only updateable field is the status)
 	 * 	o insert the debt if it is not present in the database
-	 * @param con	The connection to the server
-	 * @param d		The debt to update/insert
-	 * @return		True if the debt was updated, false if it was inserted (created)
+	 * @param con		The connection to the server
+	 * @param d			The debt to update/insert
+	 * @param userIds	A mapping between user names and user ID's
+	 * @return			True if the debt was updated, false if it was inserted (created)
 	 * @throws SQLException 
 	 */
-	public static boolean updateDebt(Connection con, Debt d) throws SQLException {
+	public static boolean updateDebt(Connection con, Debt d, Map<String, Long> userIds) throws SQLException {
 		// Check if the debt already exists
 		if(SQLHelper.exists(con, DatabaseUnit.TABLE_DEBT, DatabaseUnit.FIELD_DEBT_ID, d.getId() + "")) {
-			// Update the values that can change
-			// TODO: Anything else that can change than the status??
-			SQLHelper.update(con, DatabaseUnit.TABLE_DEBT, new String[]{DatabaseUnit.FIELD_DEBT_STATUS, DatabaseUnit.FIELD_DEBT_AMOUNT, DatabaseUnit.FIELD_DEBT_FROM_USER, DatabaseUnit.FIELD_DEBT_TO_USER}, 
-															new String[]{d.getStatus() + "", d.getAmount() + "", d.getFrom().getUsername(), d.getTo().getUsername()}, 
-															DatabaseUnit.FIELD_DEBT_ID, d.getId() + "");
+			// Update the values that can change (the status)
+			SQLHelper.update(con, DatabaseUnit.TABLE_DEBT, 
+					new String[]{DatabaseUnit.FIELD_DEBT_STATUS, DatabaseUnit.FIELD_DEBT_AMOUNT, DatabaseUnit.FIELD_DEBT_FROM_USER, DatabaseUnit.FIELD_DEBT_TO_USER}, 
+					new String[]{d.getStatus() + "", d.getAmount() + "", userIds.get(d.getFrom().getUsername()) + "", userIds.get(d.getTo().getUsername()) + ""}, 
+					DatabaseUnit.FIELD_DEBT_ID, d.getId() + "");
 			return true;
 		} else {
 			// If not, create it
-			SQLHelper.insert(con, DatabaseUnit.TABLE_DEBT, new String[]{DatabaseUnit.FIELD_DEBT_ID, DatabaseUnit.FIELD_DEBT_AMOUNT, DatabaseUnit.FIELD_DEBT_WHAT, DatabaseUnit.FIELD_DEBT_TO_USER, DatabaseUnit.FIELD_DEBT_FROM_USER, DatabaseUnit.FIELD_DEBT_REQUESTED_BY_USER, DatabaseUnit.FIELD_DEBT_COMMENT, DatabaseUnit.FIELD_DEBT_STATUS}, 
-					new String[]{d.getId()+"", d.getAmount()+"", d.getWhat(), d.getTo().getUsername(), d.getFrom().getUsername(), d.getRequestedBy().getUsername(), d.getComment(), d.getStatus().toString()});
+			SQLHelper.insert(con, DatabaseUnit.TABLE_DEBT, 
+					new String[]{DatabaseUnit.FIELD_DEBT_ID, DatabaseUnit.FIELD_DEBT_AMOUNT, DatabaseUnit.FIELD_DEBT_WHAT, DatabaseUnit.FIELD_DEBT_TO_USER, DatabaseUnit.FIELD_DEBT_FROM_USER, DatabaseUnit.FIELD_DEBT_REQUESTED_BY_USER, DatabaseUnit.FIELD_DEBT_COMMENT, DatabaseUnit.FIELD_DEBT_STATUS}, 
+					new String[]{d.getId()+"", d.getAmount()+"", d.getWhat(), userIds.get(d.getTo().getUsername()) +"", userIds.get(d.getFrom().getUsername()) +"", userIds.get(d.getRequestedBy().getUsername()) +"", d.getComment(), d.getStatus().toString()});
 			return false;
 		}
 	}

@@ -215,6 +215,8 @@ public class DatabaseUnit {
 	 */
 	public void save(Collection<User> users, Map<String, String> passwords) throws SQLException {
 		System.out.println("Saving..");
+		// Maintain a map between user ids and user names to easily look them up when saving debts and friend requests
+		Map<String, Long> userIds = new HashMap<String, Long>();
 		// Save all users first, because the users must already exist before inserting any friend requests or debts they are referenced in
 		for (User u : users) {
 			System.out.println("Writing " + u.getUsername() + " to database..");
@@ -228,6 +230,7 @@ public class DatabaseUnit {
 				System.out.println("Inserting user into database.");
 				SQLHelper.insert(con, TABLE_USER, new String[]{FIELD_USER_USERNAME, FIELD_USER_PASSWORD, FIELD_USER_EMAIL, FIELD_USER_ACTIVATION_KEY, FIELD_USER_IS_ACTIVATED}, new String[]{u.getUsername(), passwords.get(u.getUsername()), u.getEmail(), u.getActivationKey(), (u.isActivated() ? "1" : "0")});
 			}
+			userIds.put(u.getUsername(), u.getId());
 		}
 		for (User u : users) {
 			// Save the friends (from the requests, since all friends must have sent a request some time)
@@ -240,18 +243,19 @@ public class DatabaseUnit {
 					SQLHelper.update(con, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_STATUS}, new String[]{req.getStatus().toString()}, FIELD_FRIEND_REQUEST_ID, req.getId() + "");
 				} else {
 					// If not, create it
-					SQLHelper.insert(con, TABLE_FRIEND_REQUEST, new String[]{FIELD_FRIEND_REQUEST_ID, FIELD_FRIEND_REQUEST_TO_USER, FIELD_FRIEND_REQUEST_FROM_USER, FIELD_FRIEND_REQUEST_STATUS}, 
-							new String[]{req.getId() + "", req.getFriendUsername(), req.getFromUser().getUsername(), req.getStatus().toString()});
+					SQLHelper.insert(con, TABLE_FRIEND_REQUEST, 
+							new String[]{FIELD_FRIEND_REQUEST_ID, FIELD_FRIEND_REQUEST_TO_USER, FIELD_FRIEND_REQUEST_FROM_USER, FIELD_FRIEND_REQUEST_STATUS}, 
+							new String[]{req.getId() + "", userIds.get(req.getFriendUsername()) + "", userIds.get(req.getFromUser().getUsername()) + "", req.getStatus().toString()});
 				}
 			}
 			// Save the debts
 			// Pending
 			for (int i = 0; i < u.getNumberOfPendingDebts(); i++) {
-				SQLHelper.updateDebt(con, u.getPendingDebt(i));
+				SQLHelper.updateDebt(con, u.getPendingDebt(i), userIds);
 			}
 			// Confirmed
 			for (int i = 0; i < u.getNumberOfConfirmedDebts(); i++) {
-				SQLHelper.updateDebt(con, u.getConfirmedDebt(i));
+				SQLHelper.updateDebt(con, u.getConfirmedDebt(i), userIds);
 			}
 		}
 		System.out.println("Done saving.");

@@ -20,7 +20,11 @@ import java.util.TimerTask;
 import database.DatabaseUnit;
 import database.SessionTokenManager;
 
+import logic.Debt;
+import logic.DebtStatus;
 import logic.User;
+import requests.FriendRequest;
+import requests.FriendRequest.FriendRequestStatus;
 import requests.UpdateRequest;
 import requests.xml.XMLSerializable;
 import utils.CaseInsensitiveHashMap;
