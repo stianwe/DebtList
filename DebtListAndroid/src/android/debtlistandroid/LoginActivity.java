@@ -39,6 +39,13 @@ public class LoginActivity extends Activity {
 		// Register and validate SAX driver
 		System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
 		
+		// Check if we are logged in
+		if(Session.session.isLoggedIn()) {
+			// Send user to debt view.. No need to show login view
+			startActivity(new Intent(this, DebtViewActivity.class));
+			return;
+		}
+		
 		// Start the session
 		new AndroidSession().init();
 		Session.session.connect(Constants.SERVER_ADDRESS, Constants.STANDARD_SERVER_PORT);
