@@ -40,7 +40,7 @@ public class LoginActivity extends Activity {
 		System.setProperty("org.xml.sax.driver","org.xmlpull.v1.sax2.Driver");
 		
 		// Check if we are logged in
-		if(Session.session.isLoggedIn()) {
+		if(Session.session != null && Session.session.isLoggedIn()) {
 			// Send user to debt view.. No need to show login view
 			startActivity(new Intent(this, DebtViewActivity.class));
 			return;
