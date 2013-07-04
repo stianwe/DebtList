@@ -71,20 +71,7 @@ public class ServerConnection {
 				nextDebtId = dbUnit.getNextId(DatabaseUnit.TABLE_DEBT, DatabaseUnit.FIELD_DEBT_ID);
 				nextUserId = dbUnit.getNextId(DatabaseUnit.TABLE_USER, DatabaseUnit.FIELD_USER_ID);
 				nextFriendRequestId = dbUnit.getNextId(DatabaseUnit.TABLE_FRIEND_REQUEST, DatabaseUnit.FIELD_FRIEND_REQUEST_ID);
-				// Timeout token sessions
-				new Timer().schedule(new TimerTask() {
-					
-					@Override
-					public void run() {
-						System.out.println("Timing out sessions..");
-						// Remove a token if it hasn't requested an update in the set interval
-						for(String token : tokenManager.removeOldTokens(System.currentTimeMillis() - Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT)) {
-							System.out.println("Removed token: " + token);
-						}	
-						System.out.println("Done.");
-					}
-				}, Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT, Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT);
-				// Write to database and disconnect inactive users
+				// Write to database
 				(timer = new Timer()).schedule(new TimerTask() {
 
 					@Override
@@ -186,6 +173,19 @@ public class ServerConnection {
 			}
 		}).start();
 
+		// Timeout token sessions
+		new Timer().schedule(new TimerTask() {
+			
+			@Override
+			public void run() {
+				System.out.println("Timing out sessions..");
+				// Remove a token if it hasn't requested an update in the set interval
+				for(String token : tokenManager.removeOldTokens(System.currentTimeMillis() - Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT)) {
+					System.out.println("Removed token: " + token);
+				}	
+				System.out.println("Done.");
+			}
+		}, Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT, Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT);
 	}
 	
 	/**
@@ -392,10 +392,19 @@ public class ServerConnection {
 	}
 
 	public static void main(String[] args) {
-		ServerConnection server = new ServerConnection(true);
+//		ServerConnection server = new ServerConnection(true);
+		ServerConnection server = new ServerConnection(false);
 		// Use the secure version
 //		ServerConnection server = new SecureServerConnection(true);
 
+		// Add users
+		User test = new User("test");
+		test.setIsActivated(true);
+		server.addUser(test, "test");
+		User test2 = new User("test2");
+		test2.setIsActivated(true);
+		server.addUser(test2, "test2");
+		
 		// Print loaded users on startup
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
