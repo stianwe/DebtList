@@ -197,7 +197,7 @@ public class Main {
 			// Find the entered username
 			String username = command.split(" ")[2];
 			// Find the corresponding friend request
-			FriendRequest request = PCSession.session.getUser().getFriendRequestFrom(username);
+			FriendRequest request = Session.session.getUser().getFriendRequestFrom(username);
 			if(request == null) {
 				System.out.println("You do not have any friend requests that match that username.");
 				return;
@@ -218,11 +218,11 @@ public class Main {
 				// If we accepted the request, and the server processed it ok..
 				if(response.getStatus() == FriendRequestStatus.ACCEPTED) {
 					// Add the friend
-					PCSession.session.getUser().addFriend(response.getFromUser());
+					Session.session.getUser().addFriend(response.getFromUser());
 					
 				}
 				// And remove the request since it has been answered
-				PCSession.session.getUser().removeFriendRequest(request);
+				Session.session.getUser().removeFriendRequest(request);
 			} catch (IOException e) {
 				// Reset status
 				request.setStatus(FriendRequestStatus.PENDING);
@@ -421,7 +421,7 @@ public class Main {
 			}
 //			PCSession.session.send();
 			try {
-				Debt d = (Debt) XMLSerializable.toObject(Session.session.sendAndReceive(new Debt(-1, amount, what, (toFrom.equals("to") ? PCSession.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : PCSession.session.getUser()), comment, PCSession.session.getUser()).toXML()));
+				Debt d = (Debt) XMLSerializable.toObject(Session.session.sendAndReceive(new Debt(-1, amount, what, (toFrom.equals("to") ? Session.session.getUser() : toFromUser), (toFrom.equals("to") ? toFromUser : Session.session.getUser()), comment, Session.session.getUser()).toXML()));
 //				Debt d = (Debt)XMLSerializable.toObject(PCSession.session.receive());
 				if(d.getId() != -1) {
 					System.out.println("Debt created.");
