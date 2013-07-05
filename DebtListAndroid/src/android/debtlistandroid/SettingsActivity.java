@@ -63,6 +63,10 @@ public class SettingsActivity extends Activity {
 				System.out.println("Updating time between updates.");
 				editor.putLong(getString(R.string.settings_time_between_updates_key), tbu);
 				((AndroidSession) Session.session).setTimeBetweenUpdates(tbu);
+				((AndroidSession) Session.session).startUpdater(
+						this, 
+						tbu, 
+						UpdaterService.shouldUpdateWithoutWifi);
 			}
 		} catch (NumberFormatException e) {
 			System.out.println("FAILZ!");
