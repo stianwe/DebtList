@@ -13,6 +13,7 @@ import logic.User;
 import requests.FriendRequest;
 import requests.LogInRequest;
 import requests.LogInRequestStatus;
+import requests.FriendRequest.FriendRequestStatus;
 import requests.xml.XMLSerializable;
 
 public abstract class Session {
@@ -186,7 +187,12 @@ public abstract class Session {
 			FriendRequest req = (FriendRequest) o;
 			switch(req.getStatus()) {
 			case DECLINED:
-				// TODO: Notify user (or?)
+				// Set the request to declined
+				for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
+					if(getUser().getFriendRequest(i).getFriendUsername().equalsIgnoreCase(req.getFriendUsername())) {
+						getUser().getFriendRequest(i).setStatus(FriendRequestStatus.DECLINED);
+					}
+				}
 				break;
 			case ACCEPTED:
 				// Someone accepted our friend request, add him/her as friend (if not already)
@@ -195,6 +201,12 @@ public abstract class Session {
 						return;
 				}
 				getUser().addFriend(new User(req.getFriendUsername()));
+				// Set the request to accepted
+				for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
+					if(getUser().getFriendRequest(i).getFriendUsername().equalsIgnoreCase(req.getFriendUsername())) {
+						getUser().getFriendRequest(i).setStatus(FriendRequestStatus.ACCEPTED);
+					}
+				}
 				break;
 			case PENDING:
 				// We received a new friend request, add it (if not already existing)
