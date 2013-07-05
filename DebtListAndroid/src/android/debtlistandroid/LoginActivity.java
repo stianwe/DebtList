@@ -12,7 +12,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.sessionX.AndroidSession;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -84,7 +86,18 @@ public class LoginActivity extends Activity {
 					// Display dummy notification
 //					Tools.createNotification(this, "Updater", "Updater started", LoginActivity.class, LoginActivity.class);
 					// Start the updater
-					((AndroidSession) Session.session).startUpdater(this, getPreferences(Context.MODE_PRIVATE).getLong(getString(R.string.settings_time_between_updates_key), Constants.STANDARD_TIME_BETWEEN_UPDATES), !getPreferences(Context.MODE_PRIVATE).getBoolean(getString(R.string.settings_disable_updates_when_not_on_wifi_key), !Constants.STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI));
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+					System.out.println("Loaded time between updates: " + prefs.getLong(
+											getString(R.string.settings_time_between_updates_key), -1));
+					((AndroidSession) Session.session).startUpdater(this, 
+							prefs.getLong(
+									getString(R.string.settings_time_between_updates_key), 
+									prefs.getLong(
+											getString(R.string.settings_time_between_updates_key),
+											Constants.STANDARD_TIME_BETWEEN_UPDATES)), 
+									!prefs.getBoolean(
+											getString(R.string.settings_disable_updates_when_not_on_wifi_key), 
+											!Constants.STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI));
 					// Start the DebtViewActivity
 					Intent intent = new Intent(dis, DebtViewActivity.class);
 					startActivity(intent);

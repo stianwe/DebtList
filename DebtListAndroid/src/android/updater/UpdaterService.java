@@ -46,10 +46,14 @@ public class UpdaterService extends IntentService {
 		}
 		return (lockStatic);
 	}
-
+	
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		System.out.println("UpdaterService.onHandleIntent() started!");
+		if(Session.session == null) {
+			System.out.println("Session is null! App has probably been killed.\nTerminating update.");
+			return;
+		}
 		try {
 //			String dataString = intent.getData().toString();
 			UpdaterServiceMessage msg;

@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.debtlistandroid.R;
 import android.net.Uri;
 import android.network.AndroidConnection;
 import android.support.v4.content.LocalBroadcastManager;
@@ -27,7 +28,7 @@ public class AndroidSession extends Session {
 
 	private AndroidConnection connection;
 	private String sessionToken = null;
-	private Updater updater;
+	//private Updater updater;
 	private String password;
 	private long timeBetweenUpdates;
 	private LocalBroadcastManager broadcastManager;
@@ -52,8 +53,25 @@ public class AndroidSession extends Session {
 		return broadcastManager;
 	}
 	
+	/**
+	 * Sets the time between each poll for updates 
+	 * 
+	 * @param timeBetweenUpdates	Time between updates in millisec
+	 */
+	public void setTimeBetweenUpdates(long timeBetweenUpdates) {
+		this.timeBetweenUpdates = timeBetweenUpdates;
+	}
+	
+	/**
+	 * @return	Time between updates in millisec 
+	 * (if updates are not disabled)
+	 */
 	public long getTimeBetweenUpdates() {
 		return timeBetweenUpdates;
+	}
+	
+	public boolean isUpdaterRunning() {
+		return updaterIsRunning;
 	}
 	
 	@Override
@@ -93,8 +111,9 @@ public class AndroidSession extends Session {
 		this.timeBetweenUpdates = timeBetweenUpdates;
 		
 		// Only start updater if it is not already running
-		if(!updaterIsRunning) {
+		if(!updaterIsRunning && timeBetweenUpdates > 0) {
 			System.out.println("Starting updater..");
+			System.out.println("Time between updates: " + timeBetweenUpdates);
 			UpdateServiceMessageReceiver receiver = new UpdateServiceMessageReceiver();
 			broadcastManager = LocalBroadcastManager.getInstance(context);
 			broadcastManager.registerReceiver(receiver, new IntentFilter(UpdaterService.UPDATE_ACTION));
@@ -106,13 +125,16 @@ public class AndroidSession extends Session {
 //			i.setData(Uri.parse(new UpdaterServiceMessage(shouldUpdateWithoutWifi).toXML()));
 			am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + timeBetweenUpdates, PendingIntent.getBroadcast(context, 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 			updaterIsRunning = true;
+		} else {
+			System.out.println("Not running updater since it is turned off in settings or already started!");
 		}
 	}
 	
 	public void stopUpdater() {
-		if(updater != null) {
-			updater.stopUpdater();
-		}
+//		if(updater != null) {
+//			updater.stopUpdater();
+//		}
+		updaterIsRunning = false;
 	}
 	
 	@Override
