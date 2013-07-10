@@ -398,17 +398,29 @@ public class ServerConnection {
 //		ServerConnection server = new SecureServerConnection(true);
 
 		// Add users
-		User test = new User("test");
+		User test = new User(0, "test");
 		test.setIsActivated(true);
 		server.addUser(test, "test");
-		User test2 = new User("test2");
+		
+		User test2 = new User(1, "test2");
 		test2.setIsActivated(true);
 		server.addUser(test2, "test2");
+		
+		test.addFriend(test2);
+		test2.addFriend(test);
+		
+		test.addFriendRequest(new FriendRequest(test.getUsername(), test2, FriendRequestStatus.ACCEPTED, 0));
+		test2.addFriendRequest(new FriendRequest(test.getUsername(), test2, FriendRequestStatus.ACCEPTED, 0));
 		
 		// Print loaded users on startup
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
 			System.out.println(s);
+			User u = server.users.get(s);
+			System.out.println("Friends:");
+			for(int i = 0; i < u.getNumberOfFriends(); i++) {
+				System.out.println("\t" + u.getFriend(i).getUsername());
+			}
 		}
 
 		// Accept connections on port 13337

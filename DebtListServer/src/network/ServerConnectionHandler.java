@@ -627,7 +627,7 @@ public class ServerConnectionHandler extends Thread {
 				req.setAccepted(true);
 				req.setStatus(LogInRequestStatus.ACCEPTED);
 				// Load the user variables
-				req.setUser((User) user);
+				req.setUser(user);
 				if(req.isAccepted()) {
 					System.out.println("Log in is set to accepted!");
 					// Assign session token if requested
@@ -752,7 +752,7 @@ public class ServerConnectionHandler extends Thread {
 		System.out.println("From: " + d.getFrom().getUsername() + ", to: " + d.getTo().getUsername());
 		// Validate that this is a valid debt
 		boolean valid = true;
-		System.out.println("Checkin if new debt is valid..");
+		System.out.println("Checking if new debt is valid..");
 		// Check that this user requested the debt
 		if(d.getRequestedBy().getUsername().equals(user.getUsername())) {
 			// Check if this user is the receiver of the debt, and if the sender is a friend

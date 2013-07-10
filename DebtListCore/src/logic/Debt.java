@@ -11,7 +11,7 @@ public class Debt extends XMLSerializable {
 	public Debt() {}
 	
 	/**
-	 * Create a new Debt 
+	 * Create a new Debt with status set to REQUESTED.
 	 * 
 	 * @param id
 	 * @param amount

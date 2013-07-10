@@ -1,10 +1,16 @@
 package android.debtlistandroid;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import logic.Debt;
+import logic.DebtStatus;
+import logic.User;
+
 import console.Main;
 
+import requests.xml.XMLSerializable;
 import session.Session;
 import android.os.Bundle;
 import android.app.Activity;
@@ -141,9 +147,44 @@ public class CreateDebtActivity extends Activity {
 				} else {
 					System.out.println("From was not selected");
 				}
-				Main.processCreateDebt("create debt " + amount.getText().toString() + " " + '"' + sWhat + '"' + " " + 
-						(from.isChecked() ? "from" : "to") + " " + '"' + ((String) spinner.getSelectedItem()) + '"' + " " + 
-						'"' + sComment + '"');
+				if(to.isChecked()) {
+					System.out.println("To was selected");
+				} else {
+					System.out.println("To was not selected");
+				}
+				String otherUsername = (String) spinner.getSelectedItem();
+				User other = Session.session.getUser().getFriend(otherUsername);
+				System.out.println("Other username: " + otherUsername);
+				System.out.println("Other user: " + other.getUsername());
+				System.out.println("Current user: " + Session.session.getUser().getUsername());
+				Debt debtToSend = new Debt(
+						-1, 
+						Double.parseDouble(amount.getText().toString()), 
+						sWhat, 
+						(from.isChecked() ? other : Session.session.getUser()), 
+						(from.isChecked() ? Session.session.getUser() : other), 
+						sComment, 
+						Session.session.getUser());
+				boolean failed = true;
+				try {
+					Debt response = (Debt) XMLSerializable.toObject(Session.session.sendAndReceive(debtToSend.toXML()));
+					if(response.getId() != -1 && response.getStatus() == DebtStatus.REQUESTED) {
+						// Debt was validated by server
+						Session.session.processUpdate(response);
+						failed = false;
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				if(failed) {
+					// TODO: Add error message!!
+					System.out.println("Failed creating debt.");
+				} else {
+					System.out.println("Successfully created debt.");
+				}
+//				Main.processCreateDebt("create debt " + amount.getText().toString() + " " + '"' + sWhat + '"' + " " + 
+//						(from.isChecked() ? "from" : "to") + " " + '"' + ((String) spinner.getSelectedItem()) + '"' + " " + 
+//						'"' + sComment + '"');
 				// Return to main view
 				startActivity(new Intent(this, DebtViewActivity.class));
 			}
