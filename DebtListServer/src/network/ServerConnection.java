@@ -392,26 +392,10 @@ public class ServerConnection {
 	}
 
 	public static void main(String[] args) {
-//		ServerConnection server = new ServerConnection(true);
-		ServerConnection server = new ServerConnection(false);
+		ServerConnection server = new ServerConnection(true);
 		// Use the secure version
 //		ServerConnection server = new SecureServerConnection(true);
 
-		// Add users
-		User test = new User(0, "test");
-		test.setIsActivated(true);
-		server.addUser(test, "test");
-		
-		User test2 = new User(1, "test2");
-		test2.setIsActivated(true);
-		server.addUser(test2, "test2");
-		
-		test.addFriend(test2);
-		test2.addFriend(test);
-		
-		test.addFriendRequest(new FriendRequest(test.getUsername(), test2, FriendRequestStatus.ACCEPTED, 0));
-		test2.addFriendRequest(new FriendRequest(test.getUsername(), test2, FriendRequestStatus.ACCEPTED, 0));
-		
 		// Print loaded users on startup
 		System.out.println("Loaded users:");
 		for (String s : server.users.keySet()) {
