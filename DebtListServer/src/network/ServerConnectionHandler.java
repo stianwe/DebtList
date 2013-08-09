@@ -37,35 +37,17 @@ public class ServerConnectionHandler extends Thread {
 	private PrintWriter writer;
 	private User user;
 	private boolean running;
-	// Updates are no longer a part of the handler, since the change of the session system as of 16th of June 2013.
-//	private UpdateRequest update;
 	private long timeOfLastCommand = 0;
 	private String token;
 	
-//	public static void main(String[] args) {
-//		ServerConnection server = new ServerConnection(true);
-//		ServerConnectionHandler h = new ServerConnectionHandler(new Socket(), server);
-//		LogInRequest r = new LogInRequest("Stian", "pwd");
-//		r.setSessionToken(Constants.SESSION_TOKEN_REQUEST);
-//		h.processLoginRequest(r);
-//		h.update.add(new Debt(13337, 33, "hardcoded things", server.getUser("Stian"), server.getUser("Arne"), "TEST", server.getUser("Arne"), DebtStatus.REQUESTED));
-//		System.out.println("Number of updates: " + h.update.size());
-//		ServerConnectionHandler h2 = new ServerConnectionHandler(new Socket(), server);
-////		h2.processToken(h.token);
-//		h2.
-//		System.out.println("Number of updates: " + h2.update.size());
-//	}
-	
 	public ServerConnectionHandler(Socket connection, ServerConnection serverConnection) {
 		this.connection = connection;
-//		update = new UpdateRequest();
 		this.serverConnection = serverConnection;
 		serverConnection.addConnectionHandler(this);
 		try {
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			writer = new PrintWriter(connection.getOutputStream(), true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			serverConnection.writeToLog("Failed while initializing handler: " + e.toString());
 		}
@@ -84,18 +66,6 @@ public class ServerConnectionHandler extends Thread {
 	public long getTimeOfLastCommand() {
 		return timeOfLastCommand;
 	}
-	
-	/**
-	 * Adds the given object to this user's send queue
-	 * @param o	The object to send
-	 */
-//	public void sendUpdate(XMLSerializable o) {
-//		update.add(o);
-//	}
-//	
-//	public UpdateRequest getUpdate() {
-//		return update;
-//	}
 	
 	public void processUpdate() {
 		// Retrieve the update
@@ -152,12 +122,6 @@ public class ServerConnectionHandler extends Thread {
 					die(true);
 					return;
 				}
-//				if(!processToken(o.getSessionToken())) { 
-//					System.out.println("Is this happening..?");
-//					die(false);
-//					System.out.println("Should not happen..");
-//					return;
-//				}
 				// Receive LogInRequest
 				if(o instanceof LogInRequest) {
 					System.out.println("Received login request!");
@@ -274,69 +238,6 @@ public class ServerConnectionHandler extends Thread {
 		return true;
 	}
 	
-	/**
-	 * 
-	 * @param token
-	 * @return		Should continue
-	 */
-/*	private boolean processToken(String token) {
-		if(token != null) {
-			if(token.equals(Constants.SESSION_TOKEN_REQUEST))
-				return true;
-			System.out.println("Token detected! " + token);
-			// Check if this is our connection
-			ServerConnectionHandler handler = serverConnection.getTokenManager().getHandler(token);
-			if(handler == this) {
-				// Keep going and process the object
-				System.out.println("Token matched to handler! This should probably never happen..");
-			} else {
-				// If not, check if it has a handler
-				if(handler != null) {
-					// We hijack this user
-					// FIXME!!!! UNTESTED!
-					this.update = handler.getUpdate();
-					System.out.println("Number of updates hijacked: " + update.size());
-					this.user = handler.getUser();
-					this.user.setIsOnline(true);
-					this.token = token;
-					System.out.println("Hijacking user: " + (this.user != null ? this.user.getUsername() : "null")+ "!");
-					serverConnection.getTokenManager().remove(token);
-					serverConnection.getTokenManager().registerToken(token, this);
-					System.out.println("Killing old handler.");
-					handler.die(false);
-					return true;
-				} else {
-					// If it has no handler, we take it
-					// Make sure it gets all necessary updates by just throwing in all relevant objects
-					// FIXME!!!!! UNTESTED!
-					// FIXME!! Should we really just take it, if it has no handler?
-					System.out.println("User needs a new handler.");
-					// Add all debts
-					// Set the user
-					String username = serverConnection.getTokenManager().getUsername(token);
-					if(username == null) {
-						serverConnection.writeToLog("Something wrong happened while taking over a session! Username was null!");
-						return false;
-					}
-					user = serverConnection.getUser(username);
-					// And process the received object as normal
-					for (int i = 0; i < getUser().getNumberOfConfirmedDebts(); i++) {
-						update.add(getUser().getConfirmedDebt(i));
-					}
-					for (int i = 0; i < getUser().getNumberOfPendingDebts(); i++) {
-						update.add(getUser().getPendingDebt(i));
-					}
-					// Add all friend requests
-					for (int i = 0; i < getUser().getNumberOfFriendRequests(); i++) {
-						update.add(getUser().getFriendRequest(i));
-					}
-					return true;
-				}
-			}
-		} // If not, we just handle it as normal
-		return true;
-	}*/
-	
 	private void die(boolean logOffUser) {
 		System.out.println("Killing thread.");
 		// Check if user was online
@@ -369,13 +270,6 @@ public class ServerConnectionHandler extends Thread {
 		String tokenUser = serverConnection.getTokenManager().getUsername(request.getSessionToken());
 //		User thisUser = serverConnection.getUser(this.getUser().getUsername());
 		User thisUser = serverConnection.getUser(tokenUser);
-		// Check that this is the requesting user's handler if this is a new request
-//		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) valid = false;
-		// Check that this is the target user's handler if this is a response
-//		else if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername())) {
-//			valid = false;
-//		}
-		// No, handlers are no longer associated with users.. Check token instead (!!! TODO: This means that console version/swing version must attatch a token!!!!)
 		// Check requesting
 		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !tokenUser.equalsIgnoreCase(request.getFromUser().getUsername())) {
 			valid = false;
@@ -396,38 +290,12 @@ public class ServerConnectionHandler extends Thread {
 		for(int i=0; i<thisUser.getNumberOfFriends(); i++){
 			if(request.getFriendUsername().equals(thisUser.getFriend(i).getUsername())){
 				valid=false;
-				System.out.println("CAPS");
 			}
 		}
-//		if(request.getStatus() == FriendRequestStatus.UNHANDLED && !request.getFromUser().equals(this.getUser())) {
-//			System.out.println("Here aswell??");
-//			valid = false;
-//		}
-		// Check that the sending user is allowed to set the given status
-//		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !request.getFriendUsername().equals(this.getUser().getUsername())) {
-//			valid = false;
-//			System.out.println("SUG");
-//		}
-		// If this is a response to a friend request, check that this has a corresponding friend request
 		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !thisUser.hasFriendRequest(request)) {
-//		if((request.getStatus() == FriendRequestStatus.ACCEPTED || request.getStatus() == FriendRequestStatus.DECLINED) && !serverConnection.getUser(tokenUser).hasFriendRequest(request)) {
 			valid = false;
-			System.out.println("LAST");
 		}
 		User otherUser = serverConnection.getUser((request.getFromUser().equals(this.getUser()) ? request.getFriendUsername() : request.getFromUser().getUsername()));
-		// Don't let a user send friend requests to the same user twice.
-		// FIXME: Does not work
-//		System.out.println("Checking for already existing requests between these two");
-//		if(request.getStatus() == FriendRequestStatus.PENDING) {
-//			for (int i = 0; i < serverConnection.getUser(this.getUser().getUsername()).getNumberOfFriendRequests(); i++) {
-//				System.out.println("Checking " + i);
-//				if(serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFromUser().equals(otherUser) || serverConnection.getUser(this.getUser().getUsername()).getFriendRequest(i).getFriendUsername().equalsIgnoreCase(otherUser.getUsername())) {
-//					valid = false;
-//					System.out.println("These users already have requests between them!");
-//					break;
-//				}
-//			}
-//		}
 		// If this is a new friend request, check that these two users don't already have any requests for each other, or that the user is sending a request to himself
 		if(request.getStatus() == FriendRequestStatus.UNHANDLED) {
 			if(thisUser.hasFriendRequest(request) || otherUser.hasFriendRequest(request) ||
@@ -438,7 +306,6 @@ public class ServerConnectionHandler extends Thread {
 			}
 			if(request.getFriendUsername().equals(thisUser.getUsername())) {
 				valid = false;
-				System.out.println("Here?");
 			}
 		}
 		if(valid) {
@@ -462,8 +329,6 @@ public class ServerConnectionHandler extends Thread {
 					otherUser.addFriend(thisUser);
 					thisUser.addFriend(otherUser);
 				} 
-				// Remove friend request.. NO!
-//				thisUser.removeFriendRequest(request);
 				// Copy status
 				thisUser.getFriendRequestFrom(otherUser.getUsername()).setStatus(request.getStatus());
 			}
@@ -500,51 +365,36 @@ public class ServerConnectionHandler extends Thread {
 			req.setStatus(CreateUserRequestStatus.INVALID_USERNAME);
 		}
 		else {
-			// CreateUserRequests are now never activated, no matter where they come from!!
-			// (Only set as activated for compatibility reasons. Should be set as unactivated when created!)
-			// (Check the request's version to see if email and activation should be processed)
-//			if(req.getVersion() == null) {
-//				System.out.println("Setting newly created user as activated for compatibility reasons.");
-//				// Insert dummy activation key and mail, and set the user as activated, to ensure backwards compatibility
-//				user.setActivationKey("N_supplied");
-//				user.setIsActivated(true);
-//				user.setEmail("Not_supplied");
-//				req.setStatus(CreateUserRequestStatus.ACCEPTED);
-//			} else {
-//				req.setIsAproved(true);
-				req.setStatus(CreateUserRequestStatus.ACCEPTED);
-				user.setIsActivated(false);
-				if(!EmailUtils.verifyEmail(user.getEmail())) {
-					// Invalid email
-					// Give no error messages to email, but log the event, since clients should take care of this.
-//					req.setIsAproved(false);
-					req.setStatus(CreateUserRequestStatus.UNHANDLED);
-					System.out.println("Invalid email!");
-					serverConnection.writeToLog("Invalid email from " + user.getUsername() + " at IP " + connection.getInetAddress().getHostAddress());
-				}
-				// If a version is supplied, process email and activation
-				// Check that the email is not already registered
-				System.out.println("Checking if email is already registered..");
-				boolean foundEmail = false;
-				for (User u : serverConnection.getUsers()) {
-					if(u.getEmail().equals(user.getEmail()))
-						foundEmail = true;
-				}
-				if(foundEmail) {
-					System.out.println("Email already registered!");
-					// Set the request as not approved
-//					req.setIsAproved(false);
-					req.setStatus(CreateUserRequestStatus.EMAIL_ALREADY_REGISTERED);
-				} else {
-					System.out.println("Email OK.");
-				}
-//			}
+			req.setStatus(CreateUserRequestStatus.ACCEPTED);
+			user.setIsActivated(false);
+			if(!EmailUtils.verifyEmail(user.getEmail())) {
+				// Invalid email
+				// Give no error messages to email, but log the event, since clients should take care of this.
+				req.setStatus(CreateUserRequestStatus.UNHANDLED);
+				System.out.println("Invalid email!");
+				serverConnection.writeToLog("Invalid email from " + user.getUsername() + " at IP " + connection.getInetAddress().getHostAddress());
+			}
+			// If a version is supplied, process email and activation
+			// Check that the email is not already registered
+			System.out.println("Checking if email is already registered..");
+			boolean foundEmail = false;
+			for (User u : serverConnection.getUsers()) {
+				if(u.getEmail().equals(user.getEmail()))
+					foundEmail = true;
+			}
+			if(foundEmail) {
+				System.out.println("Email already registered!");
+				// Set the request as not approved
+				req.setStatus(CreateUserRequestStatus.EMAIL_ALREADY_REGISTERED);
+			} else {
+				System.out.println("Email OK.");
+			}
 		} 
 		// Get ready to send a reply
 		String reply = req.toXML();
 		boolean welcomeMailSent = true;
 		// Set activation key after we have sent the response, so it is not sent to the user
-		if(/* req.getVersion() != null && */ req.isApproved() && user != null) {
+		if(req.isApproved() && user != null) {
 			System.out.println("Generating activation key for user: " + user.getUsername());
 			// Generate activation key
 			user.setActivationKey(PasswordHasher.hashPassword(((System.currentTimeMillis() + (long) (Math.random() * 10000000)) + "")).substring(0, 10));
@@ -598,9 +448,7 @@ public class ServerConnectionHandler extends Thread {
 		if(user == null) {
 			System.out.println("User not found!");
 		}
-		if(user != null /* && user.getUsername().equalsIgnoreCase(req.getUserName()) */ 
-				&& serverConnection.checkPassword(user, req.getPassword()) 
-				/* && !user.isOnline()*/) {
+		if(user != null && serverConnection.checkPassword(user, req.getPassword())) {
 			// Check that the user is activated
 			if(!user.isActivated()) {
 				// Check if activation key is attached
@@ -675,13 +523,11 @@ public class ServerConnectionHandler extends Thread {
 			break;
 		case COMPLETED:
 			System.out.println("COMPLETED BY BOTH!!");
-			// TODO: Do we need to process this? No!
 			break;
 		}
 	}
 
 	public void processCompletedDebt(Debt d) {
-		// TODO: Verify!!!!
 		Debt old = null;
 		for (int i = 0; i < getUser().getNumberOfConfirmedDebts(); i++) {
 			if(getUser().getConfirmedDebt(i).getId() == d.getId()) {
@@ -690,8 +536,6 @@ public class ServerConnectionHandler extends Thread {
 		}
 		if(old == null) {
 			System.out.println("Something wrong happened while processing completedDebt");
-//			Main.printDebts(getUser().getConfirmedDebts(), "Confirmed debts");
-//			Main.printDebts(getUser().getPendingDebts(), "Pending debts");
 			return;
 		}
 		// Check that this user has not already completed this debt. NO why should we? (Not this way at least.)
@@ -709,7 +553,6 @@ public class ServerConnectionHandler extends Thread {
 	}
 	
 	public void processConfirmedDeclinedDebt(Debt d) {
-		// TODO: Verify!!
 		// Find our instance of the debt
 		// We assume that it is pending, or else why would someone accept or decline it?
 		Debt our = null;
@@ -733,19 +576,12 @@ public class ServerConnectionHandler extends Thread {
 		else System.out.println("Other's debt was NOT(!!!!!!!!!!!) removed!");
 		if(our.getStatus() == DebtStatus.CONFIRMED) {
 			d = mergeDebts(our);
-			
-			// No longer needed, since mergeDebts does this for us
-//			// If the debt is now confirmed, we must move it to the correct lists
-//			getUser().addConfirmedDebt(our);
-//			// For both users
-//			other.addConfirmedDebt(our);
 		} else {
 			// If the debt was deleted we simply let it be removed..
 		}
 		// Let the requesting user know about the accept/decline
 		serverConnection.notifyUser(d.getRequestedBy().getUsername(), d, token);
 		send(d.toXML());
-		// TODO Anything else?
 	}
 	
 	public void processRequestedDebt(Debt d) {
@@ -757,18 +593,12 @@ public class ServerConnectionHandler extends Thread {
 		if(d.getRequestedBy().getUsername().equals(user.getUsername())) {
 			// Check if this user is the receiver of the debt, and if the sender is a friend
 			if(d.getTo().getUsername().equals(user.getUsername()) && user.getFriend(d.getFrom().getUsername()) == null) {
-				System.out.println("1");
 				valid = false;
 			// Check if this user is the sender of the debt, and the receiver is a friend
 			} else if(d.getFrom().getUsername().equals(user.getUsername()) && user.getFriend(d.getTo().getUsername()) == null) {
-				System.out.println("2");
 				valid = false;
-			} else {
-//				System.out.println("3");
-//				valid = false;
 			}
 			if(d.isConfirmed()) {
-				System.out.println("4");
 				valid = false;
 			}
 		} else valid = false;
@@ -780,7 +610,6 @@ public class ServerConnectionHandler extends Thread {
 			serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).addPendingDebt(d);
 			System.out.println("Added debt to " + getUser().getUsername() + " and " + serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).getUsername());
 			getUser().addPendingDebt(d);
-//			System.out.println(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())) == serverConnection.getHandler(serverConnection.getUser((getUser().equals(d.getTo()) ? d.getFrom().getUsername() : d.getTo().getUsername())).getUsername()).getUser());
 			// Notify other user
 			serverConnection.notifyUser((d.getTo().getUsername().equals(user.getUsername()) ? d.getFrom().getUsername() : d.getTo().getUsername()), d, token);
 		} else {
@@ -816,11 +645,9 @@ public class ServerConnectionHandler extends Thread {
 			d.setComment('"' + d.getComment() + '"');
 		}
 		for (Debt debtToMerge : debtsToMerge) {
-			// Remove debts from users .. NO! Set them as deleted
+			// Set merged debts as deleted
 			thisUser.getConfirmedDebtById(debtToMerge.getId()).setStatus(DebtStatus.DELETED);
 			otherUser.getConfirmedDebtById(debtToMerge.getId()).setStatus(DebtStatus.DELETED);
-//			thisUser.removeConfirmedDebt(debtToMerge);
-//			otherUser.removeConfirmedDebt(debtToMerge);
 			// Merge amount
 			if(d.getTo().equals(debtToMerge.getTo())) {
 				d.setAmount(d.getAmount() + debtToMerge.getAmount());
@@ -883,7 +710,6 @@ public class ServerConnectionHandler extends Thread {
 			}
 			msg = o.toXML();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			serverConnection.writeToLog("Error while parsing before send (in send): " + e.toString());
 		}

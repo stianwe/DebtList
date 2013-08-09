@@ -86,20 +86,6 @@ public class ServerConnection {
 								writeToLog("Exception while writing to database:\n" + e.toString());
 							}
 						} else System.out.println("Not writing to database. Saving is disabled.");
-						// Also check if we should disconnect any inactive users
-						// FIXME: No longer needed since handlers are no longer persistent... What should be done is removing session tokens from the token manager!
-						// Lock the list
-//						synchronized (handlers) {
-//							List<ServerConnectionHandler> toBeRemoved = new ArrayList<ServerConnectionHandler>();
-//							for (ServerConnectionHandler h : handlers) {
-//								if(h.getTimeOfLastCommand() + Constants.MINIMUM_INACTIVE_TIME_BEFORE_DISCONNECT < System.currentTimeMillis()) {
-//									System.out.println("Attempting to close connection");
-//									h.close();
-//									toBeRemoved.add(h);
-//								}
-//							}
-//							handlers.removeAll(toBeRemoved);
-//						}
 					}
 				}, Constants.TIME_BETWEEN_WRITES_TO_DATABASE, Constants.TIME_BETWEEN_WRITES_TO_DATABASE);
 				Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -138,10 +124,8 @@ public class ServerConnection {
 						if(command.equals("save")) saveAll();
 						// Close all connections
 						else if(command.equals("disconnect")) {
-//							disconnectUsers();
 							tokenManager.removeOldTokens(System.currentTimeMillis());
 						} else if(command.equals("ls connections")) {
-//							listConnections();
 							System.out.println("No longer supported since connections are not persistent. Did you mean ls tokens?");
 						} else if(command.equals("ls tokens")) {
 							System.out.println("Current active tokens and users:");
@@ -204,9 +188,6 @@ public class ServerConnection {
 	
 	public synchronized void disconnectUsers() {
 		System.out.println("Attempting to close all connections");
-//		for (ServerConnectionHandler h : handlers) {
-//			h.close();
-//		}
 		// TODO: Handlers should be removed aswell, right??
 		while(!handlers.isEmpty()) {
 			handlers.remove(0).close();
@@ -301,10 +282,6 @@ public class ServerConnection {
 	 */
 	public void notifyUser(String username, XMLSerializable objectToSend, String fromUserToken) {
 		System.out.println("Notifying " + username);
-//		for(ServerConnectionHandler handler : getHandlers(username)) {
-//			System.out.println("Update added to session.");
-//			handler.sendUpdate(objectToSend);
-//		}
 		for(UpdateRequest ur : tokenManager.getUpdates(username)) {
 			ur.add(objectToSend);
 		}
@@ -315,12 +292,6 @@ public class ServerConnection {
 				ur.add(objectToSend);
 			}
 		}
-//		for(ServerConnectionHandler handler : getHandlers(fromHandler.getUser().getUsername())) {
-//			if(handler != fromHandler) { 
-//				System.out.println("It has!");
-//				handler.sendUpdate(objectToSend);
-//			}
-//		}
 		System.out.println("Done notifiying " + username);
 	}
 
@@ -357,8 +328,6 @@ public class ServerConnection {
 				new ServerConnectionHandler(serverSocket.accept(), this).start();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
 			writeToLog("Failed to accept incomming connection on port "+ port + ": " + e.toString());
 			System.out.println("Server socket closed.");
 		} finally {
