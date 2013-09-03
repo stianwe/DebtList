@@ -3,6 +3,7 @@ This is the changelog for the Android version.
 The app is still in a very early phase, so bug fixes and feature implementations are done at irregular intervals. 
 This means that you should check this changelog before submiting an issue/bug, since it might already have been fixed. 
 
+v0.0.0.2_pre-release:             Fixed a bug that caused some debts that was merged together to still show for some users.
 v0.0.0.1_pre-release:             The database now uses a user's ID instead of the user name as foreign keys.
                                   The issue with the Android application sometimes crashing for no reason when running in
                                   the background should now be fixed. The problem was that it was using a regular thread
@@ -15,23 +16,14 @@ v0.0.0.0_pre-release:             Re-make versioning system (see wiki for more i
                                   if you're using an outdated version, and not be able to log in if your version is no
                                   longer compatible with the current one.
                                   Bug with debts not disapearing after both users has completed is has now been corrected.
-                                  Commits:
-                                  https://github.com/stianwe/DebtList/commit/6a2b6d090daba909b1f69f58cd8009e78caaa2c9
-                                  https://github.com/stianwe/DebtList/commit/7369f370f77f0db53c23335b297685031d93342f
-                                  https://github.com/stianwe/DebtList/commit/057bc823566c944f6af37f3771836ddd11fc89ee
-                                  https://github.com/stianwe/DebtList/commit/0252a2346fb1f92f83db0c606c3a8e3f364eaf47
-DebtList_android_TEST_170613:     Fix bugs regarding accepting/declining friend requests, and creating debts.
+DebtList_android_TEST_170613:     Fixed bugs regarding accepting/declining friend requests, and creating debts.
                                   Note: Friends and friend requests has ben reseted.
-                                  (Commit: https://github.com/stianwe/DebtList/commit/a8e9ea03043c289affa021373d18bafd033e2a04 )
 DebtList_android_TEST_160613_2:   The update/notification system was fixed and re-activated. Should hopefully be working now!
-                                  (Commit: https://github.com/stianwe/DebtList/commit/fdf7d5f2bf315fc39c318ebae09d667a9103eb12 ).
-DebtList_android_TEST_160613:     Fixed bug with session system. This should fix the bugged friend request system aswell.
+DebtList_android_TEST_160613:     Fixed bug with session system. This should fix the bugged friend request system as well.
                                   Note: Database was rolled back (only users are still saved)!
                                   Note2: The polling for updates service is currently disabled. Time between updates
                                   can therefore be set to 0 (disabled) from the settings menu to improve battery life.
                                   This service is under revision, and will hopefully be back soon!
-                                  (Commit: https://github.com/stianwe/DebtList/commit/6bf9269c1958182cc24be1982a4c4b7d5cf63610 ).
 DebtList_android_TEST_140613_2:   Fixed bug in the navigation menu at the Friends-view, that took the user to 
                                   settings instead of the debt-view when clicking on "Debts" 
-                                  (Commit: https://github.com/stianwe/DebtList/commit/224392fbbf811c6cee17910483838e2de493e316 ).
 DetbList_android_TEST_140613:     First test version released
