@@ -9,3 +9,7 @@ Instructions for how to install Android app: https://github.com/stianwe/DebtList
 See changelog: https://github.com/stianwe/DebtList/blob/master/changelog_android 
 
 Information about versioning: https://github.com/stianwe/DebtList/wiki/Versioning 
+
+
+Old versions:
+v0.0.0.1_pre-release: https://www.dropbox.com/s/qc0wn3zhmvzwr5h/DebtList_android_v0.0.0.1_pre-release.apk

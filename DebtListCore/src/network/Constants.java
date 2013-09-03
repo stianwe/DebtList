@@ -5,10 +5,8 @@ import versioning.Version;
 
 public class Constants {
 	
-	// Versions
 														// v0.0.1.0 PRE-RELEASE
 	public static final Version SERVER_VERSION = new PrereleaseVersion(0, 0, 1, 0);
-	
 	// Network
 //	public static final String SERVER_ADDRESS = "192.168.0.100";
 	public static final String SERVER_ADDRESS = "invert.ed.ntnu.no";
