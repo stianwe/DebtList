@@ -117,6 +117,18 @@ public abstract class Session {
 	}
 	
 	/**
+	 * Tries to log in by sending a LogInRequest to the server connected by the connection
+	 * @param username		The user name
+	 * @param passwordHash	The hash of the password
+	 * @return				The status of the received response
+	 */
+	public LogInRequestStatus logInWithHashedPassword(String username, String passwordHash) {
+		LogInRequest req = new LogInRequest(username, null);
+		req.setPasswordHash(passwordHash);
+		return loginHelper(req);
+	}
+	
+	/**
 	 * A helper method for logIn that sends the login request given as argument and returns the status contained in the response
 	 * @param req	The LoginRequest to send
 	 * @return		The status of the received response

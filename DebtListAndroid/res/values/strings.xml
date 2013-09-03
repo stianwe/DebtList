@@ -10,6 +10,10 @@
     <string name="button_register">Register</string>
     <string name="login_error_incorrect">Incorrect login info</string>
     <string name="login_error_connection">Could not connect to server!</string>
+    
+    <!-- Persistent identification keys -->
+    <string name="persistent_identification_username_key">debtlist.USERNAME</string>
+    <string name="persistent_identification_password_hash_key">debtlist.PASSWORD_HASH</string>
 
     <!-- DebtViewActivity -->
     <string name="button_complete">Complete</string>

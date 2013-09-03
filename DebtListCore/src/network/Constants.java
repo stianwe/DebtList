@@ -6,11 +6,8 @@ import versioning.Version;
 public class Constants {
 	
 	// Versions
-														// v0.0.0.0 PRE-RELEASE
-	public static final Version SERVER_VERSION = new PrereleaseVersion(0, 0, 0, 1);
-//	public static final Version ANDROID_VERSION = new PrereleaseVersion(0, 0, 0, 0);
-//	public static final Version CONSOLE_VERSION = new PrereleaseVersion(-1, 0, 0, 0);
-//	public static final Version SWING_VERSION = new PrereleaseVersion(-2, 0, 0, 0);
+														// v0.0.1.0 PRE-RELEASE
+	public static final Version SERVER_VERSION = new PrereleaseVersion(0, 0, 1, 0);
 	
 	// Network
 //	public static final String SERVER_ADDRESS = "192.168.0.100";

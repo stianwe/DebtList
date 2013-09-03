@@ -16,9 +16,10 @@ public class LogInRequest extends Request {
 	
 	public LogInRequest(User user, String password, boolean isAccepted, LogInRequestStatus status) {
 		setUser(user);
-		setVariable("accepted", isAccepted);
-		setVariable("status", status);
-		setVariable("password", PasswordHasher.hashPassword(password));
+		setAccepted(isAccepted);
+		setStatus(status);
+		setPasswordHash(password);
+		setVariable("password", password == null ? null : PasswordHasher.hashPassword(password));
 	}
 	
 	public LogInRequest(String username, String password, String activationKey) {
@@ -64,5 +65,9 @@ public class LogInRequest extends Request {
 	
 	public String getPassword() {
 		return (String) getVariable("password");
+	}
+	
+	public void setPasswordHash(String passwordHash) {
+		setVariable("password", passwordHash);
 	}
 }

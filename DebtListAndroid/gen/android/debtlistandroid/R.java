@@ -34,25 +34,26 @@ public final class R {
         public static final int create_user_password1=0x7f07000d;
         public static final int create_user_password2=0x7f07000e;
         public static final int create_user_username=0x7f07000b;
-        public static final int edit_password=0x7f070019;
-        public static final int edit_username=0x7f070018;
-        public static final int friend_view_accept_incoming=0x7f070021;
-        public static final int friend_view_decline_incoming=0x7f070022;
+        public static final int edit_password=0x7f07001a;
+        public static final int edit_username=0x7f070019;
+        public static final int friend_view_accept_incoming=0x7f070022;
+        public static final int friend_view_decline_incoming=0x7f070023;
         public static final int friend_view_list=0x7f070017;
-        public static final int friend_view_list_linear_layout=0x7f07001e;
-        public static final int friend_view_menu_add_friend=0x7f070026;
-        public static final int friend_view_menu_debts=0x7f070027;
-        public static final int friend_view_menu_settings=0x7f070028;
-        public static final int friend_view_separator=0x7f07001f;
-        public static final int friend_view_user_name=0x7f070020;
-        public static final int loginerrortext=0x7f07001a;
-        public static final int menu_create_debt=0x7f070024;
-        public static final int menu_friends=0x7f070025;
-        public static final int menu_settings=0x7f070023;
+        public static final int friend_view_list_linear_layout=0x7f07001f;
+        public static final int friend_view_menu_add_friend=0x7f070027;
+        public static final int friend_view_menu_debts=0x7f070028;
+        public static final int friend_view_menu_settings=0x7f070029;
+        public static final int friend_view_separator=0x7f070020;
+        public static final int friend_view_user_name=0x7f070021;
+        public static final int login_activity_layout=0x7f070018;
+        public static final int loginerrortext=0x7f07001b;
+        public static final int menu_create_debt=0x7f070025;
+        public static final int menu_friends=0x7f070026;
+        public static final int menu_settings=0x7f070024;
         public static final int separator=0x7f070010;
-        public static final int settings_disable_when_not_on_wifi_cb=0x7f07001d;
-        public static final int settings_time_between_updates=0x7f07001c;
-        public static final int settings_time_between_updates_text_text_view=0x7f07001b;
+        public static final int settings_disable_when_not_on_wifi_cb=0x7f07001e;
+        public static final int settings_time_between_updates=0x7f07001d;
+        public static final int settings_time_between_updates_text_text_view=0x7f07001c;
         public static final int spinner_create_debt_user=0x7f070004;
         public static final int toptext=0x7f070011;
     }
@@ -80,101 +81,105 @@ public final class R {
         public static final int activity_settings=0x7f060008;
     }
     public static final class string {
-        public static final int activate_user_button=0x7f04003d;
-        public static final int activate_user_error_filled=0x7f04003e;
-        public static final int activate_user_error_key=0x7f04003f;
-        public static final int activate_user_error_login_info=0x7f040041;
-        public static final int activate_user_error_network=0x7f040040;
-        public static final int activate_user_key=0x7f04003c;
-        public static final int activate_user_password=0x7f04003b;
-        public static final int activate_user_username=0x7f04003a;
-        public static final int add_friend_button=0x7f04002a;
-        public static final int add_friend_error_message=0x7f040029;
-        public static final int add_friend_username_email=0x7f040028;
+        public static final int activate_user_button=0x7f04003f;
+        public static final int activate_user_error_filled=0x7f040040;
+        public static final int activate_user_error_key=0x7f040041;
+        public static final int activate_user_error_login_info=0x7f040043;
+        public static final int activate_user_error_network=0x7f040042;
+        public static final int activate_user_key=0x7f04003e;
+        public static final int activate_user_password=0x7f04003d;
+        public static final int activate_user_username=0x7f04003c;
+        public static final int add_friend_button=0x7f04002c;
+        public static final int add_friend_error_message=0x7f04002b;
+        public static final int add_friend_username_email=0x7f04002a;
         public static final int app_name=0x7f040000;
-        public static final int button_accept=0x7f040008;
+        public static final int button_accept=0x7f04000a;
         /**  DebtViewActivity 
          */
-        public static final int button_complete=0x7f040007;
-        public static final int button_decline=0x7f040009;
+        public static final int button_complete=0x7f040009;
+        public static final int button_decline=0x7f04000b;
         public static final int button_login=0x7f040003;
         public static final int button_register=0x7f040004;
-        public static final int create_debt_amount=0x7f040019;
-        public static final int create_debt_button=0x7f040015;
-        public static final int create_debt_comment=0x7f04001b;
-        public static final int create_debt_error_message_filled=0x7f040017;
-        public static final int create_debt_error_message_invalid=0x7f040018;
-        public static final int create_debt_radio_from=0x7f04001d;
-        public static final int create_debt_radio_to=0x7f04001c;
-        public static final int create_debt_spinner_prompt=0x7f040016;
-        public static final int create_debt_what=0x7f04001a;
-        public static final int create_user_button=0x7f040030;
-        public static final int create_user_email=0x7f04002d;
-        public static final int create_user_error_email_already_registered=0x7f040034;
-        public static final int create_user_error_fill=0x7f040031;
-        public static final int create_user_error_invalid_email=0x7f040033;
-        public static final int create_user_error_invalid_username=0x7f040035;
-        public static final int create_user_error_mail=0x7f040038;
-        public static final int create_user_error_network=0x7f040037;
-        public static final int create_user_error_password_match=0x7f040032;
-        public static final int create_user_error_username_taken=0x7f040036;
-        public static final int create_user_password1=0x7f04002e;
-        public static final int create_user_password2=0x7f04002f;
-        public static final int create_user_username=0x7f04002c;
-        public static final int debt_view_confirmed_separator=0x7f04000e;
-        public static final int debt_view_dialog_no_friends=0x7f040010;
-        public static final int debt_view_incoming_requests_separator=0x7f04000d;
-        public static final int debt_view_no_debts1=0x7f04000b;
-        public static final int debt_view_no_debts2=0x7f04000c;
-        public static final int debt_view_outgoing_requests_separator=0x7f04000f;
+        public static final int create_debt_amount=0x7f04001b;
+        public static final int create_debt_button=0x7f040017;
+        public static final int create_debt_comment=0x7f04001d;
+        public static final int create_debt_error_message_filled=0x7f040019;
+        public static final int create_debt_error_message_invalid=0x7f04001a;
+        public static final int create_debt_radio_from=0x7f04001f;
+        public static final int create_debt_radio_to=0x7f04001e;
+        public static final int create_debt_spinner_prompt=0x7f040018;
+        public static final int create_debt_what=0x7f04001c;
+        public static final int create_user_button=0x7f040032;
+        public static final int create_user_email=0x7f04002f;
+        public static final int create_user_error_email_already_registered=0x7f040036;
+        public static final int create_user_error_fill=0x7f040033;
+        public static final int create_user_error_invalid_email=0x7f040035;
+        public static final int create_user_error_invalid_username=0x7f040037;
+        public static final int create_user_error_mail=0x7f04003a;
+        public static final int create_user_error_network=0x7f040039;
+        public static final int create_user_error_password_match=0x7f040034;
+        public static final int create_user_error_username_taken=0x7f040038;
+        public static final int create_user_password1=0x7f040030;
+        public static final int create_user_password2=0x7f040031;
+        public static final int create_user_username=0x7f04002e;
+        public static final int debt_view_confirmed_separator=0x7f040010;
+        public static final int debt_view_dialog_no_friends=0x7f040012;
+        public static final int debt_view_incoming_requests_separator=0x7f04000f;
+        public static final int debt_view_no_debts1=0x7f04000d;
+        public static final int debt_view_no_debts2=0x7f04000e;
+        public static final int debt_view_outgoing_requests_separator=0x7f040011;
         public static final int edit_password=0x7f040002;
         /**  LoginActivity 
          */
         public static final int edit_username=0x7f040001;
-        public static final int friend_view_accept_incoming=0x7f040022;
-        public static final int friend_view_add_friend=0x7f040024;
-        public static final int friend_view_confirmed_separator=0x7f040020;
-        public static final int friend_view_debts=0x7f040025;
-        public static final int friend_view_decline_incoming=0x7f040023;
-        public static final int friend_view_incoming_separator=0x7f04001f;
-        public static final int friend_view_no_friends=0x7f040026;
-        public static final int friend_view_outgoing_separator=0x7f040021;
+        public static final int friend_view_accept_incoming=0x7f040024;
+        public static final int friend_view_add_friend=0x7f040026;
+        public static final int friend_view_confirmed_separator=0x7f040022;
+        public static final int friend_view_debts=0x7f040027;
+        public static final int friend_view_decline_incoming=0x7f040025;
+        public static final int friend_view_incoming_separator=0x7f040021;
+        public static final int friend_view_no_friends=0x7f040028;
+        public static final int friend_view_outgoing_separator=0x7f040023;
         public static final int login_error_connection=0x7f040006;
         public static final int login_error_incorrect=0x7f040005;
         /**  Menu 
          */
-        public static final int menu_create_debt=0x7f040011;
-        public static final int menu_friends=0x7f040012;
-        public static final int menu_settings=0x7f040013;
-        public static final int notification_friend_request_pending_text=0x7f04004a;
+        public static final int menu_create_debt=0x7f040013;
+        public static final int menu_friends=0x7f040014;
+        public static final int menu_settings=0x7f040015;
+        public static final int notification_friend_request_pending_text=0x7f04004c;
         /**  Notifications NOT USED FOR NOW..
          */
-        public static final int notification_friend_request_pending_title=0x7f040049;
-        public static final int settings_disable_updates_when_not_on_wifi_key=0x7f040047;
-        public static final int settings_disable_when_not_on_wifi=0x7f040044;
-        public static final int settings_save_button=0x7f040045;
-        public static final int settings_time_between_updates_error_message=0x7f040048;
-        public static final int settings_time_between_updates_key=0x7f040046;
-        public static final int settings_time_between_updates_text_view=0x7f040043;
+        public static final int notification_friend_request_pending_title=0x7f04004b;
+        public static final int persistent_identification_password_hash_key=0x7f040008;
+        /**  Persistent identification keys 
+         */
+        public static final int persistent_identification_username_key=0x7f040007;
+        public static final int settings_disable_updates_when_not_on_wifi_key=0x7f040049;
+        public static final int settings_disable_when_not_on_wifi=0x7f040046;
+        public static final int settings_save_button=0x7f040047;
+        public static final int settings_time_between_updates_error_message=0x7f04004a;
+        public static final int settings_time_between_updates_key=0x7f040048;
+        public static final int settings_time_between_updates_text_view=0x7f040045;
         /**  ActivateUserActivity 
          */
-        public static final int title_activity_activate_user=0x7f040039;
+        public static final int title_activity_activate_user=0x7f04003b;
         /**  AddFriendActivity 
          */
-        public static final int title_activity_add_friend_view=0x7f040027;
+        public static final int title_activity_add_friend_view=0x7f040029;
         /**  CreateDebtActivity 
          */
-        public static final int title_activity_create_debt=0x7f040014;
+        public static final int title_activity_create_debt=0x7f040016;
         /**  CreateUserActivity 
          */
-        public static final int title_activity_create_user=0x7f04002b;
-        public static final int title_activity_debt_view=0x7f04000a;
+        public static final int title_activity_create_user=0x7f04002d;
+        public static final int title_activity_debt_view=0x7f04000c;
         /**  FriendViewActivity 
          */
-        public static final int title_activity_friend_view=0x7f04001e;
+        public static final int title_activity_friend_view=0x7f040020;
         /**  SettingsActivity 
          */
-        public static final int title_activity_settings=0x7f040042;
+        public static final int title_activity_settings=0x7f040044;
     }
     public static final class style {
         /** 

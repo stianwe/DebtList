@@ -1,8 +1,10 @@
 package android.debtlistandroid;
 
 import network.Constants;
+import requests.LogInRequestStatus;
 import session.Session;
 import session.Updater;
+import utils.PasswordHasher;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -54,8 +56,18 @@ public class LoginActivity extends Activity {
 		
 		loginErrorTextView = findViewById(R.id.loginerrortext);
 		
-//		context = getApplicationContext();
 		context = this;
+		
+		// Check if user identification is saved on the phone
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		String username = sharedPref.getString(getString(R.string.persistent_identification_username_key), null);
+		System.out.println("Loaded peristent user name: " + username);
+		String passwordHash = sharedPref.getString(getString(R.string.persistent_identification_password_hash_key), null);
+		System.out.println("Loaded persistent password hash: " + passwordHash);
+		if (username != null && passwordHash != null) {
+			LogInRequestStatus logInStatus = Session.session.logInWithHashedPassword(username, passwordHash);
+			processLogInRequestResponse(logInStatus, findViewById(R.id.login_activity_layout));
+		}
 	}
 	
 // No need for menu on the login screen(?)
@@ -77,74 +89,75 @@ public class LoginActivity extends Activity {
 		view = v;
 		// Clear session user in case someone has gotten to this activity while logged in
 		Session.session.clear();
-		final Activity dis = this;
-		final View vv = v;
-//		new Thread() {
-//			public void run() {
-				switch(Session.session.logIn(((EditText) findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString())) {
-				case ACCEPTED:
-					// Display dummy notification
-//					Tools.createNotification(this, "Updater", "Updater started", LoginActivity.class, LoginActivity.class);
-					// Start the updater
-					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-					System.out.println("Loaded time between updates: " + prefs.getLong(
-											getString(R.string.settings_time_between_updates_key), -1));
-					((AndroidSession) Session.session).startUpdater(this, 
+		LogInRequestStatus loginRequestStatus = Session.session.logIn(((EditText) findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString());
+		processLogInRequestResponse(loginRequestStatus, v);
+	}
+	
+	public void processLogInRequestResponse(LogInRequestStatus responseStatus, View vv) {
+		switch(responseStatus) {
+		case ACCEPTED:
+			// Store the log in information
+			SharedPreferences.Editor prefsEditor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+			String password = ((AndroidSession) Session.session).getPassword();
+			if (password != null) {
+				prefsEditor.putString(getString(R.string.persistent_identification_password_hash_key), PasswordHasher.hashPassword(password));
+				prefsEditor.putString(getString(R.string.persistent_identification_username_key), Session.session.getUser().getUsername());
+				prefsEditor.commit();
+			}
+			// Start the updater
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			System.out.println("Loaded time between updates: " + prefs.getLong(
+									getString(R.string.settings_time_between_updates_key), -1));
+			((AndroidSession) Session.session).startUpdater(this, 
+					prefs.getLong(
+							getString(R.string.settings_time_between_updates_key), 
 							prefs.getLong(
-									getString(R.string.settings_time_between_updates_key), 
-									prefs.getLong(
-											getString(R.string.settings_time_between_updates_key),
-											Constants.STANDARD_TIME_BETWEEN_UPDATES)), 
-									!prefs.getBoolean(
-											getString(R.string.settings_disable_updates_when_not_on_wifi_key), 
-											!Constants.STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI));
-					// Start the DebtViewActivity
-					Intent intent = new Intent(dis, DebtViewActivity.class);
-					startActivity(intent);
-					break;
-				case ALREADY_LOGGED_ON:
-					// Should not happen and can be removed!
-					System.err.println("ERROR!!!!!!!!!!!!!!!!!");
-					break;
-				case UNHANDLED:
-					// Probably connection error
-					((TextView) loginErrorTextView).setText(vv.getResources().getString(R.string.login_error_connection));
-					loginErrorTextView.setVisibility(View.VISIBLE);
-					break;
-				case WRONG_INFORMATION:
-//					runOnUiThread(new Runnable() {
-//						@Override
-//						public void run() {
-							((TextView) loginErrorTextView).setText(vv.getResources().getString(R.string.login_error_incorrect));
-							loginErrorTextView.setVisibility(View.VISIBLE);
-//						}
-//					});
-					// Display outdated version dialog if outdated version
-					if(Session.session.isVersionOutdated()) {
-						final Context diss = this;
-						v.post(new Runnable() {
-							public void run() {
-								Tools.displayOutdatedVersionDialog(diss);
-							}
-						});
-						// We only want the message displayed once
-						Session.session.setIsVersionOutdated(false);
+									getString(R.string.settings_time_between_updates_key),
+									Constants.STANDARD_TIME_BETWEEN_UPDATES)), 
+							!prefs.getBoolean(
+									getString(R.string.settings_disable_updates_when_not_on_wifi_key), 
+									!Constants.STANDARD_DISABLE_UPDATES_WHEN_NOT_ON_WIFI));
+			// Start the DebtViewActivity
+			Intent intent = new Intent(this, DebtViewActivity.class);
+			startActivity(intent);
+			break;
+		case ALREADY_LOGGED_ON:
+			// Should not happen and can be removed!
+			System.err.println("ERROR!!!!!!!!!!!!!!!!!");
+			break;
+		case UNHANDLED:
+			// Probably connection error
+			((TextView) loginErrorTextView).setText(getString(R.string.login_error_connection));
+			loginErrorTextView.setVisibility(View.VISIBLE);
+			break;
+		case WRONG_INFORMATION:
+			((TextView) loginErrorTextView).setText(getString(R.string.login_error_incorrect));
+			loginErrorTextView.setVisibility(View.VISIBLE);
+			// Display outdated version dialog if outdated version
+			// TODO: REMOVE TRUE
+			if(Session.session.isVersionOutdated()) {
+				final Context diss = this;
+				vv.post(new Runnable() {
+					public void run() {
+						Tools.displayOutdatedVersionDialog(diss);
 					}
-					break;
-				case NOT_ACTIVATED:
-					// Send user to activation view
-					ActivateUserActivity.setLoginInformation(((EditText)findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString());
-					startActivity(new Intent(dis, ActivateUserActivity.class));
-					break;
-				case INCOMPATIBLE_CLIENT_VERSION:
-					// TODO: Display information about incompatible version
-					System.out.println("INCOMPATIBLE VERSION!");
-					Tools.displayIncompatibleVersionDialog(dis);
-					break;
-				default:
-					break;
-				}
-//			}
-//		}.start();
+				});
+				// We only want the message displayed once
+				Session.session.setIsVersionOutdated(false);
+			}
+			break;
+		case NOT_ACTIVATED:
+			// Send user to activation view
+			ActivateUserActivity.setLoginInformation(((EditText)findViewById(R.id.edit_username)).getText().toString(), ((EditText) findViewById(R.id.edit_password)).getText().toString());
+			startActivity(new Intent(this, ActivateUserActivity.class));
+			break;
+		case INCOMPATIBLE_CLIENT_VERSION:
+			// TODO: Display information about incompatible version
+			System.out.println("INCOMPATIBLE VERSION!");
+			Tools.displayIncompatibleVersionDialog(this);
+			break;
+		default:
+			break;
+		}
 	}
 }
