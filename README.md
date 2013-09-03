@@ -12,4 +12,5 @@ Information about versioning: https://github.com/stianwe/DebtList/wiki/Versionin
 
 
 Old versions:
+v0.0.0.2_pre-release: https://www.dropbox.com/s/u1p0opufmj9a54b/DebtList_android_v0.0.0.2_pre-release.apk
 v0.0.0.1_pre-release: https://www.dropbox.com/s/qc0wn3zhmvzwr5h/DebtList_android_v0.0.0.1_pre-release.apk
