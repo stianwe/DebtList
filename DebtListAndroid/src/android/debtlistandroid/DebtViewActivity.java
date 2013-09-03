@@ -30,20 +30,13 @@ public class DebtViewActivity extends ListActivity {
 
 	private DebtAdapter adapter;
 	private Debt selectedDebt = null;
-	// Only for testing purposes
-	private static boolean exampleDebtsAdded = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-//		LoginActivity.context = this;
-//		LoginActivity.view = findViewById(R.layout.activity_debt_view);
-		
 		// Display information about outdated version if the version is outdated
 		if(Session.session.isVersionOutdated()) {
 			final Context dis = this;
-			System.out.println(findViewById(R.layout.activity_debt_view) + " is it null????");
 			LoginActivity.view.post(new Runnable() {
 				public void run() {
 					Tools.displayOutdatedVersionDialog(dis);
@@ -53,26 +46,14 @@ public class DebtViewActivity extends ListActivity {
 			Session.session.setIsVersionOutdated(false);
 		}
 		
-//		setContentView(R.layout.activity_debt_view);
-		
 		// Set up list view
-		if(!exampleDebtsAdded) {
-			// Add some example debts
-	//		Session.session.getUser().addConfirmedDebt(new Debt(44, 12.0, "pokes", Session.session.getUser(), new User("Arne"), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
-	//		Session.session.getUser().addConfirmedDebt(new Debt(55, 3, "Banana", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
-	//		Session.session.getUser().addConfirmedDebt(new Debt(66, 20, "kr", new User("Arne"), Session.session.getUser(), "Test", Session.session.getUser(), DebtStatus.CONFIRMED));
-//			Session.session.getUser().addPendingDebt(new Debt(77, 3, "kr", new User("Arne"), Session.session.getUser(), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
-//			Session.session.getUser().addPendingDebt(new Debt(88, 3, "kr", Session.session.getUser(), new User("Arne"), "TestPending", Session.session.getUser(), DebtStatus.REQUESTED));
-			exampleDebtsAdded = true;
-		}
 		List<List<Debt>> debts = new ArrayList<List<Debt>>();
 		debts.add(new ArrayList<Debt>());
 		// Add confirmed debts that are not completed
-//		debts.add(Session.session.getUser().getConfirmedDebts());
 		List<Debt> confirmedDebts = new ArrayList<Debt>();
 		for(Debt d : Session.session.getUser().getConfirmedDebts()) {
-			// Don't display completed debts
-			if(d.getStatus() != DebtStatus.COMPLETED) {
+			// Don't display completed debts or deleted debts
+			if(d.getStatus() != DebtStatus.COMPLETED && d.getStatus() != DebtStatus.DELETED) {
 				confirmedDebts.add(d);
 			}
 		}
@@ -231,7 +212,6 @@ public class DebtViewActivity extends ListActivity {
 					if(lastExpandedView != null) {
 						collapse(lastExpandedView);
 					}
-//					expand(v, isConfirmed);
 					expand(v, debt);
 					lastExpandedView = v;
 					selectedDebt = debt;
